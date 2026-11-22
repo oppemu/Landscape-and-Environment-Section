@@ -77,9 +77,9 @@
 
                 <!-- ช่องอัปโหลดรูปภาพ -->
                 <div class="form-group" style="margin-top: 20px;">
-                    <label for="hazardousImage">แนบรูปภาพขยะอันตราย (ถ้ามี):</label>
+                    <label for="hazardousImage">แนบรูปภาพ (จำเป็น, JPG/PNG ไม่เกิน 5 MB):</label>
                     <div class="hazard-file-picker">
-                        <input type="file" id="hazardousImage" accept="image/*" class="hazard-file-input" aria-label="เลือกภาพขยะอันตราย">
+                        <input type="file" id="hazardousImage" accept="image/jpeg,image/png" required class="hazard-file-input" aria-label="เลือกภาพขยะอันตราย">
                         <label for="hazardousImage" class="hazard-file-button">เลือกภาพ</label>
                         <span id="hazardousFileName" class="hazard-file-name" aria-live="polite">ยังไม่ได้เลือกภาพ</span>
                     </div>
@@ -156,5 +156,5 @@
     
 <script src="config.js"></script>
 <script src="connection.js"></script>
-<script src="app.js"></script></body>
+<script src="app.js?v=required-photo-receipt-20261122"></script></body>
 </html>

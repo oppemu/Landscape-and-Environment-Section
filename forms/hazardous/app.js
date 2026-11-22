@@ -51,15 +51,20 @@ function getFullThaiDate(dateString) {
 }
 
 function loadCachedAgencyData() {
-    if (localStorage.getItem('cached_building_haz')) document.getElementById('buildingName').value = localStorage.getItem('cached_building_haz');
-    if (localStorage.getItem('cached_contact_haz')) document.getElementById('contactName').value = localStorage.getItem('cached_contact_haz');
-    if (localStorage.getItem('cached_phone_haz')) document.getElementById('phone').value = localStorage.getItem('cached_phone_haz');
+    try {
+        for (const [key,id] of [['cached_building_haz','buildingName'],['cached_contact_haz','contactName'],['cached_phone_haz','phone']]) {
+            const value=localStorage.getItem(key);
+            if(value)document.getElementById(id).value=value;
+        }
+    } catch (_) {} // Optional, not needed to load or submit.
 }
 
 function saveCachedAgencyData() {
-    localStorage.setItem('cached_building_haz', document.getElementById('buildingName').value);
-    localStorage.setItem('cached_contact_haz', document.getElementById('contactName').value);
-    localStorage.setItem('cached_phone_haz', document.getElementById('phone').value);
+    try {
+        for (const [key,id] of [['cached_building_haz','buildingName'],['cached_contact_haz','contactName'],['cached_phone_haz','phone']]) {
+            localStorage.setItem(key,document.getElementById(id).value);
+        }
+    } catch (_) {} // Optional, must never affect a committed receipt.
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -283,23 +288,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ส่งข้อมูลลง Google Sheets
-    let requestId = crypto.randomUUID();
+    let requestId = null;
     form.addEventListener('submit', async e => {
       e.preventDefault();
       const btn=document.getElementById('submitBtn');
-      if(btn.disabled)return;
+      if(btn.disabled||!successPopup.classList.contains('hidden'))return;
       btn.disabled=true;btn.innerHTML='<span class="spinner"></span> กำลังส่ง';
       try {
         const items=Array.from(document.querySelectorAll('.dynamic-amount')).map(el=>({type:el.dataset.item,amount:Number(el.value),unit:el.closest('.form-group').querySelector('.dynamic-unit').value,weightKg:Number(el.closest('.form-group').querySelector('.dynamic-weight').value)}));
         const file=document.getElementById('hazardousImage').files[0];
         if(!file)throw Error('กรุณาแนบรูปภาพ');
-        if(!['image/jpeg','image/png'].includes(file.type)||file.size>5*1024*1024)throw Error('ใช้รูป JPG/PNG ไม่เกิน 5 MB');
+        if(!['image/jpeg','image/png'].includes(file.type)||file.size<1||file.size>5*1024*1024)throw Error('ใช้รูป JPG/PNG ไม่เกิน 5 MB');
         const base64=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(',')[1]);r.onerror=reject;r.readAsDataURL(file)});
+        requestId=requestId||crypto.randomUUID();
         const payload={requestId,date:dateInput.value,buildingName:document.getElementById('buildingName').value.trim(),contactName:document.getElementById('contactName').value.trim(),phone:document.getElementById('phone').value.trim(),totalWeight:updateTotalWeight(),items,image:{base64,mimeType:file.type}};
         await HazardConnection.submit(payload);
-        requestId=crypto.randomUUID();saveCachedAgencyData();successPopup.classList.remove('hidden');
-      } catch(err){alert(err.message||'ส่งไม่สำเร็จ กรุณาลองใหม่ ข้อมูลในฟอร์มยังอยู่');}
+      } catch(err){alert(err.message||'ส่งไม่สำเร็จ กรุณาลองใหม่ ข้อมูลในฟอร์มยังอยู่');return;}
       finally{btn.disabled=false;btn.textContent='ส่งข้อมูล';}
+      successPopup.classList.remove('hidden');
+      saveCachedAgencyData();
+      requestId=null;
     });
 
     // ปิด Popup เมื่อบันทึกสำเร็จ
