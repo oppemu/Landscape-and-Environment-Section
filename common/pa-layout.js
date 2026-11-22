@@ -300,19 +300,26 @@
       if(!result.count){
         setTemplateOnly(result.complete?'ไม่พบรูปสำหรับชื่อและเดือนที่เลือก':'เปิดรูปสำหรับชื่อและเดือนที่เลือกไม่ได้ทั้งหมด');return;
       }
-      const images=[...result.photos.values()].flat();
-      await Promise.race([Promise.all(images.map(async ref=>{
+      const images=[...result.photos.values()].flat(), ready=new Set();
+      let decodeTimer;
+      await Promise.race([Promise.allSettled(images.map(async ref=>{
         const image=new Image();
         image.src=ref.src; await image.decode();
         if(!image.naturalWidth||!image.naturalHeight||image.naturalWidth*image.naturalHeight>20000000)throw Error('PA photo dimensions');
-      })),deadline]);
+        ready.add(ref);
+      })),new Promise(resolve=>{decodeTimer=setTimeout(resolve,7000);})]);
+      clearTimeout(decodeTimer);
       if(!current())return;
-      renderPages(pages,data,result.photos);setDocumentName(value);
+      const decoded=new Map();
+      for(const [where,refs] of result.photos){const keep=refs.filter(ref=>ready.has(ref));if(keep.length)decoded.set(where,keep);}
+      if(!decoded.size){setTemplateOnly('รูปหลักฐานไม่สามารถแสดงได้ ลองเลือกรายงานใหม่');return;}
+      const mediaComplete=result.complete&&ready.size===images.length;
+      renderPages(pages,data,decoded);setDocumentName(value);
       const cover=mount.querySelector('.pa-paper-name');
       if(cover)cover.after(node('div',{class:'pa-paper-template-notice'},'แบบ PA พร้อมรูปประกอบงาน ไม่รวมผลประเมิน'));
       if(download){download.disabled=true;download.hidden=true;}
       if(printButton)printButton.disabled=false;
-      setAvailability(true,result.complete?'แสดงรูปจากรายงานในเดือนที่เลือก':'แสดงเฉพาะรูปที่โหลดได้ในเดือนที่เลือก');
+      setAvailability(true,mediaComplete?'แสดงรูปจากรายงานในเดือนที่เลือก':'แสดงเฉพาะรูปที่โหลดได้ในเดือนที่เลือก');
       if(download)download.disabled=true;
     }catch(_){if(current())setTemplateOnly('เปิดรูปไม่ได้ ตรวจบัญชีมหิดลแล้วลองอีกครั้ง แบบเปล่ายังใช้งานได้');}
     finally{clearTimeout(timer);}

@@ -53,11 +53,12 @@ function sumMetric(rows,month,field){
  let total=0;for(const r of chosen){const n=num(typeof field==='function'?field(r):r[field]);if(n===null)return {value:null,note:'ข้อมูลปริมาณไม่ครบ'};total+=n;}
  return {value:Math.round(total*100)/100,note:chosen.length+' รายการ'};
 }
+function hasPartialFood(payload){return payload.warnings?.food?.status==='partial';}
 function overview(payload,month,selectedBankSummary){
  const ds=payload.datasets||{},get=k=>payload.errors&&payload.errors[k]?null:ds[k];
  const waste=[['food','เศษอาหาร','weight'],['fresh','พืชสด','weight'],['general','ขยะทั่วไป',r=>r.entryStatus==='เข้า'&&num(r.beforeWeight)!==null&&num(r.afterWeight)!==null&&Number(r.afterWeight)>=Number(r.beforeWeight)?Number(r.afterWeight)-Number(r.beforeWeight):null],['hazard','ขยะอันตราย','weight'],['orphan','ขยะกำพร้า','weight']].map(([key,label,field])=>({key,label,...sumMetric(key==='general'&&Array.isArray(get(key))?get(key).filter(r=>r.entryStatus==='เข้า'):get(key),month,field)}));
  // Optional aggregate endpoint; never consume private contact/photo fields.
- for(const item of waste){const a=payload.extra&&payload.extra.month===month&&payload.extra.waste&&payload.extra.waste[item.key];if(item.key==='food'){if(!Array.isArray(get('food'))&&a?.status==='confirmed-subset'&&typeof a.kg==='number'&&Number.isFinite(a.kg)&&a.kg>=0&&Number.isSafeInteger(a.count)&&a.count>0){item.value=a.kg;item.note='เฉพาะชุดเศษอาหารที่ยืนยันแล้ว · '+a.count+' รายการ';item.subset=true;}continue;}if(a&&a.status==='ready'&&num(a.kg)!==null){item.value=Number(a.kg);item.note=String(a.count||0)+' รายการ';}else if(a&&a.status!=='ready'){item.value=null;item.note=a.status==='empty'?'ไม่มีรายการในเดือนนี้':'ยังอ่านข้อมูลไม่ได้';}}
+ for(const item of waste){const a=payload.extra&&payload.extra.month===month&&payload.extra.waste&&payload.extra.waste[item.key];if(item.key==='food'){if(hasPartialFood(payload)){item.subset=true;item.note='เฉพาะชุดที่ยืนยันได้ · '+item.note;}if(!Array.isArray(get('food'))&&a?.status==='confirmed-subset'&&typeof a.kg==='number'&&Number.isFinite(a.kg)&&a.kg>=0&&Number.isSafeInteger(a.count)&&a.count>0){item.value=a.kg;item.note='เฉพาะชุดเศษอาหารที่ยืนยันแล้ว · '+a.count+' รายการ';item.subset=true;}continue;}if(a&&a.status==='ready'&&num(a.kg)!==null){item.value=Number(a.kg);item.note=String(a.count||0)+' รายการ';}else if(a&&a.status!=='ready'){item.value=null;item.note=a.status==='empty'?'ไม่มีรายการในเดือนนี้':'ยังอ่านข้อมูลไม่ได้';}}
  waste.push({key:'recycle',label:'ขยะรีไซเคิล',...recycleMetric(selectedBankSummary||bankSummary(payload,month))});
  return {waste,...humusMetrics(get,month)};
 }
@@ -275,12 +276,12 @@ const numberFormat=new Intl.NumberFormat('th-TH',{maximumFractionDigits:2}),fmt=
   const inScope=()=>{try{return epoch===generation&&root.UnifiedApi.endpoint()===endpoint&&JSON.stringify(root.HubSelectedProfile?.get())===JSON.stringify(selected);}catch(_){return false;}};
   function paint(){
    if(!inScope())return;
-   const payload={datasets:{...latest.report?.datasets},errors:{...latest.report?.errors},extra:latest.extra};
+   const payload={datasets:{...latest.report?.datasets},errors:{...latest.report?.errors},warnings:{...latest.report?.warnings},extra:latest.extra};
    if(latest.municipal){payload.datasets.general=latest.municipal.records;delete payload.errors.general;}
    render(payload,month);
    button.disabled=remaining>0;
    if(remaining>0)button.classList.add('is-loading');else button.classList.remove('is-loading');
-   const incomplete=failed.size||Object.keys(payload.errors).length||['hazard','orphan'].some(k=>latest.extra?.waste[k]?.status==='error');
+   const incomplete=failed.size||Object.keys(payload.errors).length||hasPartialFood(payload)||['hazard','orphan'].some(k=>latest.extra?.waste[k]?.status==='error');
    status.textContent=remaining>0?(preview.size?'แสดงข้อมูลที่โหลดไว้ · กำลังอัปเดต':Object.keys(latest).length?'แสดงข้อมูลที่อ่านได้แล้ว · กำลังโหลดส่วนที่เหลือ':'กำลังอ่านข้อมูล'):
     (incomplete?'อ่านได้บางส่วน · ช่อง — ยังไม่มีข้อมูลที่ยืนยัน':'แสดงข้อมูล · กดรีเฟรชเพื่ออ่านใหม่');
   }
