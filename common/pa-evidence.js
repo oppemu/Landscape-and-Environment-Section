@@ -72,6 +72,34 @@
     }
     return evidence;
   }
+
+  function groupPhotoMedia(response,{month,displayName,pages}){
+    if(!months.test(month)||response?.version!==1||response.ok!==true||
+       response.month!==month||text(response.displayName)!==text(displayName)||
+       !text(displayName)||!Array.isArray(response.items)||response.items.length>24||
+       typeof response.complete!=='boolean')throw Error('PA photo envelope');
+    const {keys,parent,rendered}=sourceIndex(pages), photos=new Map();
+    let count=0,total=0;
+    for(const row of response.items){
+      if(typeof row?.topicCode!=='string'||typeof row.assignmentLabel!=='string'||!validKey(row.assignmentKey)||
+         typeof row.workDate!=='string'||!/^20\d{2}-\d{2}-\d{2}$/.test(row.workDate)||row.workDate.slice(0,7)!==month||
+         !Array.isArray(row.photos)||!row.photos.length||row.photos.length>3)throw Error('PA photo item');
+      const code=digits(row.topicCode), label=topicLabel(row.assignmentLabel), candidates=keys.get(code)||[];
+      const dest=row.placement==='assigned-work'
+       ?parent.length===1&&parent[0].code===code&&label===topicLabel(parent[0].line.text)?'assigned:'+code:null
+       :row.placement==='topic'&&rendered.has(code)&&candidates.length===1&&candidates[0]===label?code:null;
+      if(!dest)throw Error('PA photo topic mismatch');
+      const images=row.photos.map(photo=>{
+        const src=safeImage(photo);
+        const bytes=photo.data.length/4*3-(photo.data.endsWith('==')?2:photo.data.endsWith('=')?1:0);
+        if(++count>3||bytes>2000000||(total+=bytes)>6000000)throw Error('PA photo limit');
+        return {src};
+      });
+      photos.set(dest,[...(photos.get(dest)||[]),...images]);
+    }
+    return {photos,count,complete:response.complete};
+  }
+
   function previewLinks(result, report, month){
     if(result?.ok!==true||result.version!==1||result.month!==month||result.reportId!==report.reportId||result.assignmentKey!==report.assignmentKey||
        !Array.isArray(result.photos)||result.photos.length>3)throw Error('PA preview response');
@@ -83,6 +111,6 @@
       return {drivePreview:photo.href.slice(0,-4)+'preview',driveViewer:photo.href,reportId:report.reportId};
     });
   }
-  if(typeof module!=='undefined')module.exports={period,periodFor,group,previewLinks};
-  else window.PaEvidence=Object.freeze({period,periodFor,group,previewLinks});
+  if(typeof module!=='undefined')module.exports={period,periodFor,group,previewLinks,groupPhotoMedia};
+  else window.PaEvidence=Object.freeze({period,periodFor,group,previewLinks,groupPhotoMedia});
 })();

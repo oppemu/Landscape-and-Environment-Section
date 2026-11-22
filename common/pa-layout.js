@@ -156,6 +156,8 @@
   if(!publicOrigin)renderPages(blank);
   else setAvailability(false,'พิมพ์ชื่อและเลือกต้นแบบ PA ที่พบ');
   let selectedName='',templateAbort,epoch=0,printing=false;
+  const privatePhotoButton=document.getElementById('pa-layout-private-photos');
+  let privatePhotoSelection=null;
   const clearPrint=()=>{document.body.classList.remove('pa-print-active');printing=false;};
   addEventListener('afterprint',clearPrint);
   printButton?.addEventListener('click',async()=>{
@@ -181,6 +183,7 @@
     if(download)download.textContent='ดาวน์โหลด PDF (ไม่รวมรูป)';
     epoch++; templateAbort?.abort();templateAbort=null;selectedName='';
     mount.dataset.templateAvailable='';
+    if(publicOrigin&&privatePhotoButton){privatePhotoSelection=null;privatePhotoButton.hidden=true;privatePhotoButton.disabled=false;privatePhotoButton.textContent='ดูรูปประกอบ (บัญชีมหิดล)';if(download)download.hidden=false;}
     if(publicOrigin){mount.replaceChildren();mount.paPdfSnapshot=null;setAvailability(false,'พิมพ์ชื่อและเลือกต้นแบบ PA ที่พบ');return;}
     if(wasSelected)renderPages(blank);
     if(status){status.hidden=true;status.textContent='';}
@@ -212,6 +215,7 @@
 
       renderPages(pages,{name:value,pages,_renderPeriod:selectedPeriod});setDocumentName(value);
       setTemplateOnly('แบบเปล่าสาธารณะ ไม่รวมผลการประเมินหรือหลักฐาน');
+      if(privatePhotoButton)privatePhotoButton.hidden=false;
       return;
     }
     if(!privateOrigin){setAvailability(false,'ยังไม่มีต้นแบบ PA ของชื่อนี้ในเว็บที่เปิดอยู่');return;}
@@ -278,6 +282,55 @@
     }catch(_){if(epoch===turn&&location.hash==='#pa-online')setAvailability(false,'เปิดต้นแบบ PA ไม่สำเร็จ กรุณาลองเลือกชื่ออีกครั้ง');}
     finally{clearTimeout(timer);if(epoch===turn)templateAbort=null;}
   }
+
+  async function loadSelectedPhotoMedia(){
+    const value=selectedName, pages=publicCatalog?.get(value), selectedPeriod=reportPeriod(), turn=epoch;
+    if(!publicOrigin||location.hash!=='#pa-online'||!pages||!privatePhotoButton||privatePhotoButton.disabled)return;
+    const api=window.UnifiedApi;
+    if(typeof api?.request!=='function'||typeof api.endpoint!=='function'){
+      setTemplateOnly('ยังเปิดรูปไม่ได้ แบบเปล่ายังใช้งานได้');
+      return;
+    }
+    const current=()=>epoch===turn&&location.hash==='#pa-online'&&selectedName===value&&reportPeriod().month===selectedPeriod.month;
+    privatePhotoButton.disabled=true;
+    setAvailability(true,'กำลังตรวจสิทธิ์บัญชีมหิดลและโหลดรูป…');
+    let timer;
+    try{
+      const data={name:value,pages,_renderPeriod:selectedPeriod};
+      const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('PA photo timeout')),20000);});
+      const response=await Promise.race([api.request({action:'paWorkReportPhotoMedia',selectedName:value,month:selectedPeriod.month},api.endpoint()),deadline]);
+      if(!current())return;
+      const result=window.PaEvidence.groupPhotoMedia(response,{month:selectedPeriod.month,displayName:value,pages});
+      if(!result.count){
+        setTemplateOnly(result.complete?'ไม่พบรูปสำหรับชื่อและเดือนที่เลือก':'เปิดรูปสำหรับชื่อและเดือนที่เลือกไม่ได้ทั้งหมด');return;
+      }
+      const images=[...result.photos.values()].flat();
+      await Promise.race([Promise.all(images.map(async ref=>{
+        const image=new Image();
+        image.src=ref.src; await image.decode();
+        if(!image.naturalWidth||!image.naturalHeight||image.naturalWidth*image.naturalHeight>20000000)throw Error('PA photo dimensions');
+      })),deadline]);
+      if(!current())return;
+      renderPages(pages,data,result.photos);setDocumentName(value);
+      const cover=mount.querySelector('.pa-paper-name');
+      if(cover)cover.after(node('div',{class:'pa-paper-template-notice'},'แบบ PA พร้อมรูปประกอบงาน ไม่รวมผลประเมิน'));
+      if(download){download.disabled=true;download.hidden=true;}
+      if(printButton)printButton.disabled=false;
+      privatePhotoSelection={value,month:selectedPeriod.month,complete:result.complete};
+      privatePhotoButton.textContent='กลับไปดูแบบเปล่า';
+      setAvailability(true,result.complete?'แสดงรูปจากรายงานในเดือนที่เลือก':'แสดงเฉพาะรูปที่โหลดได้ในเดือนที่เลือก');
+      if(download)download.disabled=true;
+    }catch(_){if(current())setTemplateOnly('เปิดรูปไม่ได้ ตรวจบัญชีมหิดลแล้วลองอีกครั้ง แบบเปล่ายังใช้งานได้');}
+    finally{clearTimeout(timer);if(current())privatePhotoButton.disabled=false;}
+  }
+  if(publicOrigin&&privatePhotoButton){
+    privatePhotoButton.addEventListener('click',()=>{
+      if(privatePhotoSelection)selectTemplate(selectedName);
+      else loadSelectedPhotoMedia();
+    });
+    addEventListener('mu:profile-changed',()=>{if(selectedName&&location.hash==='#pa-online')selectTemplate(selectedName);});
+  }
+
   async function renderDrivePhotos(evidence,data,value,turn){
     const month=data._renderPeriod.month, endpoint=window.UnifiedApi.endpoint();
     const jobs=[...evidence].flatMap(([topic,list])=>list.map(report=>({topic,report})));
