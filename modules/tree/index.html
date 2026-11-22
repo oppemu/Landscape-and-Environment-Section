@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>แดชบอร์ด · แผนที่ต้นไม้</title>
+    <link rel="stylesheet" href="vendor/leaflet.css" />
+    <link rel="stylesheet" href="tree.css?v=color2-search1" /><link rel="stylesheet" href="../../common/popup-select.css"><script src="../../common/popup-select.js" defer></script>
+  <script src="../../common/thai-date.js" defer></script><link rel="stylesheet" href="../../common/theme-unified.css"><link rel="stylesheet" href="../../common/popup-theme.css"><script src="../../common/popup-theme.js" defer></script><link rel="stylesheet" href="../../common/app-form.css"><link rel="stylesheet" href="../../common/file-picker.css"><link rel="stylesheet" href="../../common/forms-theme.css?v=1"></head>
+  <body class="waste-module">
+    <main aria-label="แผนที่ต้นไม้ในมหาวิทยาลัย">
+      <div class="tree-search"><label for="tree-search">ค้นหาต้นไม้</label> <input id="tree-search" type="text" role="combobox" aria-autocomplete="list" aria-controls="tree-options" aria-expanded="false" placeholder="รหัส หรือชื่อต้นไม้" autocomplete="off"><div id="tree-options" class="tree-options" role="listbox" hidden></div></div>
+      <aside id="tree-history" hidden aria-label="ประวัติต้นไม้"><button id="history-close" type="button">ปิด</button><h2 id="history-title"></h2><div id="history-content"></div></aside>
+      <div id="map" aria-label="แผนที่ตำแหน่งต้นไม้"></div>
+      <div id="map-status" role="status" aria-live="polite">
+        กำลังโหลดจุดต้นไม้…
+      </div>
+      <details id="map-info">
+        <summary>ข้อมูลแผนที่</summary>
+        <p id="source-status">กำลังอ่านทะเบียนต้นไม้</p>
+        <p>อ่านสดจากฐานข้อมูล OPPE งานรุกขกรรมต้นไม้ แท็บ Data แบบอ่านอย่างเดียว ไม่แก้ไขหรือย้ายข้อมูลต้นฉบับ</p>
+        <p>
+          พื้นหลังเวกเตอร์ OpenStreetMap ณ 7 พฤศจิกายน 2569 แสดงอาคาร ถนน และแหล่งน้ำโดยไม่มีป้ายชื่อ ไม่ส่งพิกัดต้นไม้ให้บริการแผนที่
+        </p>
+      </details>
+    </main>
+    <script src="../../config/app-config.js"></script>
+    <script src="../../common/form-photo.js"></script>
+<script src="../../common/durable-outbox.js"></script><script src="../../common/unified-client.js"></script>
+    <script src="vendor/leaflet.js"></script>
+    <script src="adapter.js"></script>
+
+    <script src="history.js?v=search2"></script><script src="campus-basemap.js"></script><script src="tree.js?v=color9"></script>
+  <script src="../../common/time24.js?v=2.4.32"></script></body>
+</html>
