@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<script src="../../config/app-config.js"></script>
+<script src="../../common/form-photo.js"></script>
+<script src="../../common/durable-outbox.js"></script><script src="../../common/unified-client.js"></script>
+<script src="../../common/runtime.js"></script>
+<script src="../../common/bridge.js" data-module="humusquality"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ผลผลิตฮิวมัสแห้ง</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../../common/app-form.css">
+<script src="../../common/thai-date.js" defer></script><link rel="stylesheet" href="../../common/theme-unified.css"><link rel="stylesheet" href="../../common/popup-select.css">
+<script src="../../common/popup-select.js" defer></script>
+<link rel="stylesheet" href="../../common/popup-theme.css"><script src="../../common/popup-theme.js" defer></script><link rel="stylesheet" href="../../common/file-picker.css"><link rel="stylesheet" href="../../common/forms-theme.css?v=1"></head>
+<body class="waste-module">
+    <div class="container">
+        <form id="humusForm" autocomplete="off">
+            <!-- รวมทุกอย่างไว้ในการ์ดก้อนเดียวกันทั้งหมด -->
+            <div class="card">
+                
+                <!-- ส่วนหัวและโลโก้ (ไม่มีเส้นขอบ) -->
+                <div class="header" style="text-align: center; margin-bottom: 20px;">
+                    <img src="โลโก้กองกายภาพ.png" alt="โลโก้กองกายภาพและสิ่งแวดล้อม" class="header-logo" style="width: 100%; max-width: 250px; margin-bottom: 15px; height: auto;">
+                    <h2 style="color: #1e5631; margin-top: 0; font-size: 24px;">ผลผลิตฮิวมัสแห้ง</h2>
+                </div>
+
+                <!-- ข้อมูลทั่วไป -->
+                <div class="form-group">
+                    <label for="date">วัน/เดือน/ปี</label>
+                    <input type="date" id="date">
+                </div>
+                
+                <!-- ช่องผู้บันทึกข้อมูลพร้อม Dropdown แนะนำชื่อ -->
+                <div class="form-group autocomplete-container">
+                    <label for="recorder">ผู้บันทึกข้อมูล</label>
+                    <input type="text" id="recorder" placeholder="พิมพ์ตัวอักษรแรกเพื่อค้นหาชื่อ" autocomplete="off">
+                    <div id="autocompleteList" class="autocomplete-dropdown hidden"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="volume">ปริมาณผลผลิตฮิวมัส (กิโลกรัม)</label>
+                    <input type="number" id="volume" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+                </div>
+
+                <!-- รายการประเมิน -->
+                <div class="form-group">
+                    <label>ขนาดของฮิวมัส ไม่เกิน 12.5X12.5 mm.</label>
+                    <input type="hidden" id="sizeCheck">
+                    <div class="qc-btn-group" data-target="sizeCheck">
+                        <button type="button" class="qc-btn" data-value="ผ่าน">ผ่าน</button>
+                        <button type="button" class="qc-btn" data-value="ไม่ผ่าน">ไม่ผ่าน</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>หินและกรวด (> 5 mm.) ไม่เกิน 5% ของน้ำหนัก</label>
+                    <input type="hidden" id="stoneCheck">
+                    <div class="qc-btn-group" data-target="stoneCheck">
+                        <button type="button" class="qc-btn" data-value="ผ่าน">ผ่าน</button>
+                        <button type="button" class="qc-btn" data-value="ไม่ผ่าน">ไม่ผ่าน</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>พลาสติก แก้ว วัสดุมีคมและโลหะอื่นๆ ต้องไม่มี</label>
+                    <input type="hidden" id="foreignCheck">
+                    <div class="qc-btn-group" data-target="foreignCheck">
+                        <button type="button" class="qc-btn" data-value="ผ่าน">ผ่าน</button>
+                        <button type="button" class="qc-btn" data-value="ไม่ผ่าน">ไม่ผ่าน</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>ความเป็นกรด ด่าง PH 5.5-8.5</label>
+                    <input type="hidden" id="phLevel">
+                    <div class="qc-btn-group" data-target="phLevel">
+                        <button type="button" class="qc-btn" data-value="ผ่าน">ผ่าน</button>
+                        <button type="button" class="qc-btn" data-value="ไม่ผ่าน">ไม่ผ่าน</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>ปริมาณความชื้นและสิ่งที่ระเหยได้ ไม่เกิน 35%</label>
+                    <input type="hidden" id="moistureCheck">
+                    <div class="qc-btn-group" data-target="moistureCheck">
+                        <button type="button" class="qc-btn" data-value="ผ่าน">ผ่าน</button>
+                        <button type="button" class="qc-btn" data-value="ไม่ผ่าน">ไม่ผ่าน</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>ต้องไม่มีกลิ่น ที่ไม่พึงประสงค์</label>
+                    <input type="hidden" id="odorCheck">
+                    <div class="qc-btn-group" data-target="odorCheck">
+                        <button type="button" class="qc-btn" data-value="ผ่าน">ผ่าน</button>
+                        <button type="button" class="qc-btn" data-value="ไม่ผ่าน">ไม่ผ่าน</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="width:100%; margin-top:20px;">
+                <label for="qualityPhoto">รูปประกอบ (ไม่บังคับ)</label>
+                <input id="qualityPhoto" type="file" multiple accept="image/jpeg,image/png,image/webp" style="display:block;width:100%;box-sizing:border-box;">
+            </div>
+            <button type="submit" id="submitBtn">บันทึกข้อมูล</button>
+</form>
+    </div>
+
+    <!-- Popup บันทึกสำเร็จ -->
+    <div id="successPopup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <div class="popup-icon">✓</div>
+            <h3>บันทึกข้อมูลสำเร็จ</h3>
+            <p>ระบบได้บันทึกข้อมูลฮิวมัสเรียบร้อยแล้ว</p>
+            <p style="font-size: 16px; margin-top: 15px; color: #888;">(แตะที่ใดก็ได้เพื่อปิดหน้าต่างนี้)</p>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

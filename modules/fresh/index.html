@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<script src="../../config/app-config.js"></script>
+<script src="../../common/form-photo.js"></script>
+<script src="../../common/durable-outbox.js"></script><script src="../../common/unified-client.js"></script>
+<script src="../../common/runtime.js"></script>
+<script src="../../common/bridge.js" data-module="fresh"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>บันทึกปริมาณการรับเข้าพืชสด</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../../common/app-form.css">
+<script src="../../common/thai-date.js" defer></script><link rel="stylesheet" href="../../common/theme-unified.css"><link rel="stylesheet" href="../../common/popup-select.css">
+<script src="../../common/popup-select.js" defer></script>
+<link rel="stylesheet" href="../../common/popup-theme.css"><script src="../../common/popup-theme.js" defer></script><link rel="stylesheet" href="../../common/file-picker.css"><link rel="stylesheet" href="../../common/forms-theme.css?v=1"></head>
+<body class="waste-module">
+    <div class="container">
+        <!-- ส่วนหัวและโลโก้ -->
+        <div class="header">
+            <img src="โลโก้กองกายภาพ.png" alt="โลโก้กองกายภาพและสิ่งแวดล้อม" class="header-logo" style="width: 100%; max-width: 250px; margin-bottom: 15px; height: auto;">
+            <h2 style="color: #1e5631; margin-top: 0;">บันทึกปริมาณการรับเข้าพืชสด</h2>
+        </div>
+
+        <form id="plantIntakeForm">
+            <!-- ส่วนข้อมูลทั่วไปของผู้ส่ง -->
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="date">วัน/เดือน/ปี:</label>
+                    <input type="date" id="date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="provider">ผู้ให้ข้อมูล</label>
+                    <input type="text" id="provider" placeholder="คลิกเพื่อเลือกผู้ให้ข้อมูล" readonly style="cursor: pointer;">
+                </div>
+
+                <div class="form-group">
+                    <label for="fullName">ชื่อ-สกุล:</label>
+                    <input type="text" id="fullName" placeholder="กรอกชื่อ-นามสกุล">
+                </div>
+
+                <div class="form-group autocomplete-wrapper">
+                    <label for="department">ส่วนงาน:</label>
+                    <input type="text" id="department" placeholder="พิมพ์เพื่อค้นหาส่วนงาน/คณะ/กอง" autocomplete="off">
+                    <ul id="departmentDropdown" class="custom-dropdown hidden"></ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">เบอร์ติดต่อกลับ:</label>
+                    <input type="text" id="phone" placeholder="กรอกเบอร์โทรศัพท์" inputmode="tel">
+                </div>
+            </div>
+
+            <!-- ส่วนข้อมูลรายละเอียดพืชสดและการขนส่ง -->
+            <div class="form-section" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
+                <div class="form-group">
+                    <label for="licensePlate">ทะเบียนรถ:</label>
+                    <input type="text" id="licensePlate" placeholder="เช่น กข 1234 นครปฐม">
+                </div>
+
+                <div class="form-group">
+                    <label for="activity">จากกิจกรรม/สถานที่</label>
+                    <input type="text" id="activity" placeholder="เช่น ตัดแต่งกิ่งไม้ประจำปี, ปรับปรุงภูมิทัศน์">
+                </div>
+
+                <!-- เพิ่มฟิลด์เลือกประเภทพืชสด -->
+                <div class="form-group">
+                    <label for="plantCategory">ประเภทพืชสด:</label>
+                    <input type="text" id="plantCategory" placeholder="คลิกเพื่อเลือกประเภทพืชสด" readonly style="cursor: pointer;">
+                </div>
+
+                <!-- ค้นหาชนิดของพืชแบบ Prefix Autocomplete -->
+                <div class="form-group autocomplete-wrapper">
+                    <label for="plantType">ชนิดของพืช (ไม่บังคับ):</label>
+                    <input type="text" id="plantType" placeholder="พิมพ์ชื่อต้นไม้ (แสดงเฉพาะคำที่ขึ้นต้นตรงกัน)" autocomplete="off">
+                    <ul id="plantTypeDropdown" class="custom-dropdown hidden"></ul>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--primary-color);">น้ำหนัก (กิโลกรัม):</label>
+                    <input type="number" id="weight" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+                </div>
+                
+                <!-- เพิ่มช่องอัปโหลดรูปภาพตรงนี้ -->
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="plantImage">แนบรูปประกอบ (ไม่บังคับ):</label>
+                    <input type="file" multiple id="plantImage" accept="image/jpeg,image/png,image/webp" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-family: 'Anuphan', sans-serif; background-color: #fff; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">บันทึกข้อมูลรับเข้า</button>
+        </form>
+    </div>
+
+    <!-- Popup แจ้งเตือนเมื่อบันทึกสำเร็จ -->
+    <div id="successPopup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <div class="popup-icon">✓</div>
+            <h3>บันทึกข้อมูลสำเร็จ</h3>
+            <p>ระบบได้บันทึกข้อมูลการรับเข้าพืชสดเรียบร้อยแล้ว</p>
+            <p style="font-size: 14px; margin-top: 15px; color: #888;">(แตะที่ใดก็ได้เพื่อปิดหน้าต่างนี้)</p>
+        </div>
+    </div>
+
+    <!-- Popup เลือกประเภทผู้ให้ข้อมูล -->
+    <div id="providerPopup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <h3>เลือกผู้ให้ข้อมูล</h3>
+            <div class="provider-options">
+                <button type="button" class="provider-btn" data-value="บุคลากร">บุคลากร</button>
+                <button type="button" class="provider-btn" data-value="Outsource">Outsource</button>
+                <button type="button" class="provider-btn" data-value="บุคคลภายนอก">บุคคลภายนอก</button>
+            </div>
+            <button type="button" class="close-popup-btn" id="closeProviderPopup">ยกเลิก</button>
+        </div>
+    </div>
+
+    <!-- Popup เลือกประเภทพืชสด (ธีมใหม่ แก้ไขเป็น Checkbox เพื่อให้เลือกได้หลายอัน) -->
+    <div id="categoryPopup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <h3 style="color: #1e5631; margin-bottom: 20px;">เลือกประเภทพืชสด</h3>
+            <p style="color:#526257">ไม่รับหญ้า</p>
+            <div class="option-list">
+                <label class="theme-option">
+                    <input type="checkbox" name="categorySelect" value="เศษกิ่งไม้">
+                    <span class="theme-checkbox"></span>
+                    เศษกิ่งไม้
+                </label>
+                <label class="theme-option">
+                    <input type="checkbox" name="categorySelect" value="ใบไม้">
+                    <span class="theme-checkbox"></span>
+                    ใบไม้
+                </label>
+            </div>
+            <button type="button" class="theme-confirm-btn" id="confirmCategoryBtn">ตกลง</button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
