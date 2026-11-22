@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob:; connect-src 'none'; frame-src https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com; form-action 'none'"
+    />
+    <title>รายงานเหตุการณ์</title>
+    <link rel="stylesheet" href="style.css" />
+  <script src="../../common/thai-date.js" defer></script><link rel="stylesheet" href="../../common/theme-unified.css"><link rel="stylesheet" href="../../common/popup-select.css">
+<script src="../../common/popup-select.js" defer></script>
+<link rel="stylesheet" href="../../common/popup-theme.css"><script src="../../common/popup-theme.js" defer></script><link rel="stylesheet" href="../../common/app-form.css"><link rel="stylesheet" href="../../common/file-picker.css"><link rel="stylesheet" href="../../common/forms-theme.css?v=1"></head>
+  <body class="waste-module">
+    <main>
+      <form id="incident-form">
+        <div class="row">
+          <label>วันที่<input id="incidentDate" type="date" /></label
+          ><label>เวลา<input id="incidentTime" type="time" /></label>
+        </div>
+        <label
+          >งานที่เกี่ยวข้อง<select id="workType">
+            <option value="">เลือกงาน</option>
+            <option>ดูแลต้นไม้และภูมิทัศน์</option>
+            <option>จัดการเศษอาหารและพืชสด</option>
+            <option>ผลิตและจำหน่ายปุ๋ย</option>
+            <option>ธนาคารขยะ</option>
+            <option>ขยะอันตราย</option>
+            <option>อื่น ๆ</option>
+          </select></label
+        >
+        <div class="row">
+          <label
+            >ประเภทปัญหา<select id="problemType">
+              <option value="">เลือกประเภท</option>
+              <option>ความปลอดภัย</option>
+              <option>เครื่องมือหรืออุปกรณ์</option>
+              <option>พื้นที่ปฏิบัติงาน</option>
+              <option>สิ่งแวดล้อม</option>
+              <option>การประสานงาน</option>
+              <option>อื่น ๆ</option>
+            </select></label
+          ><label
+            >ความเร่งด่วน<select id="urgency">
+              <option>ปกติ</option>
+              <option>เร่งด่วน</option>
+              <option>เร่งด่วนมาก</option>
+            </select></label
+          >
+        </div>
+        <label>จุดที่พบ<input id="location" maxlength="500" /></label
+        ><label
+          >ปัญหาที่พบ<textarea
+            id="description"
+            rows="3"
+            maxlength="4000"
+           
+          ></textarea></label
+        ><label
+          >กระทบงานอย่างไร<textarea
+            id="workImpact"
+            rows="2"
+            maxlength="1000"
+           
+          ></textarea></label
+        ><label
+          >การแก้ไขเบื้องต้น (ถ้ามี)<textarea
+            id="initialAction"
+            rows="2"
+            maxlength="1000"
+          ></textarea></label
+        ><label>ผู้รายงาน<input id="reporterName" readonly /></label>
+        <p class="hint">ใช้ชื่อที่เลือกในแอพ ไม่ใช่การยืนยันตัวตน</p>
+        <label
+          >รูปประกอบ (จำเป็นอย่างน้อย 1 รูป) · ไม่เกิน 3 รูป<input
+            id="photos"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+        /></label>
+        <p class="hint">
+          ไม่เกิน 5 MB ต่อรูป · ตรวจภาพก่อนแนบ ไม่ใส่ข้อมูลส่วนบุคคลที่ไม่จำเป็น
+        </p>
+        <div id="photo-list"></div>
+        
+        <button type="button" id="review-incident">ตรวจรายงาน</button>
+      </form>
+    </main>
+    <script src="../../config/app-config.js"></script>
+    <script src="../../common/form-photo.js"></script>
+<script src="../../common/durable-outbox.js"></script><script src="../../common/unified-client.js"></script>
+    <script src="model.js"></script>
+    <script src="script.js"></script>
+  <script src="../../common/time24.js?v=2.4.32"></script></body>
+</html>
