@@ -1,0 +1,25 @@
+#pa-work-view {max-width:760px;margin:clamp(16px,4vw,36px) auto;padding:clamp(18px,4vw,28px);border:1px solid #d3e5d8;border-radius:16px;background:#fff;color:#19382a}
+#pa-work-view h1{margin:10px 0 8px}
+#pa-work-fields{display:grid;gap:8px;border:1px solid #d3e5d8;border-radius:10px;padding:14px}
+#pa-work-fields input,#pa-work-fields select,#pa-work-fields textarea{width:100%;min-height:44px;margin:0 0 8px;font:inherit}
+#pa-work-fields:disabled{opacity:.65}
+#pa-work-fields:disabled :is(input,select,textarea,button){cursor:not-allowed}
+#pa-work-fields button{margin:7px 0 0}
+#pa-work-identity[hidden]{display:none!important}
+
+
+#pa-work-collaborators[hidden],#pa-work-peer-list select[hidden]{display:none!important}
+#pa-work-collaborators{border:1px solid var(--form-theme-line,#d9e2d9);border-radius:8px;padding:9px 12px;margin:0;min-width:0}
+#pa-work-peer-list{display:grid;gap:7px;max-height:270px;overflow:auto}
+#pa-work-peer-list .pa-work-peer{display:grid;grid-template-columns:minmax(130px,.8fr) minmax(0,1fr);align-items:center;gap:9px}
+#pa-work-peer-list label{display:flex;align-items:center;gap:7px;margin:0;min-height:44px;overflow-wrap:anywhere}
+#pa-work-peer-list input[type=checkbox]{width:18px;min-height:18px;margin:0;accent-color:var(--form-theme-green,#226146)}
+#pa-work-peer-list select{margin:0}
+@media(max-width:550px){#pa-work-peer-list .pa-work-peer{grid-template-columns:1fr;gap:2px}}
+
+#pa-work-fields :is(#pa-work-date,#pa-work-description){box-sizing:border-box;max-width:100%;min-width:0;padding:10px 12px;border:1px solid var(--form-theme-line,#c8ddce);border-radius:12px;background:#f8fbf9;color:#19382a;line-height:1.45}
+#pa-work-fields #pa-work-date{color-scheme:light}
+#pa-work-fields #pa-work-description{min-height:112px;resize:vertical}
+#pa-work-fields :is(#pa-work-date,#pa-work-description):focus{outline:2px solid var(--form-theme-green,#226146);outline-offset:2px;border-color:var(--form-theme-green,#226146);background:#fff}
+#pa-work-fields:disabled :is(#pa-work-date,#pa-work-description){background:#eef3ef;color:#415e4d}
+@media(max-width:550px){#pa-work-fields :is(#pa-work-date,#pa-work-description){font-size:16px}}

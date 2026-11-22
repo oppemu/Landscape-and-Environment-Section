@@ -1,0 +1,35 @@
+/* Visual inspiration: supplied Mahidol PE service-icon reference.
+ * Uses existing local SVGs, never downloads website graphics or alters PDF/forms. */
+@media screen {
+ #forms-view{--pe-ink:#294d3c;--pe-edge:#dce9d4;}
+ #forms-view .welcome{align-items:center;gap:18px;padding:4px 0 20px;margin-bottom:10px;border-bottom:1px solid #edf2e9;}
+ #forms-view .welcome h1{color:var(--pe-ink);font-weight:600;letter-spacing:-.02em;}
+ #forms-view .cards{gap:20px;padding-block:16px 24px;}
+ #forms-view .card{align-items:center;text-align:center;justify-content:flex-start;min-height:214px;padding:26px 18px 22px;border:1px solid var(--pe-edge);border-radius:22px;background:#fff!important;box-shadow:0 3px 14px #34562906;overflow:hidden;isolation:isolate;transition:transform .34s cubic-bezier(.34,1.56,.64,1),background-color .22s ease,box-shadow .24s ease,border-color .24s ease;}
+ #forms-view .card-icon{display:grid;place-items:center;width:104px;height:104px;flex:0 0 104px;margin:0 auto 16px;border-radius:50%;background:#e2edc8;color:#376347;box-shadow:inset 0 0 0 1px #ffffff66;transform-origin:center;transition:transform .32s ease,background-color .24s ease;}
+ #forms-view .card:nth-child(3n+2) .card-icon{background:#d6ecd5;color:#316948;}
+ #forms-view .card:nth-child(3n) .card-icon{background:#d4eee6;color:#286a5b;}
+ #forms-view .card-icon svg{width:48px;height:48px;stroke-width:1.6;}
+ #forms-view .card h3{margin:0;max-width:26ch;color:var(--pe-ink);font-size:19px;line-height:1.5;font-weight:500;overflow-wrap:anywhere;}
+ #forms-view .card:focus-visible{outline:3px solid #46752d!important;outline-offset:4px;box-shadow:0 10px 25px #34562919;}
+ #forms-view .card:active{background:#c9dfa9!important;color:#203019!important;transform:translateY(2px) scale(.98)!important;box-shadow:inset 0 2px 8px #34562916;}
+ #forms-view .card:active .card-icon{transform:scale(.94);}
+ .bottom-nav .nav-icon{transition:transform .24s ease;}
+}
+@media screen and (hover:hover) and (pointer:fine){
+ #forms-view .card:hover{transform:translateY(-5px);border-color:#a4c579;box-shadow:0 14px 30px #34562914;}
+ #forms-view .card:hover .card-icon{transform:translateY(-3px) rotate(-5deg) scale(1.04);}
+ .bottom-nav a:hover .nav-icon{transform:translateY(-2px);}
+}
+@media screen and (min-width:1200px){#forms-view .cards{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}}
+@media screen and (max-width:600px){
+ #forms-view .cards{gap:12px;padding-top:12px;}
+ #forms-view .card{min-height:174px;padding:20px 10px 16px;border-radius:18px;}
+ #forms-view .card-icon{width:78px;height:78px;flex-basis:78px;margin-bottom:12px;}
+ #forms-view .card-icon svg{width:38px;height:38px;}
+ #forms-view .card h3{font-size:16px;line-height:1.45;}
+}
+@media screen and (prefers-reduced-motion:reduce){
+ #forms-view .card,#forms-view .card-icon,.bottom-nav .nav-icon{animation:none!important;transition:none!important;}
+ #forms-view .card:hover,#forms-view .card:active,#forms-view .card:hover .card-icon,#forms-view .card:active .card-icon,.bottom-nav a:hover .nav-icon{transform:none!important;}
+}

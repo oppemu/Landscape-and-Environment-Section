@@ -1,0 +1,51 @@
+/* Food form only. Controls align vertically at every width, preserving shared theme. */
+@media screen{
+ body main{max-width:800px;padding:24px 20px 40px;}
+ #foodPrepareForm .fields{grid-template-columns:minmax(0,1fr);gap:22px;}
+ #foodPrepareForm label{display:block;min-width:0;font-weight:500;line-height:1.6;}
+ #foodPrepareForm input,#foodLocationChoose{width:100%;min-height:52px;box-sizing:border-box;margin-top:8px;}
+ #foodLocationChoose{display:flex;align-items:center;justify-content:space-between;text-align:left;padding:12px 16px!important;white-space:normal;font-weight:500!important;}
+ #foodLocationChoose::after{content:'⌄';margin-left:12px;flex:none;}
+ #foodPrepareForm small{font-size:14px;line-height:1.5;margin-top:6px;font-weight:400;}
+ #foodPrepareButton{display:block;width:100%;min-height:52px;margin-top:26px;}
+ #foodLocationDialog{width:min(560px,calc(100vw - 24px));}
+ #foodLocationOptions{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;max-height:55dvh;overflow:auto;padding:4px;}
+ #foodLocationOptions .food-location-option{display:block;width:100%;min-height:48px;margin:0;text-align:left;white-space:normal;}
+ #foodLocationOptions button[aria-pressed=true]{background:#d9e9c8!important;color:#203019!important;border-color:#46752d!important;}
+ #foodLocationCancel{display:block;width:100%;margin-top:18px;}
+}
+@media screen and (max-width:550px){body main{padding:18px 12px 28px;}body main>.card{padding:18px 14px;}#foodPrepareForm .fields{gap:18px;}}
+
+@media screen{.food-sites{border:0;padding:0;margin:0;min-width:0;}.food-sites legend{font-size:21px;font-weight:600;}.food-sites>p{font-size:15px;margin:6px 0 18px;}.food-site{padding:18px 0;border-bottom:1px solid #dbe5df;}.food-site>span{display:block;}.food-weight-field{margin-top:8px;font-size:16px;}.food-sites input{width:100%;}.food-sites .food-site:first-of-type{padding-top:0;}}
+
+.food-sites{display:grid!important;grid-template-columns:1fr!important;gap:16px;grid-column:1/-1}.food-point{background:#fff;border:1px solid #dbe5df;border-radius:14px;padding:18px}.food-point h2{margin:0 0 12px;font-size:20px;font-weight:500;color:#222}.food-point label{margin-top:12px}.food-total{grid-column:1/-1;background:#f2f7ef;border-radius:14px;padding:18px}.food-total input{background:#fff;font-weight:400}.food-point input{width:100%}
+
+/* Location accordion: native buttons preserve keyboard access and entered values. */
+.food-point{padding:0;overflow:hidden}.food-point h2{margin:0}.food-point-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0;padding:18px 20px!important;border:0!important;border-radius:13px!important;background:#fff!important;color:#20362b!important;text-align:left;font:inherit;transition:background .18s ease,box-shadow .18s ease}.food-point-toggle:hover{background:#edf5e6!important;box-shadow:inset 0 0 0 1px #b8cfa6}.food-point-toggle[aria-expanded="true"]{background:#dcebcf!important}.food-point-toggle:focus-visible{outline:3px solid #527b3d;outline-offset:-4px}.food-chevron{transition:transform .2s ease}.food-point-toggle[aria-expanded="true"] .food-chevron{transform:rotate(180deg)}.food-point-panel{padding:4px 20px 20px}.food-point-panel[hidden]{display:none!important}.food-point-panel textarea{display:block;width:100%;box-sizing:border-box;margin-top:8px;padding:12px;border:1px solid #b9ccc1;border-radius:8px;font:inherit;resize:vertical;color:inherit;background:#fff}.food-point-panel label{font-size:16px}#foodPrepareButton.is-loading::before{content:"";display:inline-block;width:18px;height:18px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:middle;margin-right:10px;animation:foodSpin .75s linear infinite}@keyframes foodSpin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.food-point-toggle,.food-chevron{transition:none}}
+
+.food-point-toggle.is-complete{background:#dcebcf!important;}
+
+/* Expanded collection stops: each numbered header has its own high-contrast shade. */
+@media screen {
+ #foodPrepareForm .food-point:nth-child(1){--food-head:#20583f;--food-body:#e8f3eb;--food-line:#85a995;}
+ #foodPrepareForm .food-point:nth-child(2){--food-head:#234973;--food-body:#eaf0f8;--food-line:#8da6c0;}
+ #foodPrepareForm .food-point:nth-child(3){--food-head:#265c5a;--food-body:#e7f3f2;--food-line:#88aaa7;}
+ #foodPrepareForm .food-point:nth-child(4){--food-head:#63466b;--food-body:#f4eaf5;--food-line:#b79cbd;}
+ #foodPrepareForm .food-point:nth-child(5){--food-head:#745319;--food-body:#f7f0df;--food-line:#c6af7b;}
+ #foodPrepareForm .food-point:nth-child(6){--food-head:#7c4133;--food-body:#f7eae5;--food-line:#bd9388;}
+ #foodPrepareForm .food-point:nth-child(7){--food-head:#495429;--food-body:#f0f3e5;--food-line:#a4ad81;}
+ #foodPrepareForm .food-point:nth-child(8){--food-head:#4b475f;--food-body:#f0eef5;--food-line:#a6a0b8;}
+ #foodPrepareForm .food-point:nth-child(9){--food-head:#77435b;--food-body:#f8eaf0;--food-line:#be98aa;}
+ #foodPrepareForm .food-point{background:var(--food-body)!important;border-color:var(--food-line)!important;}
+ #foodPrepareForm .food-point .food-point-toggle{background:var(--food-head)!important;color:#fff!important;border-radius:0!important;min-height:54px;font-weight:700;}
+ #foodPrepareForm .food-point .food-point-toggle:hover{box-shadow:inset 0 0 0 2px #fff7;}
+ #foodPrepareForm .food-point .food-point-toggle:focus-visible{outline:3px solid #fff;outline-offset:-5px;}
+ #foodPrepareForm .food-point .food-point-toggle.is-complete .food-chevron::before{content:'✓';margin-inline-end:.55rem;display:inline-block;transform:rotate(0);}
+ #foodPrepareForm .food-point .food-point-toggle.is-complete[aria-expanded="true"] .food-chevron::before{transform:rotate(180deg);}
+ #foodPrepareForm .food-point-panel label{color:#172825!important;font-weight:650;}
+ #foodPrepareForm .food-point-panel :is(input,textarea){background:#fff!important;color:#172825!important;border-color:var(--food-line)!important;}
+}
+@media screen and (max-width:390px){
+ #foodPrepareForm .food-point .food-point-toggle{padding:12px!important;gap:8px;}
+ #foodPrepareForm .food-point-panel{padding-inline:12px;}
+}

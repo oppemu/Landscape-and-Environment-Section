@@ -1,0 +1,135 @@
+/* Desktop-only layout. Mobile and printed reports retain their existing styles. */
+@media screen and (min-width: 900px) {
+  .app-shell {
+    --desk-base:#101713; --desk-panel:#18231c; --desk-edge:#3e5646;
+    --desk-ink:#f4faf5; --desk-muted:#c4d2c8; --desk-green:#57cf7a;
+  }
+  .app-shell:has(#forms-view:not([hidden])) #main {
+    padding:clamp(9px,1vw,16px);
+    min-height:100dvh;
+    background:radial-gradient(ellipse at 82% 3%,#263c2a 0%,transparent 46%),var(--desk-base);
+    color:var(--desk-ink);
+  }
+  #forms-view:not([hidden]) {
+    width:100%; min-width:0; display:flex; flex-direction:column; gap:10px;
+    min-height:calc(100dvh - 2 * clamp(9px,1vw,16px));
+  }
+  #overview .profile-storage-status:not([hidden]) {
+    color:#f3d99a; margin:0; padding:6px 10px; border:1px solid #6e5c33;
+    background:#302819; border-radius:8px;
+  }
+  #forms-view .welcome {
+    width:100%; max-width:none; margin:0; padding:10px 15px; flex:0 0 auto;
+    background:linear-gradient(112deg,#285037 0%,#1a3023 56%,#19241e 100%);
+    border:1px solid #497056; border-left:4px solid var(--desk-green); border-radius:10px;
+    box-shadow:0 4px 16px #0006,inset 0 1px #ccffd522;
+  }
+  #forms-view .welcome h1 { color:var(--desk-ink); line-height:1.2; font-size:clamp(22px,2.1vw,32px); margin:0; }
+  #forms-view .welcome .preview-tag {
+    color:#d9ecdd !important; background:#203a2b !important; border-color:#4c7358 !important;
+  }
+  #forms-view #cards.cards {
+    width:100%; max-width:none; min-width:0; flex:1 0 auto; margin:0; padding:0; gap:10px;
+    grid-template-columns:repeat(4,minmax(0,1fr)); grid-auto-rows:minmax(142px,1fr);
+    align-content:stretch;
+  }
+  #forms-view #cards .card {
+    --card-accent:#5ed782;
+    min-width:0; min-height:142px; padding:clamp(13px,1.5vw,23px) 12px;
+    border:1px solid #3b5544; border-top-color:#557b60; border-radius:11px;
+    background:linear-gradient(151deg,#23372a,#17221b 72%) !important;
+    color:var(--desk-ink) !important;
+    box-shadow:inset 0 1px #c1ffcf17,0 5px 14px #0007;
+  }
+  #forms-view #cards .card:nth-child(3n+2) { --card-accent:#63c9b1; }
+  #forms-view #cards .card:nth-child(3n) { --card-accent:#a4d25a; }
+  #forms-view #cards .card .card-icon {
+    width:clamp(56px,6vw,94px); height:clamp(56px,6vw,94px);
+    flex:0 0 clamp(56px,6vw,94px); margin-bottom:10px;
+    background:radial-gradient(circle at 30% 20%,#345b41,#203d2b 68%);
+    border:1px solid #577c60; color:var(--card-accent);
+    box-shadow:0 4px 10px #0006,inset 0 1px #90d9a13d;
+  }
+  #forms-view #cards .card .card-icon svg { width:clamp(30px,3vw,49px); height:clamp(30px,3vw,49px); }
+  #forms-view #cards .card h3 { color:var(--desk-ink) !important; max-width:none; margin:0; }
+  #forms-view #cards .card:is(:hover,:focus-visible) {
+    background:linear-gradient(151deg,#2c4b36,#1e3024 72%) !important;
+    border-color:var(--card-accent); box-shadow:0 8px 20px #0009,inset 0 1px #d5ffdf2b;
+    transform:none;
+  }
+
+
+
+  #dashboard-overview:not([hidden]) {
+    width:100%; max-width:none; min-width:0; min-height:100dvh;
+    padding-inline:clamp(10px,1.3vw,20px);
+    background:#152019 !important; color:var(--desk-ink);
+  }
+  #dashboard-overview :is(#home-dashboard-title,.dash-section-title) { color:var(--desk-ink); }
+  #dashboard-overview :is(.dash-subtitle,#dashboard-period) { color:var(--desk-muted); }
+}
+
+/* Lighter desktop surfaces + purposeful motion. */
+@keyframes oppe-desktop-arrive {
+  from { opacity:.65; transform:translateY(9px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@media screen and (min-width:900px) {
+  .app-shell {
+    --desk-base:#e9eeea; --desk-ink:#173529; --desk-muted:#405e4e; --desk-green:#73db95;
+  }
+  .app-shell:has(#forms-view:not([hidden])) #main {
+    background:radial-gradient(ellipse at 78% 0%,#fff 0%,transparent 48%),var(--desk-base);
+  }
+  #forms-view .welcome {
+    background:linear-gradient(110deg,#20633f,#2d7950 64%,#396848);
+    border-color:#36744d; border-left-color:#a5e6a5;
+    box-shadow:0 5px 16px #17372732,inset 0 1px #efffec44;
+  }
+  #forms-view .welcome h1 { color:#fff; }
+  #forms-view .welcome .preview-tag { background:#154e31 !important; color:#fff !important; border-color:#9bd6a9 !important; }
+  #forms-view #cards .card {
+    --card-accent:#237a49;
+    background:linear-gradient(150deg,#ffffff,#f3f6f3 88%) !important;
+    color:var(--desk-ink) !important; border-color:#c2d1c6; border-top-color:#8eae98;
+    border-radius:14px; box-shadow:0 6px 18px #2442321d,inset 0 1px #fff;
+    transition:transform .24s cubic-bezier(.2,.75,.3,1),box-shadow .24s ease,border-color .24s ease;
+    animation:oppe-desktop-arrive .4s cubic-bezier(.2,.75,.3,1) backwards;
+  }
+  #forms-view #cards .card:nth-child(3n+2) { --card-accent:#176f5e; }
+  #forms-view #cards .card:nth-child(3n) { --card-accent:#407221; }
+  #forms-view #cards .card:nth-child(4n+2) { animation-delay:.04s; }
+  #forms-view #cards .card:nth-child(4n+3) { animation-delay:.08s; }
+  #forms-view #cards .card:nth-child(4n) { animation-delay:.12s; }
+  #forms-view #cards .card .card-icon {
+    background:radial-gradient(circle at 26% 18%,#33865b,var(--card-accent) 75%);
+    border-color:#307b51; color:#fff;
+    box-shadow:0 5px 12px #183e2c38,inset 0 1px #fff5;
+    transition:transform .24s cubic-bezier(.2,.75,.3,1);
+  }
+  #forms-view #cards .card:is(:hover,:focus-visible) {
+    background:linear-gradient(150deg,#fff,#f4f8f4) !important;
+    border-color:var(--card-accent); box-shadow:0 11px 23px #294f3940;
+    transform:translateY(-3px);
+  }
+  #forms-view #cards .card:is(:hover,:focus-visible) .card-icon { transform:translateY(-2px) scale(1.05); }
+  #forms-view #cards .card:active { transform:translateY(0) scale(.99) !important; }
+
+  #dashboard-overview:not([hidden]) { background:#edf1ed !important; }
+}
+@media screen and (min-width:900px) and (prefers-reduced-motion:reduce) {
+  #forms-view #cards .card, #forms-view #cards .card .card-icon { animation:none !important; transition:none !important; }
+  #forms-view #cards .card:is(:hover,:focus-visible,:active),
+  #forms-view #cards .card:is(:hover,:focus-visible) .card-icon { transform:none !important; }
+}
+
+/* Decorative mascot stays within the compact desktop heading. */
+.oppe-earth-mascot { display:none; }
+@media screen and (min-width:900px) {
+  #forms-view .welcome { justify-content:flex-start; gap:12px; }
+  #forms-view .welcome .preview-tag { margin-inline-start:auto; }
+  #forms-view .welcome .oppe-earth-mascot {
+    display:block; flex:0 0 56px; width:56px; height:56px; margin-block:-6px;
+    object-fit:contain; pointer-events:none; filter:drop-shadow(0 3px 4px #102d2666);
+  }
+}

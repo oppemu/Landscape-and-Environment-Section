@@ -1,0 +1,129 @@
+/* Shared visual language taken from the Forms cards. Screen only: print and PDF keep their layout. */
+@media screen {
+  :root {
+    --form-theme-canvas: #f4f6f1;
+    --form-theme-surface: #fff;
+    --form-theme-line: #d9e2d9;
+    --form-theme-ink: #173829;
+    --form-theme-muted: #4b6356;
+    --form-theme-green: #226146;
+    --form-theme-green-dark: #194e38;
+    --form-theme-wash: #eff5ef;
+    --form-theme-radius: 10px;
+    --form-theme-shadow: 0 2px 4px #1536290a;
+  }
+
+  .app-shell > #main,
+  .app-shell:has(#forms-view:not([hidden])) > #main {
+    background: var(--form-theme-canvas);
+    color: var(--form-theme-ink);
+  }
+  body.profile-required,
+  body.profile-required #profile-dialog::backdrop {
+    background: var(--form-theme-canvas) !important;
+  }
+  #profile-dialog,
+  #change-dialog,
+  #install-help {
+    background: var(--form-theme-surface);
+    color: var(--form-theme-ink);
+    border: 1px solid var(--form-theme-line);
+    border-top: 4px solid var(--form-theme-green) !important;
+    border-radius: var(--form-theme-radius);
+    box-shadow: 0 12px 32px #15362924;
+  }
+  #profile-dialog > form { background: transparent; }
+  #profile-dialog .profile-entry-brand h2,
+  #settings-title,
+  #bank-import-title,
+  #report-view-title,
+  #module-title,
+  #home-dashboard-title,
+  body.waste-module :is(h1, h2, legend) {
+    color: var(--form-theme-ink);
+  }
+  #profile-dialog :is(.dialog-intro, .privacy-note),
+  #pwa-status {
+    color: var(--form-theme-muted);
+  }
+  #profile-dialog #profile-name {
+    border: 1px solid var(--form-theme-line);
+    border-radius: var(--form-theme-radius);
+    color: var(--form-theme-ink);
+  }
+  #profile-dialog #profile-name:focus-visible {
+    outline: 2px solid var(--form-theme-green) !important;
+    outline-offset: 2px !important;
+  }
+  #profile-dialog #profile-start,
+  #bank-import-view #bank-direct-open,
+  #report-view #print,
+  #dashboard-overview #dashboard-refresh,
+  #settings-view #install-app,
+  body.waste-module form :is(button[type="submit"], input[type="submit"], .btn-submit):not(.danger):not(.delete-btn):not(.remove-btn) {
+    background: var(--form-theme-green) !important;
+    color: #fff !important;
+    border-color: var(--form-theme-green) !important;
+    border-radius: var(--form-theme-radius);
+  }
+  #profile-dialog #profile-start:not(:disabled):hover,
+  #bank-import-view #bank-direct-open:not(:disabled):hover,
+  #report-view #print:not(:disabled):hover,
+  #dashboard-overview #dashboard-refresh:not(:disabled):hover,
+  #settings-view #install-app:not(:disabled):hover,
+  body.waste-module form :is(button[type="submit"], input[type="submit"], .btn-submit):not(.danger):not(.delete-btn):not(.remove-btn):not(:disabled):hover {
+    background: var(--form-theme-green-dark) !important;
+  }
+  #settings-view .pwa-actions,
+  #bank-import-view,
+  #report-view .report-controls,
+  #landscape-report-view .landscape-period-bar,
+  #dashboard-overview .dash-panel,
+  #dashboard-overview .dash-section-box {
+    background: var(--form-theme-surface);
+    border: 1px solid var(--form-theme-line);
+    border-radius: var(--form-theme-radius);
+    box-shadow: var(--form-theme-shadow);
+  }
+  #settings-view .pwa-actions,
+  #bank-import-view,
+  #report-view .report-controls { padding: clamp(12px, 2vw, 20px); }
+  #bank-import-view > :is(h2,p) { margin-block: 0 10px; }
+  #dashboard-overview.home-dashboard:not([hidden]) {
+    background: var(--form-theme-canvas) !important;
+    border-color: var(--form-theme-line);
+    border-radius: var(--form-theme-radius);
+  }
+  #dashboard-overview .dashboard-heading { color: var(--form-theme-ink); }
+  #dashboard-overview .dash-section-title { color: var(--form-theme-ink); }
+  #dashboard-overview .dash-five .dash-stat {
+    border-color: var(--form-theme-line) !important;
+    border-radius: var(--form-theme-radius);
+  }
+  .app-shell #module-view:not([hidden]) .module-toolbar {
+    background: var(--form-theme-surface);
+    border-bottom: 1px solid var(--form-theme-line);
+  }
+  .app-shell #module-view #module-status:not([data-level="error"]) {
+    color: var(--form-theme-muted);
+  }
+  body.waste-module,
+  body.waste-module.app-embedded {
+    background: var(--form-theme-canvas) !important;
+    color: var(--form-theme-ink) !important;
+  }
+  body.waste-module:not(.app-embedded) :is(.container, main > .card),
+  body.waste-module :is(.inventory-shell .panel, .inventory-shell .notice, .food-point) {
+    border-color: var(--form-theme-line) !important;
+    border-radius: var(--form-theme-radius);
+    box-shadow: var(--form-theme-shadow);
+  }
+  body.waste-module form :is(input:not([type]), input[type="text"], input[type="number"], input[type="date"], textarea, select):focus-visible {
+    outline: 2px solid var(--form-theme-green);
+    outline-offset: 2px;
+  }
+}
+
+@media screen and (max-width: 899px) {
+  #navigation.bottom-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

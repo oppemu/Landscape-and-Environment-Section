@@ -1,0 +1,24 @@
+/* dialog ใช้ top layer ของเบราว์เซอร์และ backdrop แยกจากหน้าเดิม; จำกัดความสูงรายการให้เลื่อนได้บนมือถือ; focus-visible แสดงตำแหน่งคีย์บอร์ด */
+/* ซ่อนเฉพาะหน้าตา select ไม่ตัดออกจากแบบฟอร์มหรือ native validation */
+select.mu-choice-native { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:0!important; opacity:0!important; pointer-events:none!important; overflow:hidden!important; }
+.mu-choice-trigger { display:block; width:100%; min-height:44px; padding:10px 36px 10px 12px; border:1px solid #bed3c5; border-radius:10px; background:#fff; color:#202820; text-align:left; font:inherit; font-family:Anuphan,sans-serif; cursor:pointer; }
+.mu-choice-trigger::after { content:'⌄'; float:right; }
+.mu-choice-trigger:disabled { opacity:.55; cursor:not-allowed; }
+.mu-choice-trigger[hidden] { display:none!important; }
+.mu-choice-trigger:focus-visible,.mu-choice-dialog button:focus-visible { outline:3px solid #a4c579; outline-offset:2px; }
+.mu-choice-dialog { border:0; border-radius:16px; padding:20px; width:min(460px,calc(100vw - 32px)); max-height:80vh; box-sizing:border-box; color:#202820; background:#fff; font-family:Anuphan,sans-serif; box-shadow:0 16px 70px #12332633; }
+.mu-choice-dialog::backdrop { background:#20282066; }
+.mu-choice-dialog h2 { font-size:18px; margin:0 0 14px; }
+.mu-choice-options { display:grid; gap:8px; max-height:55vh; overflow:auto; }
+.mu-choice-dialog button { font:inherit; min-height:44px; padding:10px 14px; border:1px solid #bed3c5; border-radius:10px; background:#fff; color:inherit; text-align:left; cursor:pointer; }
+.mu-choice-options button[aria-pressed=true] { background:#e3f0d7; color:#202820; }
+.mu-choice-options button:disabled { opacity:.45; cursor:not-allowed; }
+.mu-choice-dialog .mu-choice-close { width:100%; text-align:center; margin-top:14px; background:#e3f0d7; color:#202820; }
+@media print { .mu-choice-dialog,.mu-choice-trigger { display:none!important; } }
+
+/* ตัวเลือกทุกหน้าใช้สีเดียวกัน แม้เปิดโมดูลเดี่ยว */
+.mu-choice-dialog { border:1px solid #bed3c5; border-top:5px solid #a4c579; border-radius:20px; padding:24px; }
+.mu-choice-dialog .mu-choice-close { background:#fff; color:#202820; border-color:#a4c579; }
+.mu-choice-dialog button { transition:background-color .16s ease,transform .16s ease; }
+.mu-choice-dialog button:hover:not(:disabled) { background:#f2f7ec; }
+.mu-choice-dialog button:active:not(:disabled) { background:#e3f0d7; transform:scale(.98); }

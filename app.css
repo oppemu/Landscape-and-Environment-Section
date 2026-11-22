@@ -1,0 +1,803 @@
+/* กรอบแอปบนหน้าจอ: เมนู การ์ด และพื้นที่ฟอร์ม ใช้ responsive breakpoint แยกมือถือ/จอกว้าง; กฎ @media print ซ่อนส่วนควบคุมไม่ให้ปะปนเอกสาร */
+:root {
+  --primary: #1e5631;
+  --secondary: #4c9a2a;
+  --bg: #f4f7f6;
+  --ink: #333;
+  --muted: #737d76;
+  --line: #e0e6e2;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Anuphan, Tahoma, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+button,
+input {
+  font: inherit;
+}
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  cursor: pointer;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+.app-shell {
+  min-height: 100dvh;
+}
+.masthead {
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 18px;
+  gap: 12px;
+}
+.brand {
+  display: block;
+  line-height: 0;
+}
+.brand img {
+  width: 210px;
+  max-width: 100%;
+  height: auto;
+}
+.profile-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 120px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 5px 9px 5px 5px;
+  color: var(--primary);
+  font-size: 12px;
+}
+#profile-initial {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #edf3ee;
+  font-size: 13px;
+}
+#profile-short {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+main {
+  padding: 22px 18px 85px;
+}
+.welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.welcome h1 {
+  font-size: 23px;
+  color: var(--primary);
+}
+.preview-tag {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: normal;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  min-height: 104px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  transition: border-color 0.15s;
+}
+.card:hover {
+  border-color: var(--secondary);
+}
+.card-icon {
+  display: block;
+  color: var(--primary);
+  line-height: 0;
+}
+.card-icon svg {
+  width: 27px;
+  height: 27px;
+}
+.card h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 10px;
+}
+.card-arrow {
+  display: none;
+}
+.bottom-nav {
+  position: fixed;
+  z-index: 8;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  height: 68px;
+  background: white;
+  border-top: 1px solid var(--line);
+  padding: 7px 15px max(7px, env(safe-area-inset-bottom));
+}
+.bottom-nav a,
+.bottom-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 10px;
+  border: 0;
+  background: none;
+  color: #828a84;
+  padding: 0;
+}
+.nav-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 25px;
+}
+.nav-icon svg {
+  width: 23px;
+  height: 23px;
+}
+.bottom-nav [aria-current] {
+  color: var(--primary);
+  font-weight: bold;
+}
+.module-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 56px;
+  padding: 7px 14px;
+  background: white;
+  flex-shrink: 0;
+}
+.module-toolbar h2 {
+  font-size: 18px;
+  flex: 1;
+  color: var(--primary);
+}
+.back-button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: #fff;
+  font-size: 25px;
+  flex-shrink: 0;
+}
+#module-status {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 0 18px 9px;
+  min-height: 25px;
+  line-height: 16px;
+  background: white;
+  flex-shrink: 0;
+}
+#module-status[data-level='error'] {
+  color: #9a392e;
+}
+.module-active {
+  overflow: hidden;
+}
+.module-active .masthead {
+  display: none;
+}
+.module-active .brand img {
+  width: 180px;
+}
+.module-active main {
+  height: calc(100dvh - 68px);
+  padding: 0;
+  overflow: hidden;
+  background: white;
+}
+#module-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+#frames {
+  flex: 1;
+  min-height: 0;
+}
+iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: white;
+  border-radius: 0;
+}
+.report-controls {
+  padding: 0 0 10px;
+}
+.eyebrow {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.report-heading h2 {
+  font-size: 23px;
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+.month-label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+input[type='month'] {
+  display: block;
+  margin: 7px 0 12px;
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink);
+  padding: 10px 12px;
+}
+.report-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.button {
+  display: inline-block;
+  text-align: center;
+  min-height: 46px;
+  border: 1px solid var(--primary);
+  border-radius: 7px;
+  padding: 11px 14px;
+  background: var(--primary);
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+.secondary {
+  background: white;
+  color: var(--primary);
+  border-color: var(--line);
+}
+#import-status {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 6px 0 15px;
+}
+.report-scroll {
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+.skip {
+  position: absolute;
+  top: -100px;
+  background: white;
+  padding: 10px;
+  z-index: 30;
+}
+.skip:focus {
+  top: 0;
+}
+[hidden] {
+  display: none !important;
+}
+:focus-visible {
+  outline: 3px solid var(--secondary);
+  outline-offset: 3px;
+}
+dialog {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  max-width: calc(100vw - 32px);
+  width: 370px;
+  padding: 26px;
+  color: var(--ink);
+  box-shadow: 0 12px 70px #10271924;
+}
+dialog::backdrop {
+  background: #15241c66;
+}
+dialog h2 {
+  font-size: 22px;
+  color: var(--primary);
+  margin-bottom: 9px;
+}
+.dialog-intro {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+dialog label {
+  font-size: 13px;
+  display: block;
+  margin-bottom: 8px;
+}
+#profile-name {
+  width: 100%;
+  border: 1px solid #bdcbc0;
+  border-radius: 7px;
+  background: white;
+  min-height: 50px;
+  padding: 12px;
+  font-size: 18px;
+  color: var(--ink);
+}
+#profile-error {
+  font-size: 12px;
+  color: #a63c2d;
+  min-height: 23px;
+  padding-top: 3px;
+}
+.start-button {
+  width: 100%;
+  font-weight: bold;
+}
+.text-button {
+  display: block;
+  border: 0;
+  background: none;
+  padding: 13px;
+  font-size: 13px;
+  width: 100%;
+  color: var(--muted);
+}
+.privacy-note {
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+#change-dialog p {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 15px 0 22px;
+}
+#change-dialog .button {
+  width: 100%;
+}
+@media (min-width: 900px) {
+  .app-shell {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-rows: 145px 1fr;
+    min-height: 100dvh;
+  }
+  .masthead {
+    grid-column: 1;
+    grid-row: 1;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 220px;
+    height: 145px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    padding: 27px 18px 20px;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+    gap: 23px;
+  }
+  .brand img {
+    width: 184px;
+  }
+  .profile-chip {
+    max-width: 184px;
+  }
+  .bottom-nav {
+    position: fixed;
+    top: 145px;
+    bottom: 0;
+    width: 220px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 17px 12px;
+    border-top: 0;
+    border-right: 1px solid var(--line);
+  }
+  .bottom-nav a,
+  .bottom-nav button {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 13px;
+    font-size: 14px;
+    padding: 12px 14px;
+    border-radius: 7px;
+    min-height: 48px;
+  }
+  .bottom-nav [aria-current] {
+    background: #edf4ee;
+  }
+  .bottom-nav #nav-profile {
+    margin-top: auto;
+  }
+  .bottom-nav .nav-icon {
+    width: 24px;
+  }
+  .app-shell main {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    padding: 42px 38px;
+    min-width: 0;
+  }
+  .welcome {
+    margin-bottom: 26px;
+    max-width: 1200px;
+  }
+  .welcome h1 {
+    font-size: 28px;
+  }
+  .preview-tag {
+    font-size: 12px;
+  }
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 1200px;
+  }
+  .card {
+    min-height: 138px;
+    padding: 23px 19px;
+    border-radius: 10px;
+  }
+  .card h3 {
+    font-size: 16px;
+    margin-top: 17px;
+  }
+  .card-icon svg {
+    width: 30px;
+    height: 30px;
+  }
+  .report-controls {
+    display: grid;
+    grid-template-columns: 1fr 200px auto;
+    align-items: end;
+    gap: 20px;
+  }
+  .report-heading h2 {
+    margin: 0;
+  }
+  .report-actions {
+    display: flex;
+    flex-wrap: wrap; /* ปุ่มเชื่อมชีตไม่ดันหน้ารายงานล้นจอ */
+    white-space: normal;
+  }
+  input[type='month'] {
+    margin-bottom: 0;
+  }
+  .module-active .masthead {
+    display: flex;
+    width: 220px;
+    height: 145px;
+    padding: 27px 18px 20px;
+  }
+  .module-active .brand img {
+    width: 184px;
+  }
+  .module-active main {
+    height: 100dvh;
+    padding: 0;
+    overflow: hidden;
+    background: white;
+  }
+  .module-toolbar {
+    min-height: 66px;
+    padding: 12px 24px;
+  }
+  .module-toolbar h2 {
+    font-size: 22px;
+  }
+  #module-status {
+    padding: 0 32px 12px;
+  }
+  .report-scroll {
+    max-width: 100%;
+  }
+}
+@media print {
+  .app-shell {
+    display: block;
+    min-height: 0;
+  }
+  .masthead,
+  .bottom-nav,
+  dialog {
+    display: none !important;
+  }
+  .app-shell main {
+    padding: 0;
+    height: auto;
+  }
+  .report-scroll {
+    overflow: visible;
+    padding: 0;
+  }
+  .module-active {
+    overflow: visible;
+  }
+}
+
+.module-profile {
+  max-width: 110px;
+  min-height: 40px;
+  border: 0;
+  background: none;
+  color: var(--primary);
+  padding: 8px;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+@media (min-width: 900px) {
+  .module-profile {
+    display: none;
+  }
+}
+.roster-options {
+  max-height: 190px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  margin-top: 8px;
+}
+.roster-options button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: white;
+  color: #333;
+  font: inherit;
+  font-size: 14px;
+  padding: 10px 12px;
+  min-height: 42px;
+}
+.roster-options button:hover {
+  background: #edf4ee;
+}
+.profile-storage-status {
+  font-size: 12px;
+  color: #815f27;
+  margin-bottom: 12px;
+}
+
+/* Dashboard content is only the rectangular map; global navigation remains. */
+.dashboard-active .module-toolbar,
+.dashboard-active #module-status {
+  display: none;
+}
+.dashboard-active #frames {
+  min-height: 0;
+  background: #fff;
+}
+
+.pwa-actions {
+  margin-top: 22px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+.pwa-actions .text-button {
+  display: inline-block;
+  width: auto;
+  font-size: 13px;
+}
+#pwa-status {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0 12px;
+}
+#install-help p {
+  font-size: 14px;
+  margin: 14px 0;
+  line-height: 1.7;
+}
+#install-help .privacy-note {
+  text-align: left;
+  font-size: 12px;
+}
+@media print {
+  .pwa-actions {
+    display: none !important;
+  }
+}
+
+/* ตัวตรวจไฟล์ธนาคารขยะไม่เปลี่ยนฟอร์มและไม่แสดงในหน้ารายงานพิมพ์ */
+.bank-import-panel { margin: 1rem 0; padding: 1rem; border: 1px solid #bcc9bf; border-radius: 0.6rem; background: #fff; }
+.bank-import-panel summary { cursor: pointer; font-weight: 600; }
+.bank-import-panel input[type=file] { max-width: 100%; margin: 0.5rem 0; }
+.bank-import-scroll { overflow: auto; max-height: 24rem; margin: 1rem 0; }
+.bank-import-scroll table { border-collapse: collapse; width: 100%; }
+.bank-import-scroll th, .bank-import-scroll td { border: 1px solid #b6c3b9; padding: 0.35rem; text-align: left; overflow-wrap: anywhere; }
+@media print { .bank-import-panel { display: none !important; } }
+
+/* Dedicated import is a home function, never part of the printed report. */
+#bank-import-view { max-width: 900px; margin: 1rem auto; padding: 1.5rem; border: 1px solid #d9e5dd; border-radius: 16px; background: #fff; }
+#bank-import-view p { line-height: 1.7; }
+@media print { #bank-import-view { display: none !important; } }
+
+/* Import-page layout is scoped and never changes document/letter typography. */
+#bank-import-view { box-sizing:border-box; width:100%; max-width:1000px; height:auto; min-height:0; line-height:1.65; overflow-wrap:anywhere; }
+#bank-import-view > * { position:static; float:none; }
+#bank-import-view h2 { display:block; line-height:1.4; margin:1rem 0 .75rem; }
+#bank-import-view p { display:block; height:auto; min-height:0; margin:.8rem 0; line-height:1.65; white-space:normal; }
+#bank-import-view .bank-upload-controls { display:flex; flex-wrap:wrap; align-items:center; gap:.8rem; margin:1.25rem 0; }
+#bank-import-view label { display:block; flex-basis:100%; line-height:1.6; }
+#bank-import-view input[type=file] { max-width:100%; min-width:0; font:inherit; line-height:1.5; }
+#bank-import-view .button { display:inline-flex; align-items:center; justify-content:center; width:auto; max-width:100%; height:auto; min-height:44px; padding:.7rem 1rem; line-height:1.5; white-space:normal; }
+#bank-import-view button:disabled { opacity:.55; cursor:not-allowed; }
+#bank-upload-status { padding:.8rem 1rem; border-radius:8px; background:#eef5f0; }
+#bank-import-view .bank-upload-scroll { max-width:100%; overflow:auto; max-height:28rem; margin:1rem 0; }
+#bank-import-view table { width:100%; border-collapse:collapse; font-size:14px; line-height:1.6; }
+#bank-import-view caption { text-align:left; padding:.5rem 0; }
+#bank-import-view th,#bank-import-view td { border:1px solid #b6c3b9; padding:.5rem .65rem; text-align:left; vertical-align:top; min-width:5rem; }
+#bank-import-view th { background:#edf4ee; }
+@media(max-width:600px) { #bank-import-view { padding:1rem; } #bank-import-view .bank-upload-controls { align-items:stretch; flex-direction:column; } #bank-import-view .button { width:100%; } }
+
+#bank-import-view .bank-home-link{display:inline-block;width:auto;height:auto;font-size:16px;line-height:1.5;white-space:nowrap;margin-bottom:16px;}
+#bank-direct-open[hidden]{display:none}
+
+/* v2.3.9: เมนู PC แคบคงที่ เปิดทับเนื้อหาเมื่อ hover/focus ไม่ขยับกรอบงาน */
+@media screen and (min-width:900px){
+ .app-shell{grid-template-columns:76px minmax(0,1fr);}
+ .app-shell .masthead,.app-shell .bottom-nav{width:76px;z-index:1100;overflow:hidden;transition:width .18s ease;}
+ .app-shell .masthead{padding:24px 16px;}
+ .app-shell .brand{display:block;width:42px;overflow:hidden;flex-shrink:0;}
+ .app-shell .brand img{max-width:none;width:184px;}
+ .app-shell .profile-chip{width:42px;max-width:208px;padding:6px;flex-shrink:0;}
+ .app-shell #profile-short{opacity:0;width:0;white-space:nowrap;}
+ .app-shell .bottom-nav{padding:17px 8px;}
+ .app-shell .bottom-nav a,.app-shell .bottom-nav button{width:100%;gap:13px;padding:12px 17px;white-space:nowrap;}
+ .app-shell .bottom-nav .nav-icon{flex:0 0 24px;}
+ .app-shell .bottom-nav a>span:not(.nav-icon),.app-shell .bottom-nav button>span:not(.nav-icon){opacity:0;width:0;overflow:hidden;}
+ .app-shell:has(.masthead:hover,.masthead :focus-visible,.bottom-nav:hover,.bottom-nav :focus-visible) .masthead,
+ .app-shell:has(.masthead:hover,.masthead :focus-visible,.bottom-nav:hover,.bottom-nav :focus-visible) .bottom-nav{width:240px;box-shadow:10px 0 24px #14352618;}
+ .app-shell:has(.masthead:hover,.masthead :focus-visible,.bottom-nav:hover,.bottom-nav :focus-visible) .brand{width:208px;}
+ .app-shell:has(.masthead:hover,.masthead :focus-visible,.bottom-nav:hover,.bottom-nav :focus-visible) .profile-chip{width:208px;}
+ .app-shell:has(.masthead:hover,.masthead :focus-visible,.bottom-nav:hover,.bottom-nav :focus-visible) #profile-short,
+ .app-shell:has(.masthead:hover,.masthead :focus-visible,.bottom-nav:hover,.bottom-nav :focus-visible) .bottom-nav a>span:not(.nav-icon),
+ .app-shell:has(.masthead:hover,.masthead :focus-visible,.bottom-nav:hover,.bottom-nav :focus-visible) .bottom-nav button>span:not(.nav-icon){opacity:1;width:auto;}
+}
+@media(prefers-reduced-motion:reduce){.app-shell .masthead,.app-shell .bottom-nav{transition:none;}}
+
+/* Explicit touch/keyboard toggle uses the same fixed overlay, no layout shift. */
+.sidebar-toggle{display:none;}
+@media screen and (min-width:900px){
+ .sidebar-toggle{display:block;min-width:42px;min-height:42px;padding:8px!important;}
+ .app-shell.sidebar-open .masthead,.app-shell.sidebar-open .bottom-nav{width:240px;box-shadow:10px 0 24px #14352618;}
+ .app-shell.sidebar-open .brand,.app-shell.sidebar-open .profile-chip{width:208px;}
+ .app-shell.sidebar-open #profile-short,.app-shell.sidebar-open .bottom-nav a>span:not(.nav-icon),.app-shell.sidebar-open .bottom-nav button>span:not(.nav-icon){opacity:1;width:auto;}
+}
+
+/* Two distinct report destinations, not data-entry forms. */
+.report-nav{position:relative;min-width:0;}
+.report-nav summary{display:flex;align-items:center;gap:13px;cursor:pointer;list-style:none;min-height:44px;padding:12px 17px;box-sizing:border-box;}
+.report-nav summary::-webkit-details-marker{display:none;}
+.report-nav summary:focus-visible{outline:3px solid #46752d;outline-offset:-3px;}
+.report-submenu a{white-space:normal!important;line-height:1.5;font-size:16px;padding:12px!important;}
+@media screen and (min-width:900px){
+ .report-nav{width:100%;}.report-nav summary>.nav-icon{flex:0 0 24px;}
+ .report-nav summary>span:not(.nav-icon){overflow:hidden;}
+ .report-submenu{margin-left:6px;border-left:2px solid #c9dfa9;min-width:0;}
+}
+@media screen and (max-width:899px){
+ .report-nav summary{flex-direction:column;gap:4px;font-size:12px;padding:8px;}
+ .report-submenu{position:absolute;bottom:100%;right:0;width:min(280px,85vw);background:#fff;border:1px solid #c9dfa9;border-radius:12px;box-shadow:0 6px 20px #20301922;}
+}
+/* Role-hidden navigation must not be restored by layout display:flex rules. */
+#navigation [hidden]{display:none!important;}
+
+/* v2.4.10: report summary matches its sibling nav controls. */
+.bottom-nav .report-nav summary{font:inherit;color:var(--ink);border-radius:12px;box-sizing:border-box;}
+@media screen and (min-width:900px){
+ .bottom-nav .report-nav summary{width:100%;min-height:48px;padding:12px 17px;font-size:inherit;gap:13px;}
+ .app-shell .report-nav summary>span:not(.nav-icon){opacity:0;width:0;overflow:hidden;white-space:nowrap;}
+ .app-shell .report-submenu{display:none;}
+ .app-shell.sidebar-open .report-nav summary>span:not(.nav-icon),.app-shell:has(.masthead:hover,.masthead :focus-visible,.bottom-nav:hover,.bottom-nav :focus-visible) .report-nav summary>span:not(.nav-icon){opacity:1;width:auto;}
+ .app-shell.sidebar-open .report-nav[open] .report-submenu,.app-shell:has(.masthead:hover,.masthead :focus-visible,.bottom-nav:hover,.bottom-nav :focus-visible) .report-nav[open] .report-submenu{display:block;}
+}
+
+/* เมนูย่อยรายงาน: ย่อชื่อให้บรรทัดเดียว พร้อมแนวเส้นและจุดนำทาง */
+.bottom-nav .report-submenu{padding:4px 0 4px 10px;margin-left:22px;border-left:2px solid #c9dfa9;}
+.bottom-nav .report-submenu a{box-sizing:border-box;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;width:100%;min-width:0;min-height:42px;padding:10px 8px!important;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;line-height:1.4;font-size:16px;font-weight:400;color:var(--ink);border-radius:8px;background:#f8faf6;text-align:left;}
+.bottom-nav .report-submenu a+a{margin-top:4px;}
+.bottom-nav .report-submenu a::before{content:"";flex:0 0 5px;width:5px;height:5px;border-radius:50%;background:#99bc73;}
+.bottom-nav .report-submenu a:hover,.bottom-nav .report-submenu a[aria-current]{background:#e9f3dd;color:var(--ink);}
+.bottom-nav .report-submenu a:focus-visible{outline:2px solid #648c43;outline-offset:-2px;}
+@media screen and (max-width:899px){.bottom-nav .report-submenu{margin-left:0;padding:8px;border:1px solid #c9dfa9;}}
+
+/* Mobile navigation omits reports; desktop reports remain unchanged. */
+@media screen and (max-width:899px){
+  .bottom-nav :is(.report-nav, #nav-dashboard){display:none!important;}
+}
+
+#navigation #nav-settings{border-radius:12px;color:var(--ink);transition:background .18s ease,color .18s ease;}
+#navigation #nav-settings:hover{background:#edf5e6;}
+#navigation #nav-settings[aria-current]{background:#dcebcf;color:#20362b;}
+#navigation #nav-settings:focus-visible{outline:3px solid #527b3d;outline-offset:-3px;}
+@media(prefers-reduced-motion:reduce){#navigation #nav-settings{transition:none;}}
+
+/* Existing Excel attach/direct actions only. */
+#bank-import-view :is(#bank-direct-open,#bank-google-direct) {
+  position:relative;isolation:isolate;overflow:hidden;border-radius:8px;
+  border:1px solid #10523a;color:white;
+  background:linear-gradient(118deg,#287a58,#176348 44%,#103c34 100%);
+  box-shadow:inset 0 1px #bdf4d571,0 3px 0 #0a3929,0 5px 10px #183c2d24;
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
+}
+#bank-import-view #bank-google-direct {
+  border-color:#8eae9a;color:#12422f;
+  background:linear-gradient(120deg,#f9fdf9,#daeee0);
+  box-shadow:inset 0 1px white,0 2px 0 #9cb8a9;
+}
+#bank-import-view #bank-google-direct[hidden] {display:none!important}
+#bank-import-view :is(#bank-direct-open,#bank-google-direct)::after {
+  content:"";pointer-events:none;position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(120deg,transparent 20%,#e1ffed98 52%,transparent 84%);
+  transform:translateX(-110%);opacity:0;
+}
+#bank-import-view :is(#bank-direct-open,#bank-google-direct):is(:hover,:focus-visible):not(:disabled)::after {
+  animation:bank-import-glint .55s ease-out both;
+}
+#bank-import-view :is(#bank-direct-open,#bank-google-direct):focus-visible {outline:2px solid #167251;outline-offset:3px}
+#bank-import-view :is(#bank-direct-open,#bank-google-direct):active:not(:disabled) {
+  transform:translateY(2px) scale(.98);box-shadow:inset 0 1px 2px #12452a55;filter:brightness(1.09);
+}
+@keyframes bank-import-glint {
+  0% {transform:translateX(-110%);opacity:.8}
+  100% {transform:translateX(105%);opacity:.65}
+}
+@media (prefers-reduced-motion:reduce) {
+  #bank-import-view :is(#bank-direct-open,#bank-google-direct) {transition:none}
+  #bank-import-view :is(#bank-direct-open,#bank-google-direct):active:not(:disabled) {transform:none}
+  #bank-import-view :is(#bank-direct-open,#bank-google-direct):is(:hover,:focus-visible):not(:disabled)::after {animation:none;transform:none;opacity:.26}
+}

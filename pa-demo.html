@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="robots" content="noindex,nofollow">
+<title>ทดลอง PA ออนไลน์ | งานภูมิทัศน์และสิ่งแวดล้อม</title>
+<link rel="stylesheet" href="pa/pa-demo.css?v=2">
+<script src="pa/pa-demo-fixtures.js?v=2" defer></script>
+<script src="pa/pa-demo.js?v=2" defer></script>
+</head>
+<body>
+<main class="shell">
+<p id="outside" class="notice">หน้านี้ใช้ทดลองบนเครื่องเท่านั้น ไม่มีการเข้าถึงเอกสารบุคลากร</p>
+<div id="workspace" hidden>
+<header class="mast"><div><a href="index.html#pa-online">← กลับเมนู PA</a><h1>PA ออนไลน์</h1><p>ดึงผลงานและรูปจากรายงานเดิมอัตโนมัติ</p></div><span class="chip">ข้อมูลและรูปตัวอย่าง</span></header>
+<p class="notice">ทดลองการจัดหมวดจากรายงานสมมติ ยังไม่เชื่อมรายงานจริงหรือแบบฟอร์ม PA ต้นฉบับ ไม่ต้องกรอกข้อมูลหรืออัปโหลดรูปซ้ำ</p>
+<section class="editor" aria-labelledby="edit-title">
+<h2 id="edit-title">เลือกรายงาน</h2>
+<div class="controls">
+<label>ผู้ปฏิบัติงานตัวอย่าง<select id="person"></select></label>
+<label>เดือนที่ปฏิบัติงาน<select id="period"></select></label>
+</div>
+<p id="feedback" aria-live="polite"></p>
+</section>
+<section class="preview" aria-labelledby="preview-title">
+<div class="preview-bar"><div><h2 id="preview-title">ตัวอย่างเอกสาร PA</h2><p id="page-count" aria-live="polite"></p></div><button type="button" id="download">พิมพ์ / บันทึก PDF</button></div>
+<div id="output" class="documents"></div>
+</section>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300..800&amp;display=swap" referrerpolicy="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-src 'none'; object-src 'none'">
+<title>ตัวอย่างแท่งกราฟ | ข้อมูลสมมติ</title>
+<link rel="stylesheet" href="app.css?v=3" />
+<link rel="stylesheet" href="common/landscape-report.css" />
+<link rel="stylesheet" href="report.css" />
+<link rel="stylesheet" href="common/theme-unified.css">
+<link rel="stylesheet" href="common/popup-select.css">
+<link rel="stylesheet" href="common/popup-theme.css">
+<link rel="stylesheet" href="common/file-picker.css">
+<link rel="stylesheet" href="common/pe-visual-theme.css?v=2">
+<link rel="stylesheet" href="common/settings.css">
+<link rel="stylesheet" href="common/dashboard.css?v=2.4.103" />
+<link rel="stylesheet" href="common/desktop-layout.css?v=5">
+<link rel="stylesheet" href="common/knowledge-home.css?v=5">
+<link rel="stylesheet" href="common/eco-navigation.css?v=8">
+<link rel="stylesheet" href="common/forms-theme.css?v=1">
+<link rel="stylesheet" href="common/dashboard-forest.css?v=29">
+<style>
+html,body {height:auto!important; min-height:100%}
+body.chart-demo {margin:0; background:#fff; color:#1c3025; font-family:Anuphan,Tahoma,sans-serif; overflow-y:auto!important}
+.demo-main {max-width:1680px; margin-inline:auto; padding:12px}
+.demo-banner {margin:0 0 10px; padding:10px 14px; background:#fff5d9; color:#4f3211; border:1px solid #c2954c; border-radius:8px; font-weight:650}
+#dashboard-overview #dashboard-status {display:none}
+</style>
+</head>
+<body class="chart-demo">
+<main class="demo-main">
+<p id="demo-banner" class="demo-banner" hidden>ตัวอย่างแท่งกราฟ • ตัวเลขทั้งหมดเป็นข้อมูลสมมติ ไม่ได้เชื่อมต่อฐานข้อมูลจริง</p>
+<section id="dashboard-overview" class="home-dashboard" aria-labelledby="home-dashboard-title" hidden>
+            <div class="dashboard-heading"><div class="dash-heading-title"><div id="waste-mascot"></div><div class="dash-heading-copy"><h2 id="home-dashboard-title">ภาพรวมงานภูมิทัศน์และสิ่งแวดล้อม</h2><p class="dash-subtitle">กองกายภาพและสิ่งแวดล้อม</p></div></div><div class="dashboard-controls"><input id="dashboard-month" type="month" hidden><select id="dashboard-month-choice" aria-label="เดือนรายงาน"></select><select id="dashboard-year-choice" aria-label="ปีรายงาน"></select><button id="dashboard-refresh" type="button" class="button"><span aria-hidden="true">⟳</span> รีเฟรช</button></div><p id="dashboard-period" class="dash-sr-only"></p><p id="dashboard-status" role="status">พร้อมอ่านข้อมูล</p></div>
+            <div id="dashboard-results" class="dashboard-results"></div>
+          </section>
+</main>
+<script src="common/dashboard-cache.js?v=2.4.104"></script>
+<script src="common/dashboard.js?v=2.4.104-forest15"></script>
+<script src="common/popup-select.js"></script>
+<script src="common/popup-theme.js"></script>
+<script src="common/dashboard-mascot.js?v=2.4.103"></script>
+<script src="common/dashboard-demo-fixtures.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+(() => {
+  'use strict';
+  const mount = document.getElementById('pa-layout-pages');
+  const name = document.getElementById('pa-layout-name');
+  const viewPeriod=document.getElementById('pa-layout-period');
+  if (!mount || !name || !viewPeriod || !window.PaPagination || !window.PaEvidence) return;
+  const reportPeriod=()=>window.PaEvidence.periodFor(viewPeriod.value)||window.PaEvidence.period(new Date(),0);
+  function defaultPeriod(){viewPeriod.value=window.PaEvidence.period(new Date(),0).month;}
+  defaultPeriod();
+  const sections = [
+    ['1.1 ยกระดับการคัดแยกขยะ'],
+    ['1.2 Digital Transformation'],
+    ['2. ภาระงานประจำ','2.1 ปฏิบัติงานให้บริการ','2.2.1 รับกิ่งไม้สดและบดหย่อย'],
+    ['2.2.2 ขึ้นกองปุ๋ย'],
+    ['2.2.3 ดูแลกองปุ๋ย'],
+    ['2.2.4 ย่อยกองปุ๋ยและตากแดด'],
+    ['2.2.5 เก็บปุ๋ยที่ตากแห้ง'],
+    ['2.2.6 บรรจุปุ๋ยเพื่อจำหน่าย'],
+    ['2.2.7 ดูแลความเรียบร้อยของพื้นที่'],
+    ['2.3 ผลิตน้ำหมักชีวภาพ'],
+    ['2.4 สนับสนุนภารกิจและการออกกำลังกาย'],
+    ['2.5 กำจัดเศษอาหาร'],
+    ['3.1 จัดการขยะอันตราย','4.1 ช่วยงานกิจกรรมส่วนกลาง']
+  ];
+  const titles = ['ภาระงานตามข้อตกลงการปฏิบัติงาน','รายงานความก้าวหน้าการปฏิบัติงานตามตัวชี้วัดเป้าหมายความสำเร็จของภาระงาน','ปัญหา/อุปสรรค'];
+  const node = (tag, attrs = {}, label = '') => {
+    const element = document.createElement(tag);
+    Object.entries(attrs).forEach(([k, v]) => element.setAttribute(k, v));
+    if (label) element.textContent = label;
+    return element;
+  };
+  let identity;
+  const blank=sections.map((topics,i)=>({rows:(i===2?[topics.slice(0,2),topics.slice(2)]:i===12?topics.map(t=>[t]):[topics]).map(group=>({
+      agreement:[...group.map(text=>({text,bold:true})),{text:'เป้าหมาย',bold:false}],
+      target:[{text:group[group.length-1],bold:true},{text:'เป้าหมาย',bold:false}]
+    }))}));
+  function pageWidths(widths){
+    return Array.isArray(widths)&&widths.length===3&&widths.every(x=>Number.isFinite(x)&&x>=8&&x<=75)&&
+      Math.abs(widths.reduce((a,b)=>a+b,0)-100)<=.5?widths:[33,51,16];
+  }
+  function renderPages(definitions,template=null,evidenceByTopic=null){
+    mount.paPdfSnapshot=null;
+    mount.dataset.documentMonth=(template?._renderPeriod||reportPeriod()).month;
+    const pages=document.createDocumentFragment();
+    const layout=window.PaPagination.paginate(definitions,evidenceByTopic);
+    layout.forEach(({rows,widths,topic,continuation,photos,captionOnly,evidence,number},i)=>{
+    const page=node('article',{class:'pa-paper','aria-label':'หน้า '+number,'data-topic':topic||'', 'data-continuation':String(Boolean(continuation))});
+    if(i===0){
+      identity=node('div',{class:'pa-paper-name'},'ชื่อผู้รับการประเมิน: ____________________');
+      page.append(node('img',{class:'pa-paper-logo',src:'assets/report-reference/logo-MU_blackwhite.png',alt:'ตรามหาวิทยาลัยมหิดล'}));
+      const cover=node('div',{class:'pa-paper-cover-line'});
+      cover.append(node('h3',{class:'pa-paper-title'},template?.title||'รายงานความก้าวหน้าการปฏิบัติงาน'),node('span',{class:'pa-paper-period'},(template?._renderPeriod||reportPeriod()).label));
+      page.append(cover,identity);
+    }
+    const cols=node('colgroup');
+    pageWidths(widths).forEach(width=>{const col=node('col');col.style.width=width+'%';cols.append(col);});
+    const head=node('thead'), headRow=node('tr');
+    titles.forEach(t=>headRow.append(node('th',{scope:'col'},t)));
+    head.append(headRow);
+    const body=node('tbody');
+    rows.forEach(def=>{
+      const row=node('tr'), task=node('td'), progress=node('td'), issues=node('td');
+      def.agreement.forEach(line=>task.append(node(line.bold?'strong':'div',{},line.text)));
+      (def.target||[]).forEach(line=>progress.append(node(line.bold?'strong':'div',{},line.text)));
+      if(evidence){
+        const proof=node('div',{class:'pa-proof','data-count':String(photos.length),role:'group','aria-label':'พื้นที่ภาพหลักฐาน'});
+        if(captionOnly)progress.append(node('div',{class:'pa-proof-caption'},captionOnly));
+        if(photos.length){
+          const geometry=window.PaPagination.photoSlot(photos.length);
+          const validWidths=pageWidths(widths), maxWidth=258*validWidths[1]/validWidths.reduce((a,b)=>a+b,0)-3.175;
+          Object.entries({'--pa-proof-width':Math.min(geometry.widthMm,maxWidth),'--pa-proof-height':geometry.heightMm,'--pa-proof-gap':window.PaPagination.PHOTO_LAYOUT.gapMm})
+            .forEach(([key,value])=>proof.style.setProperty(key,(value/258*100)+'cqw'));
+          photos.forEach((photo,i)=>{
+            const item=node('figure',{class:'pa-proof-item'});
+            if(photo.caption)item.append(node('figcaption',{class:'pa-proof-caption'},photo.caption));
+            if(photo.drivePreview){
+              const id=/^https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]{20,100})\/view$/.exec(photo.driveViewer)?.[1];
+              if(!id)return;
+              const frame=node('img',{src:'https://drive.google.com/thumbnail?id='+id+'&sz=w1000',alt:'ภาพหลักฐาน '+(i+1),loading:'lazy',decoding:'async',referrerpolicy:'no-referrer'});
+              const hint=node('span',{class:'pa-proof-load-error',role:'status',hidden:''},'แสดงรูปนี้ไม่ได้ ตรวจสิทธิ์หรือลองเปิดใน Google Drive');
+              frame.addEventListener('error',()=>{hint.hidden=false;});
+              const open=node('a',{class:'pa-proof-drive-link',href:photo.driveViewer,target:'_blank',rel:'noopener noreferrer'},'เปิดรูปใน Google Drive');
+              item.classList.add('pa-proof-drive');item.append(frame,open,hint);
+            }else item.append(node('img',{src:photo.src,alt:'ภาพหลักฐาน '+(i+1)}));
+            proof.append(item);
+          });
+        }
+        progress.append(proof);
+      }
+      row.append(task,progress,issues);body.append(row);
+    });
+    const table=node('table');table.append(cols,head,body);
+    page.append(table,node('footer',{class:'pa-paper-foot'},String(number)));
+    pages.append(page);
+  });
+    if(template?.name&&pages.lastElementChild){
+      let last=pages.lastElementChild;
+      if(last.querySelector('.pa-proof-item')||last.querySelectorAll('tbody td > :not(.pa-proof)').length>12){
+        last=node('article',{class:'pa-paper pa-signature-only','aria-label':'หน้าลงนาม','data-topic':'signature','data-continuation':'false'});
+        last.append(node('footer',{class:'pa-paper-foot'},String(layout.length+1)));pages.append(last);
+      }
+      const signatures=node('section',{class:'pa-signatures','aria-label':'ส่วนลงนาม'});
+      for(const [role,person] of [['ผู้รับการประเมิน',template.name],['ผู้ประเมิน','________________________']]){
+        const signer=node('div',{class:'pa-signature-person'});
+        signer.append(node('div',{},'ลงชื่อ ..................................................... '+role),node('div',{},'('+person+')'),
+          node('div',{},'ตำแหน่ง __________________________________'),node('div',{},'วันที่ ______ / ______ / ______'));
+        signatures.append(signer);
+      }
+      last.querySelector('.pa-paper-foot').before(signatures);
+    }
+    mount.replaceChildren(pages);
+    window.PaDraft?.activate(mount,template?.name?template.name+"|"+mount.dataset.documentMonth:"");
+    mount.closest('.pa-paper-view')?.setAttribute('aria-label','ตัวอย่างแบบรายงาน PA '+layout.length+' หน้า');
+  }
+  renderPages(blank);
+  const options=document.getElementById('pa-layout-options');
+  const normal=value=>String(value).normalize('NFC').trim().replace(/\s+/gu,' ');
+  const privateOrigin=location.origin==='http://127.0.0.1:5500';
+  const savedKey='waste-pa-landscape-names-v1';
+  let localNames=[], pending, lastFailure=0;
+  const safeName=value=>typeof value==='string'&&value.length<=120&&value.length>0&&!/[\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069,@;\t|]/.test(value);
+  if(privateOrigin)try{const saved=JSON.parse(window.localStorage.getItem(savedKey)||'[]');if(Array.isArray(saved)&&saved.length<=300&&saved.every(safeName)) localNames=saved;}catch(_){}
+  const status=document.getElementById('pa-template-status'), download=document.getElementById('pa-layout-download');
+  const printButton=document.getElementById('pa-layout-print');
+  let selectedName='',templateAbort,epoch=0,printing=false;
+  const clearPrint=()=>{document.body.classList.remove('pa-print-active');printing=false;};
+  addEventListener('afterprint',clearPrint);
+  printButton?.addEventListener('click',async()=>{
+    if(printing||location.hash!=='#pa-online'||mount.dataset.templateAvailable==='false')return;
+    const choice=epoch;
+    printing=true;
+    const images=[...mount.querySelectorAll('.pa-proof-drive img')];
+    if(images.length){
+      images.forEach(image=>{image.loading='eager';});
+      let timer;
+      const decoded=await Promise.race([Promise.all(images.map(async image=>{
+        try{await image.decode();return image.naturalWidth>0;}catch(_){return false;}
+      })).then(states=>states.every(Boolean)),new Promise(ok=>{timer=setTimeout(()=>ok(false),7000);})]);
+      clearTimeout(timer);
+      if(epoch!==choice||location.hash!=='#pa-online'){clearPrint();return;}
+      if(!decoded){clearPrint();setAvailability(true,'มีรูปที่ยังเปิดไม่ได้ จึงยังพิมพ์แบบรวมรูปไม่ได้ ลองตรวจลิงก์ Drive หรือใช้ปุ่ม PDF ไม่รวมรูป');return;}
+    }
+    document.body.classList.add('pa-print-active');
+    try{window.print();}catch(_){clearPrint();}
+  });
+  function invalidate(){
+    const wasSelected=Boolean(selectedName);
+    if(download)download.textContent='ดาวน์โหลด PDF (ไม่รวมรูป)';
+    epoch++; templateAbort?.abort();templateAbort=null;selectedName='';
+    mount.dataset.templateAvailable='';
+    if(wasSelected)renderPages(blank);
+    if(status){status.hidden=true;status.textContent='';}
+    if(download)download.disabled=false;
+    if(printButton)printButton.disabled=false;
+  }
+  function setTemplateOnly(message){
+    const first=mount.querySelector('.pa-paper-name');
+    if(first&&!mount.querySelector('.pa-paper-template-notice'))first.after(node('div',{class:'pa-paper-name pa-paper-template-notice'},'เฉพาะแบบ PA • ไม่รวมข้อมูลรายงานปฏิบัติงาน'));
+    setAvailability(true,message);
+  }
+  function setAvailability(available,message){
+    mount.dataset.templateAvailable=available?'true':'false';
+    if(download)download.disabled=!available;
+    if(printButton)printButton.disabled=!available;
+    if(status){status.hidden=!message;status.textContent=message;}
+  }
+  function setDocumentName(value){if(identity.dataset.paDraftEdited==='true')return;identity.textContent='ชื่อผู้รับการประเมิน: '+value;}
+  async function selectTemplate(value){
+    invalidate();
+    selectedName=value;
+    const turn=epoch, selectedPeriod=reportPeriod();
+    mount.dataset.templateAvailable='false';
+    if(download)download.disabled=true;
+    if(printButton)printButton.disabled=true;
+    if(!privateOrigin){setAvailability(false,'ยังไม่มีต้นแบบ PA ของชื่อนี้ในเว็บที่เปิดอยู่');return;}
+    setAvailability(false,'กำลังอ่านต้นแบบ PA ของบุคลากร');
+    const ctl=new AbortController();templateAbort=ctl;
+    const timer=setTimeout(()=>ctl.abort(),4000);
+    try{
+      const r=await fetch('http://127.0.0.1:17843/pa-template',{
+        method:'POST',headers:{'Content-Type':'application/json','X-Waste-PA-Local':'names-v1'},
+        body:JSON.stringify({name:value}),credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer',signal:ctl.signal
+      });
+      if(epoch!==turn||location.hash!=='#pa-online')return;
+      if(r.status===404){setAvailability(false,'ยังไม่มีต้นแบบที่ยืนยันว่าเป็นของชื่อนี้');return;}
+      if(!r.ok)throw Error('local PA source unavailable');
+      const data=await r.json();
+      if(epoch!==turn||location.hash!=='#pa-online')return;
+      const isLines=array=>Array.isArray(array)&&array.length<=24&&array.every(line=>typeof line?.text==='string'&&line.text.length>0&&line.text.length<=900&&typeof line.bold==='boolean');
+      if(data?.version!==1||data.name!==value||!Array.isArray(data.pages)||!data.pages.length||data.pages.length>32||data.pages.some(page=>!Array.isArray(page?.rows)||!page.rows.length||page.rows.length>8||page.rows.some(row=>!isLines(row?.agreement)||!row.agreement.length||!isLines(row.target||[]))))throw Error('invalid PA template');
+      data._renderPeriod=selectedPeriod;
+      renderPages(data.pages,data);setDocumentName(value);
+      const publicSummary=window.HubConfig?.paPublicSummaryEnabled===true;
+      const verified=window.HubConfig?.paVerifiedEvidenceEnabled===true;
+      const protectedDrive=!publicSummary&&!verified&&privateOrigin&&typeof window.UnifiedApi?.request==='function';
+      if((!publicSummary&&!verified&&!protectedDrive)||!window.isSecureContext){setAvailability(true,'');return;}
+      setAvailability(false,publicSummary?'กำลังอ่านสรุปรายงานที่ผู้รายงานระบุ':'กำลังอ่านรายงานการปฏิบัติงานที่ยืนยันสิทธิ์แล้ว');
+      clearTimeout(timer);
+      const evidenceTimer=setTimeout(()=>ctl.abort(),12000);
+      try{
+        let loaded;
+        if(publicSummary){
+          const endpoint=window.UnifiedApi.endpoint();
+          loaded=await window.UnifiedApi.request({action:'paWorkReportPublicEvidence',selectedName:value,month:data._renderPeriod.month},endpoint);
+        }else if(protectedDrive){
+          const endpoint=window.UnifiedApi.endpoint();
+          let privateTimer;
+          try{
+            const timedOut=new Promise((_,reject)=>{privateTimer=setTimeout(()=>reject(Error('PA private metadata timeout')),12000);});
+            loaded=await Promise.race([window.UnifiedApi.request({action:'paWorkReportPrivateEvidence',selectedName:value,month:data._renderPeriod.month},endpoint),timedOut]);
+          }finally{clearTimeout(privateTimer);}
+        }else{
+          const endpoint=new URL('./api/pa/report-evidence',location.href);
+          endpoint.searchParams.set('month',data._renderPeriod.month);
+          const result=await fetch(endpoint,{credentials:'same-origin',mode:'same-origin',redirect:'error',cache:'no-store',signal:ctl.signal});
+          if(epoch!==turn||location.hash!=='#pa-online')return;
+          if(!result.ok||!/^application\/json(?:;|$)/i.test(result.headers.get('Content-Type')||''))throw Error('evidence access');
+          loaded=await result.json();
+        }
+        if(epoch!==turn||location.hash!=='#pa-online')return;
+        const evidence=window.PaEvidence.group(loaded,{month:data._renderPeriod.month,displayName:value,pages:data.pages,publicSummary:publicSummary||protectedDrive});
+        renderPages(data.pages,data,evidence);setDocumentName(value);setAvailability(true,'');
+        if(protectedDrive&&evidence.size){
+          if(printButton)printButton.disabled=true;
+          try{await renderDrivePhotos(evidence,data,value,turn);}
+          catch(_){if(epoch===turn&&location.hash==='#pa-online')setAvailability(true,'โหลดรูปไม่ได้ แต่ยังดาวน์โหลดรายงานเฉพาะข้อความได้');}
+        }
+
+       }catch(error){
+         if(epoch===turn&&location.hash==='#pa-online'){
+           if(publicSummary||protectedDrive)setTemplateOnly(error?.code==='PA_WORK_LIMIT'?'รายงานเดือนนี้เกินจำนวนที่แสดงได้ ดาวน์โหลดได้เฉพาะแบบ PA':'ยังโหลดข้อมูลรายงานของเดือนนี้ไม่ได้ ดาวน์โหลดได้เฉพาะแบบ PA');
+           else setAvailability(false,'ยังยืนยันข้อมูลรายงานของเดือนนี้ไม่ได้ จึงยังดาวน์โหลดไม่ได้');
+         }
+       }
+      finally{clearTimeout(evidenceTimer);}
+    }catch(_){if(epoch===turn&&location.hash==='#pa-online')setAvailability(false,'เปิดต้นแบบ PA ไม่สำเร็จ กรุณาลองเลือกชื่ออีกครั้ง');}
+    finally{clearTimeout(timer);if(epoch===turn)templateAbort=null;}
+  }
+  async function renderDrivePhotos(evidence,data,value,turn){
+    const month=data._renderPeriod.month, endpoint=window.UnifiedApi.endpoint();
+    const jobs=[...evidence].flatMap(([topic,list])=>list.map(report=>({topic,report})));
+    const refs=new Map();
+    let missing=0, cursor=0, stopped=false, timer;
+    const current=()=>epoch===turn&&location.hash==='#pa-online';
+    async function receive(){
+      while(!stopped&&current()&&cursor<jobs.length){
+        const {topic,report}=jobs[cursor++];
+        try{
+          const response=await window.UnifiedApi.request({action:'paWorkReportPhotoLinks',selectedName:value,month,reportId:report.reportId,assignmentKey:report.assignmentKey},endpoint);
+          if(!current()||stopped)return;
+          const photos=window.PaEvidence.previewLinks(response,report,month);
+          if(photos.length)refs.set(report.reportId,photos);else missing++;
+        }catch(_){if(current()&&!stopped)missing++;}
+      }
+    }
+    const deadline=new Promise(resolve=>{timer=setTimeout(()=>{stopped=true;resolve();},12000);});
+    await Promise.race([Promise.all(Array.from({length:Math.min(3,jobs.length)},receive)),deadline]);
+    clearTimeout(timer);
+    if(!current())return;
+    if(refs.size){
+      const snapshot=mount.cloneNode(true), enriched=new Map();
+      for(const [topic,list] of evidence)enriched.set(topic,list.flatMap(report=>[report,...(refs.get(report.reportId)||[])]));
+      renderPages(data.pages,data,enriched);setDocumentName(value);
+      const first=snapshot.querySelector('.pa-paper-name');
+      if(first)first.after(node('div',{class:'pa-paper-template-notice'},'PDF นี้ไม่รวมรูปจาก Drive'));
+      mount.paPdfSnapshot=snapshot;
+      download.textContent='ดาวน์โหลด PDF (ไม่รวมรูป)';
+    }
+    setAvailability(true,missing||stopped?'บางรูปยังเปิดไม่ได้ ใช้ปุ่มพิมพ์เพื่อบันทึกหน้าที่เปิดรูปได้':'ตรวจว่ารูปปรากฏในตัวอย่างก่อนบันทึกเป็น PDF');
+  }
+  function hide(){options.replaceChildren();options.hidden=true;name.setAttribute('aria-expanded','false');}
+  function fillName(){const value=normal(name.value);identity.textContent='ชื่อผู้รับการประเมิน: '+(value||'____________________');}
+  function show(){
+    hide();
+    const query=normal(name.value).toLocaleLowerCase('th');
+    const directory=window.HubStaffDirectory;
+    if(!query)return;
+    const profile=window.HubSelectedProfile?.get?.()?.name;
+    const entries=new Map();
+    if(safeName(profile))entries.set(normal(profile),'profile');
+    if(Array.isArray(directory))for(const p of directory)if(safeName(p?.name))entries.set(normal(p.name),'directory');
+    for(const value of localNames)entries.set(value,'local');
+    const names=[...entries.keys()].filter(n=>n.toLocaleLowerCase('th').startsWith(query)).slice(0,12);
+    for(const value of names){
+      const button=node('button',{type:'button'},value+(entries.get(value)==='profile'?' (ชื่อที่ใช้ในแอป)':''));
+      button.addEventListener('click',()=>{name.value=value;hide();name.focus();selectTemplate(value);});
+      button.addEventListener('keydown',event=>{
+        if(event.key==='ArrowDown'){event.preventDefault();(button.nextElementSibling||button).focus();}
+        else if(event.key==='ArrowUp'){event.preventDefault();(button.previousElementSibling||name).focus();}
+        else if(event.key==='Escape'){event.preventDefault();hide();name.focus();}
+      });
+      options.append(button);
+    }
+    if(names.length){options.hidden=false;name.setAttribute('aria-expanded','true');}
+  }
+  function localRoster(){
+    if(!privateOrigin||location.hash!=='#pa-online'||pending||Date.now()-lastFailure<1500)return;
+    const ctl=new AbortController();
+    const timer=setTimeout(()=>ctl.abort(),3500);
+    pending=fetch('http://127.0.0.1:17843/pa-roster',{method:'GET',headers:{'X-Waste-PA-Local':'names-v1'},credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer',signal:ctl.signal})
+      .then(r=>{if(!r.ok)throw Error('Local roster unavailable');return r.json();})
+      .then(data=>{
+        if(data?.version!==1||!Array.isArray(data.names)||data.names.length!==43||!data.names.every(safeName))throw Error('Invalid local roster');
+        localNames=[...new Set(data.names.map(normal))];lastFailure=0;
+        if(location.hash==='#pa-online')show();
+      }).catch(()=>{lastFailure=Date.now();}).finally(()=>{clearTimeout(timer);pending=null;});
+  }
+  viewPeriod.addEventListener('change',()=>{
+    if(location.hash!=='#pa-online')return;
+    if(!window.PaEvidence.periodFor(viewPeriod.value))viewPeriod.value=mount.dataset.documentMonth||window.PaEvidence.period(new Date(),0).month;
+    if(selectedName)selectTemplate(selectedName);else{invalidate();renderPages(blank);fillName();}
+  });
+  name.addEventListener('input',()=>{invalidate();fillName();show();if(!localNames.length)localRoster();});
+  name.addEventListener('keydown',event=>{
+    if(event.key==='ArrowDown'){show();if(options.firstElementChild){event.preventDefault();options.firstElementChild.focus();}}
+    else if(event.key==='Escape')hide();
+  });
+  document.getElementById('pa-layout').addEventListener('focusout',event=>{
+    if(event.target!==name&&!options.contains(event.target))return;
+    if(event.relatedTarget!==name&&!options.contains(event.relatedTarget))hide();
+  });
+  addEventListener('hashchange',()=>{
+    if(location.hash==='#pa-online'){localRoster();return;}
+    defaultPeriod();renderPages(blank);
+    clearPrint();invalidate();name.value='';if(!privateOrigin)localNames=[];fillName();hide();
+  });
+  localRoster();
+})();

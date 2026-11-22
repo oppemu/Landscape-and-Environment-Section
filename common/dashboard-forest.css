@@ -1,0 +1,536 @@
+/* White dashboard with a compact forest-green header and selected accents. */
+@media screen {
+  #dashboard-overview.home-dashboard:not([hidden]) {
+    --forest-text: #1c3025;
+    --forest-muted: #435b4e;
+    --forest-rule: #bccfc3;
+    --forest-accent: #abe9b6;
+    --forest-surface: #ffffff;
+    --forest-control: #ffffff;
+    background: #fff !important;
+    border-color: #e2ebe5;
+    color: var(--forest-text);
+    padding-bottom: 18px;
+  }
+  #dashboard-overview .dashboard-heading {
+    padding: 12px;
+    border: 1px solid #397052;
+    border-radius: 12px;
+    background:
+      url("../assets/eco-navigation-watermark.svg") right center / 235px auto no-repeat,
+      linear-gradient(112deg, #1a5940, #104332 58%, #0b2e24);
+    color: #f3fff8;
+  }
+  #dashboard-overview .dashboard-heading :is(#home-dashboard-title, .dash-subtitle, #dashboard-period, #dashboard-status) {
+    color: #f3fff8;
+  }
+  #dashboard-overview :is(#home-dashboard-title, h3.dash-section-title, h4.dash-panel-title, .dash-stat h4, .dash-number, .dash-category) {
+    color: var(--forest-text);
+  }
+  #dashboard-overview :is(.dash-subtitle, #dashboard-period, #dashboard-status, .dash-note, .dash-data-notes, .dash-unit, .dash-y-title, .dash-bar-label, .dash-empty-chart) {
+    color: var(--forest-muted);
+  }
+  #dashboard-overview h3.dash-section-title {
+    background: transparent;
+    border-bottom: 1px solid var(--forest-rule);
+    border-radius: 0;
+  }
+  #dashboard-overview :is(.dash-section-title, .dash-heading-title)::before {
+    background: var(--forest-accent);
+    border-color: var(--forest-accent);
+  }
+  #dashboard-overview :is(.dash-panel, .dash-section-box, .dash-bank-year, .dash-five .dash-stat, .dash-stats:not(.dash-five) .dash-stat) {
+    background: var(--forest-surface);
+    border-color: var(--forest-rule) !important;
+    box-shadow: none;
+  }
+  #dashboard-overview :is(h4.dash-panel-title, .dash-bank-year-heading, .dash-table th) {
+    background: #f6f9f7;
+    color: var(--forest-text);
+  }
+  #dashboard-overview :is(.dash-five, .dash-category, .dash-empty-chart) { background: transparent; }
+  #dashboard-overview :is(.dash-bank-year-graph, .dash-table, .dash-trend-scroll) { scrollbar-color: #6fa68a #edf3ef; }
+  #dashboard-overview .dash-bars {
+    background: repeating-linear-gradient(to bottom, transparent 0 41px, #e0e9e3 41px 42px);
+    border-color: var(--forest-rule);
+  }
+  #dashboard-overview .dash-trend-bars {
+    background: repeating-linear-gradient(to top, transparent 0 39px, #e0e9e3 39px 40px);
+  }
+  #dashboard-overview .dash-category::before, #dashboard-overview .dash-table td { border-color: var(--forest-rule); }
+  #dashboard-overview .dash-bank-year-graph svg text { fill: var(--forest-muted); }
+  #dashboard-overview .dash-bank-year-graph svg line { stroke: var(--forest-rule); }
+  #dashboard-overview .dash-bank-year-graph svg line[stroke="#a5b7a9"] { stroke: #748d7e; }
+  #dashboard-overview :is(.dash-stat, .dash-stat[data-color]) .dash-icon {
+    background: #edf6ef;
+    color: #28744b;
+  }
+  #dashboard-overview .dashboard-controls > :is(select, .mu-choice-trigger),
+  #dashboard-overview .dash-bank-switch button {
+    background: var(--forest-control) !important;
+    color: var(--forest-text) !important;
+    border-color: var(--forest-rule) !important;
+  }
+  #dashboard-overview .dashboard-controls > select { color-scheme: dark; }
+  #dashboard-overview #dashboard-refresh:not(:disabled),
+  #dashboard-overview .dash-bank-switch button[aria-pressed="true"] {
+    background: #217345 !important;
+    color: #fff !important;
+  }
+  #dashboard-overview #dashboard-refresh:not(:disabled):hover {
+    background: #195c37 !important;
+  }
+  #dashboard-overview :is(.dash-five, .dash-stats:not(.dash-five)) .dash-stat[data-selected="true"] {
+    background: #edf8ef;
+    border-color: #3f8b5b !important;
+  }
+  #dashboard-overview :is(.dashboard-controls, .dash-bank-switch) :focus-visible,
+  #dashboard-overview .dash-stat[role="button"]:focus-visible {
+    outline-color: #227a48;
+  }
+}
+@media screen and (max-width: 700px) {
+  #dashboard-overview .dashboard-heading { padding: 8px; }
+}
+
+@media screen {
+  #dashboard-overview .dash-bank-peak { color: #435b4e; }
+  #dashboard-overview :is(.dash-column, .dash-five > .dash-stat) {
+    --forest-bar-edge: #acd6a0; --forest-bar-mid: #568650; --forest-bar-deep: #2a5239;
+  }
+  #dashboard-overview :is(.dash-column[data-color="1"], .dash-five > .dash-stat[data-color="1"]) {
+    --forest-bar-edge: #c2d99d; --forest-bar-mid: #7c9756; --forest-bar-deep: #42562e;
+  }
+  #dashboard-overview :is(.dash-column[data-color="2"], .dash-five > .dash-stat[data-color="2"]) {
+    --forest-bar-edge: #bdc9d1; --forest-bar-mid: #758c97; --forest-bar-deep: #384f60;
+  }
+  #dashboard-overview :is(.dash-column[data-color="3"], .dash-five > .dash-stat[data-color="3"]) {
+    --forest-bar-edge: #ffda86; --forest-bar-mid: #bb8732; --forest-bar-deep: #755021;
+  }
+  #dashboard-overview .dash-waste-bars .dash-column[data-color="3"],
+  #dashboard-overview #dashboard-results .dash-five > .dash-stat[data-color="3"] {
+    --forest-bar-edge: #ffaaa1; --forest-bar-mid: #c64a43; --forest-bar-deep: #79252d;
+  }
+  #dashboard-overview :is(.dash-column[data-color="4"], .dash-five > .dash-stat[data-color="4"]) {
+    --forest-bar-edge: #d6c2ec; --forest-bar-mid: #9576af; --forest-bar-deep: #523969;
+  }
+  #dashboard-overview :is(.dash-column[data-color="5"], .dash-five > .dash-stat[data-color="5"]) {
+    --forest-bar-edge: #9dd7cb; --forest-bar-mid: #478d85; --forest-bar-deep: #235653;
+  }
+  #dashboard-overview .dash-waste-bars .dash-column[data-color="5"],
+  #dashboard-overview #dashboard-results .dash-five > .dash-stat[data-color="5"] {
+    --forest-bar-edge: #ffe79a; --forest-bar-mid: #dca424; --forest-bar-deep: #91650f;
+  }
+  #dashboard-overview .dash-column .dash-bar {
+    background: linear-gradient(112deg, var(--forest-bar-edge) 0, var(--forest-bar-mid) 22%, var(--forest-bar-deep) 100%);
+    box-shadow: inset 1px 1px var(--forest-bar-edge), inset -1px 0 #17372d55, 2px 4px 7px #122a2148;
+  }
+  #dashboard-overview .dash-column .dash-bar .dash-icon { color: #f4fff8; filter: drop-shadow(0 1px 2px #071f16); }
+  #dashboard-overview .dash-column[data-selected="true"] .dash-bar {
+    filter: saturate(1.14);
+    box-shadow: inset 0 0 0 2px #17462f, 2px 4px 8px #122a2160;
+  }
+  #dashboard-overview .dash-annual-bar rect { filter: drop-shadow(2px 2px 2px #122a2160); }
+  #dashboard-overview .dash-annual-bar > path { stroke: #f4fff8; filter: drop-shadow(0 1px 1px #071f16); }
+}
+
+@media screen {
+  #dashboard-overview .dashboard-controls :focus-visible { outline-color: #f1df8e; }
+}
+
+/* Brief rolling highlights; bar dimensions, colors and labels never animate with this effect. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  @keyframes dash-eco-sheen {
+    0% { transform:translateX(-165%) skewX(-18deg); opacity:0 }
+    18% { opacity:.36 }
+    75% { opacity:.24 }
+    100% { transform:translateX(165%) skewX(-18deg); opacity:0 }
+  }
+  @keyframes dash-eco-annual-sheen {
+    0%,100% { filter:drop-shadow(2px 2px 2px #122a2160) }
+    48% { filter:brightness(1.14) saturate(1.06) drop-shadow(2px 2px 2px #122a2160) }
+  }
+  #dashboard-overview .dash-column .dash-bar::before {
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:linear-gradient(105deg,transparent 28%,#fff9 46%,#fff 50%,#fff5 55%,transparent 74%);
+    opacity:0;
+    animation:dash-eco-sheen 1.5s ease-in-out var(--dash-wave-delay,0s) 1 both;
+  }
+  #dashboard-overview .dash-annual-bar rect {
+    animation:dash-eco-annual-sheen 1.5s ease-in-out var(--dash-wave-delay,0s) 1 both;
+  }
+  #dashboard-overview :is(.dash-column,.dash-annual-bar):nth-child(4n+2) { --dash-wave-delay:.18s }
+  #dashboard-overview :is(.dash-column,.dash-annual-bar):nth-child(4n+3) { --dash-wave-delay:.36s }
+  #dashboard-overview :is(.dash-column,.dash-annual-bar):nth-child(4n) { --dash-wave-delay:.54s }
+}
+@media screen {
+  #dashboard-overview .dash-waste-bars .dash-waste-picture {
+    position:relative; z-index:1; display:grid; place-items:center; flex:none;
+    width:clamp(18px, 3vw, 37px); height:clamp(18px, 3vw, 37px); max-width:84%; max-height:90%;
+    background:#fffaf1; border-radius:50%; box-shadow:0 1px 4px #19372a5c; pointer-events:none;
+  }
+  #dashboard-overview .dash-waste-picture svg { display:block; width:74%; height:74%; overflow:visible }
+}
+/* Dimensional month/year controls and refresh only; shared with local demo. */
+@media screen {
+  #dashboard-overview .dashboard-controls > :is(.mu-choice-trigger, select:not(.mu-choice-native), #dashboard-refresh) {
+    --control-glint: linear-gradient(115deg, transparent 27%, #fff5 47%, transparent 65%);
+    --control-face: linear-gradient(165deg, #fff 2%, #f1f8f3 55%, #dbece2);
+    --control-edge: #a4c6b1;
+    --control-depth: #779b88;
+    background: var(--control-glint) 0% 0% / 180% 100%, var(--control-face) !important;
+    color: #18382b !important;
+    border: 1px solid var(--control-edge) !important;
+    box-shadow: inset 0 1px #ffffffcf, 0 2px 0 var(--control-depth), 0 5px 9px #041d1680;
+    text-overflow: clip;
+    font-weight: 650;
+  }
+  #dashboard-overview .dashboard-controls > select:not(.mu-choice-native) { color-scheme:light; }
+  #dashboard-overview .dashboard-controls > :is(#dashboard-month-choice:not(.mu-choice-native), #dashboard-month-choice + .mu-choice-trigger) {
+    flex: 1 0 10rem;
+    min-width: 10rem;
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+  #dashboard-overview .dashboard-controls > :is(#dashboard-year-choice:not(.mu-choice-native), #dashboard-year-choice + .mu-choice-trigger) {
+    flex: 0 1 6rem;
+    min-width: 5.8rem;
+  }
+  #dashboard-overview .dashboard-controls > #dashboard-refresh {
+    --control-face: linear-gradient(160deg, #317a53, #1b633f 56%, #12472e);
+    --control-edge: #86bf93;
+    --control-depth: #0b3020;
+    color: #fff !important;
+  }
+  #dashboard-overview .dashboard-controls > #dashboard-refresh:not(:disabled):hover {
+    background:var(--control-glint) 100% 0% / 180% 100%, linear-gradient(160deg,#35825a,#1f6844 56%,#12472e) !important;
+  }
+  #dashboard-overview .dashboard-controls > :is(.mu-choice-trigger, select:not(.mu-choice-native), #dashboard-refresh):not(:disabled):hover {
+    background-position:100% 0%, 0 0 !important;
+    box-shadow:inset 0 1px #fff, 0 2px 0 var(--control-depth), 0 7px 12px #041d1695;
+  }
+  #dashboard-overview .dashboard-controls > :is(.mu-choice-trigger, select:not(.mu-choice-native), #dashboard-refresh):not(:disabled):active {
+    box-shadow:inset 0 2px 4px #102e2760, 0 1px 0 var(--control-depth);
+  }
+  #dashboard-overview .dashboard-controls > :is(.mu-choice-trigger, select:not(.mu-choice-native), #dashboard-refresh):focus-visible {
+    outline:3px solid #ffe696; outline-offset:3px;
+  }
+}
+@media screen and (max-width:700px) {
+  #dashboard-overview .dashboard-controls { flex-wrap:wrap !important; row-gap:9px; }
+  #dashboard-overview .dashboard-controls > :is(#dashboard-month-choice:not(.mu-choice-native), #dashboard-month-choice + .mu-choice-trigger) {
+    flex-basis: 8.5rem; min-width: 8.5rem;
+  }
+  #dashboard-overview .dashboard-controls > :is(#dashboard-year-choice:not(.mu-choice-native), #dashboard-year-choice + .mu-choice-trigger) { flex-grow:1; }
+}
+@media screen and (prefers-reduced-motion:no-preference) {
+  #dashboard-overview .dashboard-controls > :is(.mu-choice-trigger, select:not(.mu-choice-native), #dashboard-refresh):not(:disabled) {
+    transition:background-position .3s ease, box-shadow .2s ease, transform .2s ease !important;
+  }
+}
+
+@media screen {
+  #dashboard-overview #dashboard-humus-trend .dash-humus-coin {
+    position:relative; z-index:1; display:grid; place-items:center; flex:none;
+    width:clamp(18px,3vw,34px); height:clamp(18px,3vw,34px); max-width:82%; max-height:88%;
+    pointer-events:none; filter:drop-shadow(0 2px 2px #36240e78);
+  }
+  #dashboard-overview .dash-humus-coin svg {width:100%; height:100%; min-height:0; display:block}
+}
+@media screen { #dashboard-overview .dash-bank-sale-coin { pointer-events:none; filter:drop-shadow(0 1px 1px #36240e78); } }
+
+/* Quiet KPI surfaces: shared chart hue is a small accent, never a text background. */
+@media screen {
+  #dashboard-overview #dashboard-results .dash-five > .dash-stat {
+    --kpi-accent:var(--forest-bar-mid);
+    --kpi-active:var(--forest-bar-deep);
+  }
+  #dashboard-overview #dashboard-results .dash-stat[aria-controls="dashboard-humus-trend"] {
+    --kpi-accent:#b88a2e;
+    --kpi-active:#775618;
+  }
+  #dashboard-overview #dashboard-results :is(.dash-five > .dash-stat,.dash-stat[aria-controls="dashboard-humus-trend"]) {
+    position:relative;
+    min-height:106px;
+    padding:14px 12px;
+    background:#fff;
+    border:1px solid #d9e4dd!important;
+    border-top:3px solid var(--kpi-accent)!important;
+    border-radius:10px;
+    box-shadow:0 2px 4px #1f3d2910;
+    text-align:center;
+  }
+  #dashboard-overview #dashboard-results :is(.dash-five > .dash-stat,.dash-stat[aria-controls="dashboard-humus-trend"]) h4 {
+    color:#43564a;
+    font-size:clamp(.95rem,1.3vw,1.16rem);
+    line-height:1.4;
+    font-weight:600;
+    margin-bottom:7px;
+  }
+  #dashboard-overview #dashboard-results :is(.dash-five > .dash-stat,.dash-stat[aria-controls="dashboard-humus-trend"]) .dash-number {
+    color:#162b20;
+    font-size:clamp(1.55rem,2.2vw,2.24rem);
+    font-weight:700;
+    line-height:1.3;
+    font-variant-numeric:tabular-nums;
+  }
+  #dashboard-overview #dashboard-results :is(.dash-five > .dash-stat,.dash-stat[aria-controls="dashboard-humus-trend"]) :is(.dash-note,.dash-unit) {
+    color:#4e6054;
+  }
+  #dashboard-overview #dashboard-results :is(.dash-five > .dash-stat,.dash-stat[aria-controls="dashboard-humus-trend"])[data-selected="true"] {
+    background:#f4f8f5;
+    border-color:var(--kpi-active)!important;
+    box-shadow:inset 0 0 0 1px var(--kpi-active);
+  }
+  #dashboard-overview #dashboard-results :is(.dash-five > .dash-stat,.dash-stat[aria-controls="dashboard-humus-trend"]):focus-visible {
+    outline:3px solid #247447;
+    outline-offset:3px;
+  }
+}
+
+/* Executive dashboard rhythm: period controls, key figures, then plots and detail. */
+@media screen {
+  #dashboard-overview.home-dashboard:not([hidden]) {
+    padding:clamp(12px,2vw,26px);
+    border:1px solid #e4ebe5;
+  }
+  #dashboard-overview .dashboard-heading {
+    margin:0 0 24px;
+    padding:clamp(10px,1.4vw,17px);
+    gap:10px 20px;
+    border-radius:10px;
+  }
+  #dashboard-overview .dash-heading-title { padding-left:17px; gap:10px; }
+  #dashboard-overview .dash-heading-title::before { width:4px; }
+  #dashboard-overview #home-dashboard-title { font-size:clamp(20px,2.15vw,30px); line-height:1.35; letter-spacing:normal; }
+  #dashboard-overview .dash-subtitle { font-size:clamp(13px,1.35vw,16px); }
+  #dashboard-overview #dashboard-status { min-height:0; }
+  #dashboard-overview #dashboard-status:empty { display:none; }
+  #dashboard-overview #dashboard-results .dash-section { margin-bottom:25px; }
+  #dashboard-overview #dashboard-results h3.dash-section-title {
+    margin:0 0 11px;
+    padding:0 0 7px 13px;
+    font-size:clamp(19px,1.65vw,23px);
+    font-weight:680;
+    letter-spacing:normal;
+  }
+  #dashboard-overview #dashboard-results h3.dash-section-title::before { width:4px; top:4px; bottom:10px; }
+  #dashboard-overview #dashboard-results :is(.dash-section-box,.dash-panel) {
+    padding:12px; border-radius:10px; border-color:#e0e9e3!important;
+  }
+  #dashboard-overview #dashboard-results h4.dash-panel-title,
+  #dashboard-overview #dashboard-results .dash-bank-year-heading {
+    background:#f5f8f6;
+    font-size:clamp(16px,1.58vw,19px);
+    padding:8px 12px;
+    border-radius:7px 7px 0 0;
+  }
+  #dashboard-overview #dashboard-results .dash-bank-year-heading h4 { font-size:inherit; }
+  #dashboard-overview #dashboard-results .dash-five {grid-template-columns:repeat(auto-fit,minmax(min(100%,142px),1fr));gap:9px;margin:0 0 12px}
+  #dashboard-overview #dashboard-results .dash-section-box > .dash-stats {gap:9px;margin:0 0 12px}
+  #dashboard-overview #dashboard-results .dash-stat[aria-controls="dashboard-bank-year-graph"] {border-radius:10px;min-height:106px;padding:14px 12px}
+  #dashboard-overview #dashboard-results .dash-stat[aria-controls="dashboard-bank-year-graph"] h4 {color:#43564a;font-size:clamp(.95rem,1.3vw,1.16rem);line-height:1.4;margin-bottom:7px}
+  #dashboard-overview #dashboard-results .dash-stat[aria-controls="dashboard-bank-year-graph"] .dash-number {font-size:clamp(1.55rem,2.2vw,2.24rem);font-weight:700;font-variant-numeric:tabular-nums}
+  #dashboard-overview #dashboard-results :is(.dash-bar-label,.dash-category) {font-size:clamp(13px,1.15vw,16px);line-height:1.4}
+  #dashboard-overview #dashboard-results .dash-column .dash-bar::before {content:none}
+  #dashboard-overview #dashboard-results .dash-annual-bar rect {animation:none}
+  #dashboard-overview #dashboard-results .dash-data-notes {border:1px solid #e4ebe5;border-radius:8px;padding:9px 12px;color:#43564a}
+}
+@media screen and (max-width:700px) {
+  #dashboard-overview .dashboard-heading {margin-bottom:17px}
+  #dashboard-overview #dashboard-results .dash-five {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* Confident color accents, with quiet white data surfaces and no added motion. */
+@media screen {
+  #dashboard-overview .dashboard-heading {
+    background:
+      url("../assets/eco-navigation-watermark.svg") right center / 245px auto no-repeat,
+      radial-gradient(ellipse at 9% 0%,#286c4a,#164d36 54%,#0b3428);
+    border-color:#1a6342;
+    box-shadow:inset 0 1px #ffffff38,0 4px 12px #12342624;
+  }
+  #dashboard-overview .dash-heading-title::before {background:#c7ed90;border-color:#c7ed90}
+  #dashboard-overview #dashboard-results h3.dash-section-title {
+    color:#143d2d;
+    background:linear-gradient(90deg,#dcefe2,#f7fbf8 65%,#fff);
+    border-color:#c9e1d1;
+    padding-block:6px;
+  }
+  #dashboard-overview #dashboard-results h3.dash-section-title::before {
+    top:6px; bottom:6px; background:#277751; border-color:#277751;
+  }
+  #dashboard-overview #dashboard-results :is(.dash-five > .dash-stat,.dash-stat[aria-controls="dashboard-humus-trend"]) {
+    border-top-width:5px!important;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--kpi-accent) 15%,white) 0%,#fff 48%);
+  }
+  #dashboard-overview #dashboard-results :is(.dash-five > .dash-stat,.dash-stat[aria-controls="dashboard-humus-trend"]) h4::before {
+    content:""; display:inline-block; vertical-align:.12em; margin-inline-end:7px;
+    width:.55em; height:.55em; border-radius:3px; background:var(--kpi-accent);
+  }
+  #dashboard-overview #dashboard-results :is(.dash-five > .dash-stat,.dash-stat[aria-controls="dashboard-humus-trend"])[data-selected="true"] {
+    background:linear-gradient(180deg,color-mix(in srgb,var(--kpi-accent) 25%,white),#fff 72%);
+  }
+  #dashboard-overview #dashboard-results .dash-column .dash-bar {
+    background:linear-gradient(112deg,var(--forest-bar-edge) 0%,var(--forest-bar-mid) 22%,var(--forest-bar-mid) 55%,var(--forest-bar-deep) 100%);
+    box-shadow:inset 1px 1px #f6fff0a0,inset -1px 0 #17372d65,2px 4px 7px #122a2154;
+  }
+  #dashboard-overview #dashboard-results .dash-column[data-selected="true"] .dash-bar {
+    box-shadow:inset 0 0 0 2px #17462f,2px 4px 8px #122a2160;
+  }
+}
+
+/* Stronger icon marks; no motion or change to plotted dimensions. */
+@media screen {
+  #dashboard-overview .dash-waste-bars .dash-waste-picture {
+    width:clamp(20px,3.2vw,41px);height:clamp(20px,3.2vw,41px);
+    background:#fffdf5;box-shadow:inset 0 0 0 1px #1b382a55,0 2px 4px #172c2270;
+  }
+  #dashboard-overview .dash-waste-picture svg {width:83%;height:83%}
+  #dashboard-overview #dashboard-humus-trend .dash-humus-coin {
+    width:clamp(20px,3.2vw,38px);height:clamp(20px,3.2vw,38px);
+    filter:drop-shadow(0 2px 2px #38260b9c);
+  }
+  #dashboard-overview #dashboard-results .dash-column .dash-bar .dash-icon svg {stroke-width:2}
+  #dashboard-overview #dashboard-results .dash-annual-bar > path {stroke-width:2}
+}
+
+@media screen and (min-width:701px) {
+  #dashboard-overview #dashboard-results .dash-humus-kpis {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+
+@media screen {
+  #dashboard-overview .dash-yoy-legend {display:flex;flex-wrap:wrap;gap:8px 19px;padding:12px 15px 4px;color:#32493d;font-size:.92rem}
+  #dashboard-overview .dash-yoy-key {display:inline-flex;align-items:center;gap:8px}
+  #dashboard-overview .dash-yoy-key::before {content:"";width:26px;border-top:3px solid #23724b}
+  #dashboard-overview .dash-yoy-key.is-prior::before {border-top:3px dashed #94611d}
+  #dashboard-overview .dash-yoy-scroll {overflow-x:auto;padding:6px 8px 0;overscroll-behavior-x:contain}
+  #dashboard-overview .dash-yoy-scroll svg {display:block;min-width:590px;width:100%;height:auto}
+  #dashboard-overview .dash-yoy-grid {stroke:#dce7e0;stroke-width:1}
+  #dashboard-overview .dash-yoy-axis {fill:#465b50;font:14px Anuphan,sans-serif}
+  #dashboard-overview .dash-yoy-series {color:#23724b}
+  #dashboard-overview .dash-yoy-series.is-prior {color:#94611d}
+  #dashboard-overview .dash-yoy-line {fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  #dashboard-overview .dash-yoy-series.is-prior .dash-yoy-line {stroke-dasharray:7 6}
+  #dashboard-overview .dash-yoy-point {fill:#fff;stroke:currentColor;stroke-width:2.6}
+  #dashboard-overview .dash-yoy-table {margin:8px 16px 14px;color:#385344}
+  #dashboard-overview .dash-yoy-table summary {cursor:pointer;font-size:.9rem}
+  #dashboard-overview .dash-yoy-table .dash-table {margin-top:8px;min-width:0}
+}
+
+/* Dashboard typography: cover regular text, native controls, numeric labels and SVG. */
+@media screen {
+  #dashboard-overview,
+  #dashboard-overview *,
+  body.chart-demo,
+  body.chart-demo .demo-banner {
+    font-family:Anuphan,Tahoma,sans-serif!important;
+  }
+}
+
+/* Shared dashboard button finish, modeled on the dark green refresh control. */
+@media screen {
+  #dashboard-overview.home-dashboard {
+    --dash-button-dark:linear-gradient(122deg,#214f39 0%,#357b5b 31%,#216347 48%,#12432e 73%);
+    --dash-button-light:linear-gradient(122deg,#fbfff9 0%,#cfe9df 32%,#edf4d5 47%,#b5d3c1 100%);
+    --dash-button-gloss-dark:linear-gradient(180deg,#d5f4d487 0%,#c8efd450 16%,#bce9cc20 28%,transparent 36%),linear-gradient(122deg,#20513a 0%,#367859 33%,#1e654b 53%,#0a3b28 100%);
+    --dash-button-gloss-light:linear-gradient(180deg,#fff 0%,#fff9 19%,#fff3 34%,transparent 39%),linear-gradient(117deg,#e5f6ec 0%,#b0dccf 27%,#eff0c5 49%,#d4eee2 66%,#a2c7b1 100%);
+  }
+  #dashboard-overview.home-dashboard :is(#dashboard-refresh,.dashboard-controls > .mu-choice-trigger,.dashboard-controls > select:not(.mu-choice-native),.dash-bank-switch > button) {
+    --dash-button-face:var(--dash-button-light);
+    --dash-button-hover:var(--dash-button-gloss-light);
+    --dash-button-ink:#153e2c;
+    --dash-button-edge:#8eb99e;
+    --dash-button-depth:#769b85;
+    background:var(--dash-button-face)!important;
+    background-position:0 0!important;
+    color:var(--dash-button-ink)!important;
+    border:1px solid var(--dash-button-edge)!important;
+    box-shadow:inset 0 1px #ffffffa3,0 2px var(--dash-button-depth),0 3px 7px #14362830;
+    font-weight:650;
+  }
+  #dashboard-overview.home-dashboard :is(#dashboard-refresh,.dash-bank-switch > button[aria-pressed="true"]) {
+    --dash-button-face:var(--dash-button-dark);
+    --dash-button-hover:var(--dash-button-gloss-dark);
+    --dash-button-ink:#fff;
+    --dash-button-edge:#80b899;
+    --dash-button-depth:#0b3020;
+  }
+  #dashboard-overview.home-dashboard :is(#dashboard-refresh,.dashboard-controls > .mu-choice-trigger,.dashboard-controls > select:not(.mu-choice-native),.dash-bank-switch > button):focus-visible {
+    outline:3px solid var(--dash-button-focus,#e9d16e);outline-offset:3px;
+  }
+  #dashboard-overview.home-dashboard :is(#dashboard-refresh,.dashboard-controls > .mu-choice-trigger,.dashboard-controls > select:not(.mu-choice-native),.dash-bank-switch > button):not(:disabled):active {
+    box-shadow:inset 0 2px 4px #102e2760,0 1px var(--dash-button-depth);
+  }
+  #dashboard-overview.home-dashboard :is(#dashboard-refresh,.dashboard-controls > .mu-choice-trigger,.dashboard-controls > select:not(.mu-choice-native),.dash-bank-switch > button):disabled {
+    opacity:.65;box-shadow:inset 0 1px #ffffff70;
+  }
+}
+@media screen and (hover:hover) and (pointer:fine) {
+  #dashboard-overview.home-dashboard :is(#dashboard-refresh,.dashboard-controls > .mu-choice-trigger,.dashboard-controls > select:not(.mu-choice-native),.dash-bank-switch > button):not(:disabled):hover {
+    background:var(--dash-button-hover)!important;
+    background-position:0 0!important;
+    box-shadow:inset 0 1px #fff,0 0 0 2px #a3d7b764,0 3px 9px #14362846;
+  }
+  #dashboard-overview.home-dashboard :is(#dashboard-refresh,.dashboard-controls > .mu-choice-trigger,.dashboard-controls > select:not(.mu-choice-native),.dash-bank-switch > button):not(:disabled):hover:active {
+    box-shadow:inset 0 2px 4px #102e2760,0 1px var(--dash-button-depth);
+  }
+  #dashboard-overview #dashboard-results .dash-stat[role="button"]:not([aria-disabled="true"]):hover {
+    background:
+      linear-gradient(180deg,#fff 0%,#fff7 18%,transparent 39%),
+      linear-gradient(118deg,color-mix(in srgb,var(--kpi-accent,#5d9676) 19%,white),#fff 68%);
+    box-shadow:inset 0 1px #fff,0 3px 7px #14362822;
+  }
+  #dashboard-overview #dashboard-results .dash-stat[role="button"][data-selected="true"]:hover {
+    box-shadow:inset 0 0 0 1px var(--kpi-active,#27543c),0 3px 7px #14362822;
+  }
+}
+
+@media screen { #dashboard-overview .dash-bank-switch { --dash-button-focus:#1b6944; } }
+
+
+/* Remove currency ornament only; keep values, bars and legend keys intact. */
+#dashboard-overview #dashboard-humus-trend .dash-humus-coin,
+#dashboard-overview #dashboard-bank-year-graph .dash-bank-sale-coin,
+#dashboard-overview #dashboard-bank-year-graph .dash-annual-bar > path[aria-hidden="true"] { display:none !important; }
+
+
+/* Bar feedback never affects chart geometry or its reported values. */
+@media screen {
+  #dashboard-overview #dashboard-results :is(.dash-waste-bars,.dash-trend-bars) .dash-bar[tabindex],
+  #dashboard-overview #dashboard-bank-year-graph .dash-annual-bar[tabindex] > rect {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform .18s ease-out, filter .18s ease-out;
+  }
+  #dashboard-overview .dash-waste-bars .dash-bar[role=button] { cursor:pointer; }
+  #dashboard-overview #dashboard-results :is(.dash-waste-bars,.dash-trend-bars) .dash-bar[tabindex]:focus-visible,
+  #dashboard-overview #dashboard-bank-year-graph .dash-annual-bar[tabindex]:focus-visible > rect {
+    outline: 2px solid #07553d;
+    outline-offset: 3px;
+    transform: scaleX(1.045);
+  }
+  #dashboard-overview #dashboard-bank-year-graph .dash-annual-bar[tabindex]:focus-visible { outline: none; }
+  @media (hover:hover) {
+    #dashboard-overview #dashboard-results :is(.dash-waste-bars,.dash-trend-bars) .dash-bar[tabindex]:hover,
+    #dashboard-overview #dashboard-bank-year-graph .dash-annual-bar[tabindex]:hover > rect {
+      transform: scaleX(1.045);
+      filter: brightness(1.10);
+    }
+  }
+  #dashboard-overview #dashboard-results :is(.dash-waste-bars,.dash-trend-bars) .dash-bar[tabindex]:is(:active,[data-pressing]),
+  #dashboard-overview #dashboard-bank-year-graph .dash-annual-bar[tabindex]:is(:active,[data-pressing]) > rect {
+    transform: scaleX(.94);
+  }
+}
+@media screen and (prefers-reduced-motion:reduce) {
+  #dashboard-overview #dashboard-results :is(.dash-waste-bars,.dash-trend-bars) .dash-bar[tabindex],
+  #dashboard-overview #dashboard-bank-year-graph .dash-annual-bar[tabindex] > rect {
+    transition:none !important;
+    transform:none !important;
+  }
+}

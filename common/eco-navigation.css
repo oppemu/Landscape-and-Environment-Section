@@ -1,0 +1,200 @@
+/* Registered length lets both pieces follow one and the same animation. */
+@property --eco-rail-width {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 76px;
+}
+
+/* The shared green navigation skin is independent of the selected page. */
+@media screen {
+  /* White lettering for the green rail; the original mark and divider stay untouched. */
+  .app-shell > .masthead > .brand { position: relative; }
+  .app-shell > .masthead > .brand > .brand-lettering {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    filter: brightness(0) invert(1);
+    clip-path: polygon(25% 0, 100% 0, 100% 58%, 25.1% 58%, 25.1% 72%, 100% 72%, 100% 100%, 25% 100%);
+  }
+
+  .app-shell {
+    --eco-bar: #104332;
+    --eco-bar-dark: #0b2e24;
+    --eco-bar-light: #1a5940;
+    --eco-text: #f4fff7;
+    --eco-icon: #ffe4a6;
+    --eco-icon-active: #fff2c9;
+    --eco-edge: #7fc39b52;
+    --eco-watermark: url("../assets/eco-navigation-watermark.svg");
+  }
+
+  .app-shell > .masthead,
+  .app-shell > #navigation {
+    color: var(--eco-text);
+    background:
+      radial-gradient(ellipse at 0 0, #8fdda92b, transparent 68%),
+      var(--eco-watermark) right bottom / 230px auto repeat-x,
+      linear-gradient(132deg, var(--eco-bar-light), var(--eco-bar) 52%, var(--eco-bar-dark)) !important;
+    border-color: var(--eco-edge) !important;
+  }
+  .app-shell > .masthead {
+    box-shadow: 0 4px 16px #0b2e2426, inset 0 1px #d8ffe52e;
+  }
+  .app-shell > #navigation {
+    box-shadow: 0 -5px 18px #0b2e242b, inset 0 1px #d8ffe52e;
+  }
+
+  .app-shell > #navigation > :is(a, button),
+  .app-shell > #navigation .report-nav > summary,
+  .app-shell > .masthead > :is(.sidebar-toggle, .profile-chip) {
+    color: var(--eco-text) !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none;
+    border-radius: 10px;
+  }
+  .app-shell > .masthead > :is(.sidebar-toggle, .profile-chip) {
+    background: #061f1660 !important;
+    border: 1px solid var(--eco-edge) !important;
+  }
+  .app-shell > .masthead > .sidebar-toggle { color: var(--eco-icon) !important; }
+  .app-shell > .masthead #profile-initial {
+    background: var(--eco-icon);
+    color: var(--eco-bar-dark);
+  }
+  .app-shell > #navigation .nav-icon {
+    color: var(--eco-icon);
+    filter: drop-shadow(0 2px 2px #071a12a8);
+  }
+  .app-shell > #navigation > :is(a, button):hover,
+  .app-shell > #navigation .report-nav > summary:hover,
+  .app-shell > .masthead > :is(.sidebar-toggle, .profile-chip):hover {
+    background: #d0ffdf21 !important;
+  }
+  .app-shell > #navigation > a[aria-current],
+  .app-shell > #navigation .report-nav > summary[aria-current],
+  .app-shell > .masthead > .sidebar-toggle[aria-pressed="true"] {
+    color: #fff !important;
+    background: linear-gradient(135deg, #316d50, #22563e) !important;
+    box-shadow: inset 0 0 0 1px #b4f0ca6b, 0 2px 6px #09291e54;
+  }
+  .app-shell > #navigation [aria-current] .nav-icon { color: var(--eco-icon-active); }
+  .app-shell > #navigation :is(a, button, summary):focus-visible,
+  .app-shell > .masthead :is(a, button):focus-visible {
+    outline: 2px solid var(--eco-icon-active);
+    outline-offset: -2px;
+  }
+  .app-shell > #navigation .report-submenu {
+    border-color: #a5e3b870;
+  }
+  .app-shell > #navigation .report-submenu > a {
+    color: var(--eco-text) !important;
+    background: #092d22bd !important;
+    border-color: transparent !important;
+  }
+  .app-shell > #navigation .report-submenu > a:is(:hover, [aria-current]) {
+    background: #2c674d !important;
+  }
+  .app-shell > #navigation .report-submenu > a::before { background: var(--eco-icon); }
+}
+
+@media screen and (min-width: 900px) {
+  /* One animated inherited width drives the surface and both interactive regions. */
+  .app-shell {
+    --eco-rail-width: 76px;
+    transition: --eco-rail-width .38s cubic-bezier(.22,.75,.28,1);
+  }
+  .app-shell:is(.sidebar-open, :has(> .masthead:hover, > #navigation:hover, > .masthead :focus-visible, > #navigation :focus-visible)) {
+    --eco-rail-width: 240px;
+  }
+  .app-shell > :is(.masthead, #navigation) {
+    width: var(--eco-rail-width) !important;
+    transition: none !important;
+  }
+
+  .app-shell > .masthead :is(.brand, .profile-chip) {
+    width: clamp(42px, calc(var(--eco-rail-width) - 32px), 208px) !important;
+    transition: none;
+  }
+  .app-shell > #navigation > :is(a,button) > span:not(.nav-icon),
+  .app-shell > #navigation .report-nav > summary > span:not(.nav-icon),
+  .app-shell > .masthead #profile-short {
+    flex: 0 0 auto;
+    width: max-content !important;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity .38s cubic-bezier(.22,.75,.28,1), transform .38s cubic-bezier(.22,.75,.28,1);
+  }
+  .app-shell:is(.sidebar-open, :has(> .masthead:hover, > #navigation:hover, > .masthead :focus-visible, > #navigation :focus-visible))
+    > #navigation :is(a,button,summary) > span:not(.nav-icon),
+  .app-shell:is(.sidebar-open, :has(> .masthead:hover, > #navigation:hover, > .masthead :focus-visible, > #navigation :focus-visible))
+    > .masthead #profile-short {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0s;
+  }
+
+  /* Desktop already expands the rail on hover or keyboard focus. */
+  .app-shell > .masthead > #sidebar-toggle { display: none; }
+
+  .app-shell::before {
+    content: "";
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: var(--eco-rail-width);
+    z-index: 1099;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at -60px 0, #8fdda936, transparent 220px),
+      var(--eco-watermark) left top / 246px 410px repeat-y,
+      linear-gradient(112deg, var(--eco-bar-light), var(--eco-bar-dark) 246px);
+    box-shadow: 5px 0 20px #09291d33, inset -1px 0 #abedc12b;
+  }
+  .app-shell > :is(.masthead, #navigation) {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .app-shell { transition: none !important; }
+  .app-shell > .masthead,
+  .app-shell > #navigation,
+  .app-shell > .masthead :is(.brand, .profile-chip, #profile-short),
+  .app-shell > #navigation :is(a,button,summary) > span:not(.nav-icon) {
+    transition: none !important;
+    animation: none !important;
+    transform: none;
+  }
+}
+
+
+
+/* A report disclosure uses native details semantics; ease its content rather than snapping. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (interpolate-size: allow-keywords) and selector(details::details-content) {
+    .app-shell > #navigation .report-nav {
+      interpolate-size: allow-keywords;
+    }
+    .app-shell > #navigation .report-nav::details-content {
+      opacity: 0;
+      transition: opacity .24s ease, content-visibility .29s allow-discrete;
+    }
+    .app-shell > #navigation .report-nav[open]::details-content {
+      opacity: 1;
+    }
+    @media (min-width: 900px) {
+      .app-shell > #navigation .report-nav::details-content {
+        block-size: 0;
+        overflow: clip;
+        transition: block-size .29s cubic-bezier(.22,.75,.28,1), opacity .24s ease,
+          content-visibility .29s allow-discrete;
+      }
+      .app-shell > #navigation .report-nav[open]::details-content {
+        block-size: auto;
+      }
+    }
+  }
+}

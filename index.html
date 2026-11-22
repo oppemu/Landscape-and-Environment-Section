@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- จำกัดแหล่งสคริปต์/iframe/รูป ป้องกันการโหลดโค้ดจากโดเมนที่ไม่กำหนด; ไม่ควรปิดข้อจำกัดเพื่อแก้ปัญหา Deploy -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' data: blob:; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://drive.google.com/thumbnail https://lh3.googleusercontent.com; connect-src 'self' http://127.0.0.1:17843 https://script.googleapis.com https://accounts.google.com/gsi/; frame-src 'self' blob: https://accounts.google.com/gsi/ https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'"
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#1e5631" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="บันทึกงาน" />
+    <link rel="apple-touch-icon" href="assets/pwa/apple-touch-icon.png" />
+    <title>งานภูมิทัศน์ | ศูนย์บันทึกและรายงาน</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600&amp;display=swap"
+    />
+    <link rel="stylesheet" href="app.css?v=4" />
+    <link rel="stylesheet" href="common/landscape-report.css" />
+    <link rel="stylesheet" href="report.css?v=20261121-waste-edit" />
+  <script src="common/thai-date.js" defer></script><link rel="stylesheet" href="common/theme-unified.css"><link rel="stylesheet" href="common/popup-select.css">
+<script src="common/popup-select.js" defer></script>
+<link rel="stylesheet" href="common/popup-theme.css"><script src="common/popup-theme.js" defer></script><link rel="stylesheet" href="common/file-picker.css"><link rel="stylesheet" href="common/pe-visual-theme.css?v=2"><link rel="stylesheet" href="common/settings.css"><link rel="stylesheet" href="common/dashboard.css?v=2.4.103" /><link rel="stylesheet" href="common/desktop-layout.css?v=5"><link rel="stylesheet" href="common/knowledge-home.css?v=11"><link rel="stylesheet" href="common/eco-navigation.css?v=9"><link rel="stylesheet" href="common/forms-theme.css?v=1"><link rel="stylesheet" href="common/dashboard-forest.css?v=bar-feedback-20261121"><link rel="stylesheet" href="common/pa-online.css?v=34"><link rel="stylesheet" href="common/pa-work.css?v=4"></head>
+  <body class="profile-required">
+    <a class="skip" href="#main">ข้ามไปเนื้อหา</a>
+    <div class="app-shell">
+      <header class="masthead">
+        <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-label="ตรึงเมนู" aria-controls="navigation" aria-pressed="false">☰</button>
+        <a class="brand" href="#overview"
+          ><img
+            src="modules/fresh/โลโก้กองกายภาพ.png"
+            alt="กองกายภาพและสิ่งแวดล้อม" /><img class="brand-lettering" src="modules/fresh/โลโก้กองกายภาพ.png" alt="" aria-hidden="true" /></a
+        ><button
+          id="profile-chip"
+          class="profile-chip"
+          aria-label="เปลี่ยนชื่อผู้กรอก"
+        >
+          <span id="profile-initial">?</span
+          ><span id="profile-short">ใส่ชื่อ</span>
+        </button>
+      </header>
+      <main id="main" tabindex="-1">
+        <section id="overview">
+          <p
+            id="profile-storage-status"
+            role="status"
+            class="profile-storage-status"
+            hidden
+          ></p>
+          </section>
+        <section id="forms-view" aria-labelledby="forms-title" hidden>
+          <h1 id="forms-title" class="kc-heading">แบบฟอร์ม</h1>
+          <div id="cards" class="cards"></div>
+        </section>
+        <section id="pa-work-view" class="pa-online-card" aria-labelledby="pa-work-title" hidden>
+          <a href="#forms">กลับหน้าแบบฟอร์ม</a>
+          <h1 id="pa-work-title">รายงานการปฏิบัติงาน</h1>
+          <p id="pa-work-status" role="status" aria-live="polite">ยังไม่ได้เชื่อมระบบรายงานการปฏิบัติงาน จึงยังส่งรายงานไม่ได้</p>
+          <p id="pa-work-identity" hidden></p>
+          <form id="pa-work-form" autocomplete="off">
+            <fieldset id="pa-work-fields" disabled>
+              <legend>ข้อมูลการปฏิบัติงาน</legend>
+              <label for="pa-work-date">วันที่ปฏิบัติงาน</label>
+              <input id="pa-work-date" type="date" required>
+              <label for="pa-work-assignment">งานตามที่ได้รับมอบหมาย</label>
+              <select id="pa-work-assignment" required><option value="">เลือกงาน</option></select>
+              <label for="pa-work-description">รายละเอียดการปฏิบัติงาน</label>
+              <textarea id="pa-work-description" rows="4" maxlength="1500" required></textarea>
+              <label for="pa-work-photos">รูปประกอบการปฏิบัติงาน (JPG/PNG 1–3 รูป)</label>
+              <input id="pa-work-photos" type="file" accept="image/jpeg,image/png" multiple required>
+              <fieldset id="pa-work-collaborators" class="pa-work-collaborators" hidden>
+                <legend>ผู้ร่วมปฏิบัติงาน (เลือกได้หลายคน)</legend>
+                <div id="pa-work-peer-list"></div>
+              </fieldset>
+              <button class="button" type="submit">ส่งรายงานการปฏิบัติงาน</button>
+            </fieldset>
+          </form>
+        </section>
+        <section id="pa-online-view" class="pa-online-card" aria-labelledby="pa-layout-title" hidden>
+          <section id="pa-layout" aria-labelledby="pa-layout-title">
+            <h1 id="pa-layout-title" class="pa-layout-sr">แบบรายงาน PA งานภูมิทัศน์</h1>
+            <div class="pa-layout-name">
+              <input id="pa-layout-name" type="search" autocomplete="off" maxlength="120" placeholder="พิมพ์ชื่อหรือนามสกุล" aria-label="พิมพ์ชื่อบุคลากรงานภูมิทัศน์" aria-controls="pa-layout-options" aria-expanded="false">
+              <div id="pa-layout-options" class="pa-layout-options" hidden></div>
+              <label id="pa-layout-period-label" for="pa-layout-period">เดือนที่แสดง <input type="month" id="pa-layout-period" min="2000-01" max="2099-12" required></label>
+              <p id="pa-template-status" role="status" aria-live="polite" hidden></p>
+              <button id="pa-layout-print" class="button" type="button">พิมพ์ / บันทึกเป็น PDF</button>
+              <button id="pa-layout-download" class="button pa-pdf-secondary" type="button">ดาวน์โหลด PDF (ไม่รวมรูป)</button>
+              <p id="pa-layout-pdf-error" role="alert" hidden>ดาวน์โหลด PDF ไม่สำเร็จ กรุณาลองใหม่</p>
+            </div>
+            <div class="pa-paper-view" role="group" aria-label="ตัวอย่างแบบรายงาน PA 13 หน้า">
+              <div id="pa-layout-pages"></div>
+            </div>
+          </section>
+        </section>
+        <section id="settings-view" aria-labelledby="settings-title" hidden>
+          <h1 id="settings-title">ตั้งค่า</h1>
+          <section class="pwa-actions" aria-label="ติดตั้งและอัปเดตแอพ">
+            <button type="button" id="install-app" class="text-button">
+              ติดตั้งแอพ
+            </button>
+            <button type="button" id="update-app" class="text-button" hidden>
+              อัปเดตแอพ
+            </button>
+            <p id="pwa-status" role="status" aria-live="polite"></p>
+          </section>
+        </section>
+        <section id="module-view" hidden>
+          <div class="module-toolbar">
+            <a href="#overview" class="back-button" aria-label="กลับหน้าแรก"
+              >←</a
+            >
+            <h2 id="module-title"></h2>
+            <button
+              id="module-profile"
+              class="module-profile"
+              aria-label="เปลี่ยนชื่อผู้กรอก"
+            >
+              <span id="module-profile-name">ชื่อผู้กรอก</span>
+            </button>
+          </div>
+          <p id="module-status" role="status" aria-live="polite">
+            ฐานข้อมูลใหม่ · เชื่อมผ่านบัญชี Google
+          </p>
+          <section id="dashboard-overview" class="home-dashboard" aria-labelledby="home-dashboard-title" hidden>
+            <div class="dashboard-heading"><div class="dash-heading-title"><div id="waste-mascot"></div><div class="dash-heading-copy"><h2 id="home-dashboard-title">ภาพรวมงานภูมิทัศน์และสิ่งแวดล้อม</h2><p class="dash-subtitle">กองกายภาพและสิ่งแวดล้อม</p></div></div><div class="dashboard-controls"><input id="dashboard-month" type="month" hidden><select id="dashboard-month-choice" aria-label="เดือนรายงาน"></select><select id="dashboard-year-choice" aria-label="ปีรายงาน"></select><button id="dashboard-refresh" type="button" class="button"><span aria-hidden="true">⟳</span> รีเฟรช</button></div><p id="dashboard-period" class="dash-sr-only"></p><p id="dashboard-status" role="status">พร้อมอ่านข้อมูล</p></div>
+            <div id="dashboard-results" class="dashboard-results"></div>
+          </section>
+          <div id="frames"></div>
+        </section>
+        <section id="landscape-report-view" hidden aria-label="รายงานพื้นที่สีเขียว"></section>
+        <section id="bank-import-view" hidden aria-labelledby="bank-import-title">
+          <a href="#forms" class="bank-home-link">← กลับหน้าแบบฟอร์ม</a>
+          <h2 id="bank-import-title">นำเข้า Excel ธนาคารขยะ</h2>
+          <p>เลือกไฟล์แล้วนำข้อมูลเข้า Google ชีต</p>
+          <button id="bank-direct-open" class="button" type="button">แนบไฟล์ Excel</button>
+          <a id="bank-google-direct" class="button" target="_blank" rel="noopener" hidden>เปิดหน้าแนบ Excel ใน Google โดยตรง</a>
+          <input id="bank-excel-file" type="file" accept=".xls,application/vnd.ms-excel" hidden>
+          <p class="privacy-note">ไฟล์ .xls ที่ส่งออกจากธนาคารขยะ ขนาดไม่เกิน 1 MB เลือกแล้วระบบจะนำข้อมูลเข้าชีตทันที ไม่เก็บไฟล์ Excel</p>
+          <p>ครั้งแรก: เปิด Google ด้วยบัญชีที่ได้รับอนุญาต เมื่อเชื่อมต่อสำเร็จให้กลับมาหน้านี้ แล้วเลือกไฟล์ Excel</p>
+          <a id="bank-authorize" target="_blank" rel="noopener" hidden>ขั้นที่ 1: เปิด Google และอนุญาตสิทธิ์ครั้งแรก ก่อนเลือกไฟล์</a>
+          <p id="bank-direct-status" role="status">กำลังตรวจการตั้งค่า</p>
+        </section>
+<section id="report-view" hidden>
+          <!-- โครงสร้างหน้ารายงานผู้บริหาร -->
+          <div class="report-controls">
+            <!-- โครงสร้างแถบควบคุมช่วงเวลาและการนำเข้า -->
+            <div class="report-heading">
+              <p class="eyebrow">เอกสารสำหรับผู้บริหาร</p>
+              <h2 id="report-view-title">รายงานการจัดการขยะ</h2>
+            </div>
+            <!-- โครงสร้างหัวข้อหน้ารายงาน -->
+            <div class="period-controls report-simple-period" role="group" aria-label="เลือกเดือน ปี และดาวน์โหลดรายงาน">
+              <label>เดือน<select id="report-month-choice" aria-label="เดือนรายงาน"></select></label>
+              <label>ปี พ.ศ.<input id="report-year-choice" type="number" min="2443" max="2942" step="1" inputmode="numeric" aria-label="ปีรายงาน พ.ศ."></label>
+              <button id="print" class="button" type="button" disabled>PDF</button>
+            </div>
+          </div>
+          <!-- ช่องสัญญาภายในเดิมเก็บไว้เพื่อไม่เปลี่ยนรูปแบบรายงาน แต่ไม่มีการนำเข้าไฟล์/ข้อมูลตัวอย่างในหน้ารายงานนี้ -->
+          <div hidden aria-hidden="true" id="report-legacy-controls">
+            <select id="period-type"><option value="month" selected>รายเดือน</option></select>
+            <label id="period-month"><input type="month" id="month"></label>
+            <label id="period-day" hidden><input type="date" id="report-day"></label>
+            <label id="period-year" hidden><input type="number" id="report-year"></label>
+            <button id="report-connect" type="button">เชื่อมข้อมูล</button>
+            <button id="report-refresh" type="button">อ่านใหม่</button>
+            <button id="report-disconnect" type="button">หยุด</button>
+            <label id="import-label"><input id="import" type="file" accept="application/json,.json" disabled></label>
+          </div>
+          <details class="document-fields" hidden>
+            <summary>ข้อมูลหนังสือและผู้ลงนาม (กรอกเอง)</summary>
+            <!-- หัวกล่องกดเปิดเพื่อกรอกเลขหนังสือ วันที่ ผู้รับ และผู้ลงนาม -->
+            <div>
+              <label
+                >เลขที่หนังสือ<input
+                  id="document-number"
+                  maxlength="40"
+                  autocomplete="off" /></label
+              ><label
+                >วันที่หนังสือ<input id="document-date" type="date" /></label
+              ><label
+                >เรียน<input
+                  id="document-recipient"
+                  maxlength="80"
+                  autocomplete="off" /></label
+              ><label
+                >ชื่อ / ตำแหน่งผู้ลงนาม<input
+                  id="document-signatory"
+                  maxlength="80"
+                  autocomplete="off"
+              /></label>
+            </div>
+            <!-- ช่องกรอกที่อยู่ในป้ายกำกับนี้ส่งค่าด้วย id ให้ตัวควบคุมอ่าน -->
+          </details>
+          <!-- ช่องกรอกที่อยู่ในป้ายกำกับนี้ส่งค่าด้วย id ให้ตัวควบคุมอ่าน -->
+          <p id="import-status" role="status">
+            เลือกเดือนและปี ระบบจะอ่านข้อมูลจริงจากชีตให้อัตโนมัติ
+          </p>
+          <p id="report-source" class="report-source-status" hidden></p> <!-- สถานะข้อมูลอยู่นอกเอกสารและไม่พิมพ์ -->
+              <details class="report-data-details" hidden><summary>ดูข้อมูลต้นทางและความครอบคลุม</summary> <!-- เก็บตารางเดิมสำหรับตรวจสอบโดยไม่ซ้ำในหน้าพิมพ์ -->
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">รายการ</th>
+                    <th scope="col">ปริมาณ / มูลค่า</th>
+                    <th scope="col">ความครอบคลุมข้อมูล</th>
+                  </tr>
+                </thead>
+                <tbody id="report-metrics"></tbody>
+              </table>
+              </details> <!-- ปิดข้อมูลตรวจสอบที่ผู้ใช้เปิดดูได้ -->
+              <!-- โครงสร้างตารางปริมาณ มูลค่า และความครอบคลุม -->
+              <details class="report-notes-ui" hidden><summary>คำอธิบายข้อมูลสำหรับตรวจสอบ (ไม่พิมพ์ในรายงาน)</summary>
+                <p>
+                  <strong>หมายเหตุ:</strong> — หมายถึงไม่มีข้อมูลที่ใช้สรุปได้
+                  ไม่ใช่ศูนย์; ข้อมูลบางส่วนต้องตรวจสอบก่อนอ้างอิง
+                  น้ำหนักแต่ละขั้นตอนแสดงแยกกัน ไม่รวมซ้ำเป็นยอดขยะทั้งหมด
+                </p>
+                <p>
+                  ฮิวมัสในตารางต้นทางยังไม่ได้ยืนยันว่าเป็นผลผลิตที่ไม่ซ้ำ จึงยังไม่ใช้ในกราฟผลผลิต; ขยะอันตรายเป็นยอดแจ้ง
+                  ไม่ใช่ยอดกำจัดจริง ยังไม่สรุปขยะทั่วไป คงคลัง การกำจัด RDF
+                  หรือก๊าซเรือนกระจก
+                </p>
+                <p>
+                  ใช้ประกอบการทบทวนการจัดการขยะ
+                  ไม่ใช่ใบรับรองมาตรฐาน ISO
+                </p>
+                <p>ส่วนต่างเงินขาย − เงินซื้อในเดือนนั้น ไม่ใช่กำไรสุทธิทางบัญชี และยังไม่หักค่าใช้จ่ายอื่นหรือปรับต้นทุนสินค้าคงเหลือ</p>
+              </details>
+              <!-- โครงสร้างหมายเหตุข้อจำกัดของยอดและการอ้าง ISO -->
+          <!-- โครงสร้างสถานะนำเข้าข้อมูล -->
+          <div
+            class="report-scroll" id="report-document"
+            aria-label="เอกสารรายงาน พอดีกับความกว้างหน้าจอ"
+          >
+            <!-- โครงสร้างสถานะนำเข้าข้อมูล -->
+            <article id="report-page">
+              <!-- โครงสร้างสถานะนำเข้าข้อมูล -->
+              <header class="letterhead">
+                <img
+                  src="assets/report-reference/report-logo.png"
+                  alt="ตรามหาวิทยาลัยมหิดล"
+                />
+                <div>งานภูมิทัศน์และสิ่งแวดล้อม<br>กองกายภาพและสิ่งแวดล้อม<br>สำนักงานอธิการบดี มหาวิทยาลัยมหิดล<br>โทร 02-441-4400 ต่อ 1211</div>
+              </header>
+              <!-- โครงสร้างหัวหนังสือที่ใช้ตราเดิมและชื่อหน่วยงาน -->
+              <div class="letter-meta">
+                <p><span>ที่</span><span id="report-number"></span></p>
+                <p><span>วันที่</span><span id="report-letter-date"></span></p>
+                <p>
+                  <span>เรื่อง</span
+                  ><span
+                    >สรุปรายงานการจัดการขยะ <span id="report-month"></span
+                  ></span>
+                </p>
+                <p><span>เรียน</span><span id="report-recipient"></span></p>
+              </div>
+              <!-- โครงสร้างบรรทัดเลขที่ วันที่ เรื่อง และเรียน -->
+              <p class="letter-intro"> <!-- ย่อหน้าแรกอธิบายงานหลังบรรทัดที่ วันที่ เรื่อง และเรียน -->
+                ตามที่งานภูมิทัศน์และสิ่งแวดล้อม ดำเนินงานด้านการจัดการขยะและวัสดุ <!-- เกริ่นภารกิจโดยไม่เติมยอดหรือคำรับรอง -->
+                และจัดเก็บข้อมูลผลการดำเนินงานไว้ในฐานข้อมูลของหน่วยงาน นั้น <!-- จบย่อหน้าแรกตามรูปแบบหนังสือที่ผู้ใช้ขอ -->
+              </p> <!-- จบย่อหน้า ตามที่ -->
+              <p class="letter-intro"> <!-- ย่อหน้าที่สองเสนอรายงานตามช่วงที่เลือกและขอบเขตนำเข้า -->
+                ในการนี้ งานภูมิทัศน์และสิ่งแวดล้อม ขอรายงานผลการจัดการขยะและวัสดุ <!-- ไม่อ้างว่าโหลดข้อมูลสดหรือรับรองยอดแล้ว -->
+                <span id="report-intro-period"></span> ตามขอบเขตข้อมูลที่อ่านได้ <!-- ให้ controller เติมวัน เดือน หรือปีเดียวกับบรรทัดเรื่อง -->
+                เพื่อประกอบการพิจารณาของผู้บริหาร โดยมีรายละเอียด ดังนี้ <!-- นำเข้าสู่ตารางรายงานโดยไม่เพิ่มข้อผูกพัน -->
+              </p> <!-- จบย่อหน้า ในการนี้ ก่อนแสดงขอบเขตข้อมูลและตาราง -->
+              <div id="report-analytics"></div> <!-- กราฟขยะ ผลิตภัณฑ์ และธนาคารขยะตามช่วงรายงาน -->
+              <div class="report-closing"> <!-- ลายเซ็นและข้อความตรวจทานอยู่หน้าด้วยกัน -->
+              <div class="letter-signature">(<span id="report-signatory"></span>)<br>หัวหน้างานภูมิทัศน์และสิ่งแวดล้อม</div>
+              <!-- โครงสร้างช่องลงชื่อและชื่อผู้ลงนาม -->
+              <footer>
+                ฉบับตรวจทาน · ตรวจสอบแหล่งข้อมูลและลงนามก่อนใช้อ้างอิง ·
+                ไม่มีการแก้ไขฐานข้อมูลจากรายงานนี้
+              </footer>
+              </div> <!-- ปิดส่วนลงนามและท้ายหนังสือ -->
+              <!-- โครงสร้างข้อความฉบับตรวจทานท้ายหน้า -->
+            </article>
+            <!-- โครงสร้างหน้ากระดาษหนังสือ -->
+          </div>
+          <!-- โครงสร้างกรอบเลื่อนดูเอกสาร A4 บนมือถือ -->
+        </section> <!-- ปิดส่วนแสดงผลตามลำดับโครงสร้างเอกสาร -->
+      </main>
+      <nav id="navigation" class="bottom-nav" aria-label="เมนูหลัก">
+        <a href="#overview" id="nav-home"
+          ><span class="nav-icon" aria-hidden="true"></span
+          ><span>หน้าแรก</span></a
+        ><a href="#forms" id="nav-forms"
+          ><span class="nav-icon" aria-hidden="true"></span
+          ><span>แบบฟอร์ม</span></a
+        ><a href="#tree" id="nav-dashboard"><span class="nav-icon" aria-hidden="true"></span><span>แดชบอร์ด</span></a><details class="report-nav"><summary id="nav-report"><span class="nav-icon" aria-hidden="true"></span><span>รายงาน</span></summary><div class="report-submenu"><a id="nav-report-waste" href="#report">การจัดการขยะ</a><a id="nav-report-landscape" href="#report-landscape" title="การจัดการภูมิทัศน์และพื้นที่สีเขียว" aria-label="การจัดการภูมิทัศน์และพื้นที่สีเขียว">การจัดการภูมิทัศน์ฯ</a></div></details><a href="#pa-online" id="nav-pa-online"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/></svg></span><span>ดาวน์โหลด PA ออนไลน์</span></a><a id="nav-settings" href="#settings"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l.6 3 2.4 1.4 2.9-.9 3 5.2-2.3 2.1v2.8l2.3 2.1-3 5.2-2.9-.9L15.6 24h-6L9 21l-2.4-1.4-2.9.9-3-5.2L3 13.2v-2.8L.7 8.3l3-5.2 2.9.9L9 2.6" transform="translate(2 1) scale(.8)"/><circle cx="12" cy="12" r="3.2"/></svg></span><span>ตั้งค่า</span></a><button id="nav-profile">
+          <span class="nav-icon" aria-hidden="true"></span
+          ><span>ชื่อผู้กรอก</span>
+        </button>
+      </nav>
+    </div>
+    <dialog id="profile-dialog" aria-labelledby="profile-title">
+      <form id="profile-form">
+        <div class="profile-entry-brand">
+          <img class="profile-entry-logo" src="modules/fresh/โลโก้กองกายภาพ.png" alt="กองกายภาพและสิ่งแวดล้อม">
+          <h2 id="profile-title">งานภูมิทัศน์และสิ่งแวดล้อม</h2>
+          <p class="dialog-intro">ใส่ชื่อเพื่อเริ่มใช้งาน</p>
+        </div>
+        <label for="profile-name">ชื่อ นามสกุล</label
+        ><input
+          id="profile-name"
+          type="text"
+          maxlength="60"
+          autocomplete="off"
+          aria-controls="roster-options"
+          aria-expanded="false"
+          placeholder="ชื่อ นามสกุล"
+          required
+        />
+        <div
+          id="roster-options" hidden
+          class="roster-options"
+          aria-label="รายชื่อผู้กรอก"
+        ></div>
+        <p id="profile-error" role="alert"></p>
+        <button class="button start-button" type="submit" id="profile-start">
+          เข้าสู่ระบบ</button
+        ><button type="button" id="forget-profile" class="text-button" hidden>
+          ออกจากระบบ
+        </button>
+        <p class="privacy-note">ใช้เครื่องร่วมกัน เปลี่ยนชื่อก่อนกรอก</p>
+      </form>
+    </dialog>
+    <dialog id="change-dialog" aria-labelledby="change-title">
+      <h2 id="change-title">เปลี่ยนผู้กรอก?</h2>
+      <p>ร่างแบบฟอร์มและข้อมูลรายงานในหน้านี้จะถูกล้าง</p>
+      <button id="confirm-change" class="button">เปลี่ยนชื่อและล้างร่าง</button
+      ><button id="cancel-change" class="text-button">ยกเลิก</button>
+    </dialog>
+    <dialog id="install-help" aria-labelledby="install-title">
+      <h2 id="install-title">ติดตั้งบนมือถือ</h2>
+      <p>เปิดลิงก์แอพที่เผยแพร่ผ่าน HTTPS ก่อน</p>
+      <p>
+        <strong>iPhone / iPad:</strong> เปิดใน Safari → แชร์ →
+        เพิ่มไปยังหน้าจอโฮม (อาจต้องเลือกเปิดเป็นเว็บแอพ)
+      </p>
+      <p>
+        <strong>Android:</strong> เปิดใน Chrome → เมนู ⋮ → ติดตั้งแอพ
+        หรือเพิ่มลงในหน้าจอหลัก หากเบราว์เซอร์รองรับ
+      </p>
+      <p class="privacy-note">
+        เป็น PWA ไม่ใช่ไฟล์ APK หรือแอพจาก App Store ต้องเชื่อมต่ออินเทอร์เน็ต
+        รายการรอส่งและไฟล์แนบเก็บในเครื่อง ส่งต่อเมื่อเปิดแอปพร้อมอินเทอร์เน็ต อย่าล้างข้อมูลเบราว์เซอร์ก่อนยืนยัน การจำชื่อไม่ใช่ระบบเข้าสู่ระบบ
+      </p>
+      <button type="button" id="close-install-help" class="button">ปิด</button>
+    </dialog>
+    <!-- โหลดสคริปต์ตามลำดับ: runtime → การตั้งค่า/ข้อมูล → คิวและตัวเชื่อม → รายงาน → shell; อย่าสลับโดยไม่ทดสอบ -->
+    <script src="common/runtime.js"></script>
+    <script src="config/staff.js"></script>
+    <script src="common/profile.js"></script>
+    <script src="report.js"></script>
+    <script src="common/dataset-adapter.js"></script>
+    <script src="config/app-config.js?v=pa-ready1"></script>
+    <script src="common/navigation-config.js?v=4"></script>
+    <script src="common/durable-outbox.js"></script><script src="common/unified-client.js"></script>
+    <script src="common/icons.js"></script>
+    <script src="config/report-mappings.js"></script> <!-- ตั้งแหล่งข้อมูลเพิ่มเติมที่ยืนยันแล้ว -->
+    <script src="common/report-analytics.js?v=20261121-foodpartial1"></script> <!-- คำนวณข้อมูลกราฟ -->
+    <script src="common/dashboard-cache.js?v=2.4.104"></script>
+<script src="common/dashboard.js?v=bar-feedback-20261121"></script>
+    <script src="common/report-charts.js?v=20261121-foodpartial1"></script> <!-- วาดกราฟโดยไม่พึ่งเครือข่าย -->
+    <script src="config/report-source.js"></script> <!-- เลือกโหมดรายงานฐานรวมและรอบอ่านใหม่ ไม่ได้เก็บ Client ID -->
+    <script src="common/report-unified.js?v=20261121-foodpartial1"></script>
+    <!-- ตัวสร้าง PDF โหลดไลบรารีและฟอนต์ภายในชุดเว็บเมื่อกดดาวน์โหลด ไม่ส่งข้อมูลรายงานไปบริการ PDF ภายนอก -->
+    <script src="common/report-edit.js?v=20261121-integer1"></script>
+    <script src="common/report-pdf.js?v=20261121-foodpartial1"></script>
+<script src="common/report-controller.js?v=20261121-foodpartial1"></script>
+<script src="common/report-preview.js"></script>
+    <script src="common/bank-import-parser.js"></script>
+    <script src="common/bank-name-handoff.js"></script>
+    <script src="common/bank-direct-open.js"></script>
+    <script src="common/module-host.js?v=9"></script><script src="common/pa-api-transport.js?v=1"></script><script src="common/pa-online.js?v=6"></script><script src="common/pa-pagination.js?v=9"></script><script src="common/pa-evidence.js?v=6"></script><script src="common/pa-draft.js?v=3"></script><script src="common/pa-layout.js?v=39"></script><script src="common/pa-layout-pdf.js?v=25"></script><script src="common/pa-work.js?v=8"></script>
+    <script src="common/profile-controller.js?v=login-roster-20261121"></script>
+
+    <script src="modules/contractor-landscape/work-options.js"></script>
+    <script src="common/landscape-report.js"></script>
+    <script src="app.js?v=pa-profile1"></script><script src="common/knowledge-home.js?v=5"></script>
+    <script src="common/sidebar.js"></script>
+    <script src="common/pwa.js"></script>
+  <script src="common/dashboard-mascot.js?v=2.4.103"></script></body>
+</html>

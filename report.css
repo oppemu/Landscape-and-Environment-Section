@@ -1,0 +1,450 @@
+/* รูปแบบเอกสารบนหน้าจอและทางพิมพ์เดิม: ฟอนต์ SarabunReport จากไฟล์โครงการ; หน่วย mm/pt รักษาสัดส่วน A4 ต่างจาก px ของปุ่มหน้าแอป; PDF ดาวน์โหลดตรงใช้ layout ใน report-pdf.js แยกจาก CSS นี้ */
+@font-face { /* ลงทะเบียนฟอนต์ SarabunReport จากไฟล์เดิมในโครงการ */
+  font-family: SarabunReport; /* ใช้ SarabunReport ก่อน แล้วจึง Tahoma หรือ sans-serif หากโหลดฟอนต์ไม่ได้ */
+  src: url('assets/report-reference/fonts/THSarabunNew.ttf') format('truetype'); /* โหลดไฟล์สารบรรณตัวปกติจาก assets/report-reference/fonts */
+  font-display: swap; /* ให้ข้อความปรากฏก่อน แล้วสลับเป็นฟอนต์สารบรรณเมื่อโหลดเสร็จ */
+} /* จบกฎ@font-face */
+@font-face { /* ลงทะเบียนฟอนต์ SarabunReport จากไฟล์เดิมในโครงการ */
+  font-family: SarabunReport; /* ใช้ SarabunReport ก่อน แล้วจึง Tahoma หรือ sans-serif หากโหลดฟอนต์ไม่ได้ */
+  src: url('assets/report-reference/fonts/THSarabunNewBold.ttf') /* โหลดไฟล์สารบรรณตัวหนา */
+    format('truetype'); /* ระบุว่าไฟล์ฟอนต์ตัวหนาเป็นรูปแบบ TrueType */
+  font-weight: bold; /* ใช้ตัวหนากับ@font-face */
+  font-display: swap; /* ให้ข้อความปรากฏก่อน แล้วสลับเป็นฟอนต์สารบรรณเมื่อโหลดเสร็จ */
+} /* จบกฎ@font-face */
+#report-view { /* เริ่มรูปแบบหน้ารายงาน */
+  overflow-x: auto; /* ให้หน้ารายงานเลื่อนแนวนอนแทนบีบ A4 บนมือถือ */
+} /* จบกฎหน้ารายงาน */
+#report-page { /* เริ่มรูปแบบกระดาษรายงาน A4 */
+  --report-chart-height: 45mm; /* เพิ่มพื้นที่แท่งกราฟจาก 26 เป็น 45 มม. โดยคงสเกลข้อมูลเดิม */
+  box-sizing: border-box; /* นับ padding รวมในขนาด A4 เพื่อไม่ให้หน้ากว้างเกิน 210 มม. */
+  width: 210mm; /* กำหนดความกว้างกระดาษรายงาน A4 210mm */
+  min-height: 297mm; /* กันความสูงขั้นต่ำของกระดาษรายงาน A4 297mm */
+  max-width: none; /* ไม่จำกัดความกว้าง กระดาษรายงาน A4 เพื่อรักษาขนาดกระดาษจริง */
+  margin: 20px auto; /* กำหนดช่องว่างรอบกระดาษรายงาน A4 20px auto */
+  background: #fff; /* ใช้พื้นหลัง #fff กับกระดาษรายงาน A4 */
+  padding: 20mm 20mm 5mm 30mm; /* ตั้งขอบบน 20 ขวา 20 ล่าง 5 ซ้าย 30 มม. ตามสัดส่วนหนังสือจ้างเหมา */
+  color: #000; /* ใช้สีข้อความ #000 กับกระดาษรายงาน A4 */
+  box-shadow: 0 2px 15px #00000012; /* ใส่เงาบางให้แยกหน้ากระดาษจากพื้นหลังบนจอ */
+  font-family: SarabunReport, Tahoma, sans-serif; /* ใช้ SarabunReport ก่อน แล้วจึง Tahoma หรือ sans-serif หากโหลดฟอนต์ไม่ได้ */
+  font-size: 15pt; /* ใช้ TH Sarabun New 15pt (20px) เท่ารายงานการจ้างเหมาตามตัวอย่างล่าสุด */
+  line-height: 20pt; /* ตั้งระยะบรรทัด 20pt สำหรับกระดาษรายงาน A4 */
+} /* จบกฎกระดาษรายงาน A4 */
+#report-page .letterhead { /* เริ่มรูปแบบบริเวณหัวหนังสือ */
+  position: relative; /* ให้หัวหนังสือเป็นจุดอ้างอิงตำแหน่งของตรา */
+  min-height: 40mm; /* เผื่อพื้นที่ตรา 25 มม. และชื่อหน่วยงานสี่บรรทัดก่อนข้อมูลหนังสือ */
+  margin-bottom: 20pt; /* เว้นหัวหนังสือ 20pt ตามหนังสือจ้างเหมา */
+  display: flex; /* จัดบริเวณหัวหนังสือ ด้วย flex */
+  justify-content: flex-end; /* จัดหน่วยงานไปด้านขวาสุดของหัวหนังสือ */
+  align-items: flex-end; /* วางข้อความหน่วยงานที่แนวล่างของพื้นที่หัวหนังสือ */
+} /* จบกฎบริเวณหัวหนังสือ */
+#report-page .letterhead img { /* เริ่มรูปแบบตรามหาวิทยาลัย */
+  position: absolute; /* ให้ตราวางอิสระภายในหัวหนังสือ */
+  top: 0; /* วางตราชิดด้านบนของหัวหนังสือ */
+  left: calc(50% - 17.5mm); /* เลื่อนจากกึ่งกลางพื้นที่เนื้อหาไปซ้าย 5 มม. แล้วหักครึ่งตรา 12.5 มม. ให้ตรากลางกระดาษจริง */
+  width: 25mm; /* กำหนดความกว้างตรามหาวิทยาลัย 25 มม. หรือ 2.5 ซม. */
+  height: 25mm; /* กำหนดความสูงกล่องตรา 25 มม. โดยรักษาสัดส่วนภาพ */
+  object-fit: contain; /* รักษาสัดส่วนตรา ไม่ยืดภาพเต็มกล่องจนผิดรูป */
+} /* จบกฎตรามหาวิทยาลัย */
+#report-page .letterhead div { /* เริ่มรูปแบบที่อยู่หน่วยงานด้านขวา */
+  text-align: right; /* จัดที่อยู่หน่วยงานด้านขวา ชิด right */
+  font-size: 15pt; /* ใช้ TH Sarabun New 15pt (20px) เท่ารายงานการจ้างเหมาตามตัวอย่างล่าสุด */
+  line-height: 20pt; /* ตั้งระยะบรรทัด 20pt สำหรับที่อยู่หน่วยงานด้านขวา */
+} /* จบกฎที่อยู่หน่วยงานด้านขวา */
+#report-page .letter-meta p { /* เริ่มรูปแบบบรรทัดที่ วันที่ เรื่อง และเรียน */
+  display: flex; /* จัดบรรทัดที่ วันที่ เรื่อง และเรียน ด้วย flex */
+  gap: 3mm; /* เว้นระหว่างสมาชิกของบรรทัดที่ วันที่ เรื่อง และเรียน 3mm */
+  margin: 1mm 0; /* กำหนดช่องว่างรอบบรรทัดที่ วันที่ เรื่อง และเรียน 1mm 0 */
+} /* จบกฎบรรทัดที่ วันที่ เรื่อง และเรียน */
+#report-page .letter-meta p > span:first-child { /* เริ่มรูปแบบป้ายกำกับที่ วันที่ เรื่อง และเรียน */
+  min-width: 12mm; /* กันความกว้างขั้นต่ำ 12mm ให้ช่องช่วงเวลาอ่านง่าย */
+} /* จบกฎป้ายกำกับที่ วันที่ เรื่อง และเรียน */
+#report-page .letter-meta p > span:last-child { /* เริ่มรูปแบบค่าที่กรอกในบรรทัดข้อมูลหนังสือ */
+  overflow-wrap: anywhere; /* ให้ค่าที่กรอกในบรรทัดข้อมูลหนังสือ ตัดคำยาวได้เพื่อไม่ล้นกระดาษ */
+} /* จบกฎค่าที่กรอกในบรรทัดข้อมูลหนังสือ */
+#report-page .letter-intro { /* เริ่มรูปแบบย่อหน้าเกริ่นหนังสือ */
+  text-indent: 2.54cm; /* ย่อบรรทัดแรก 2.54 ซม. ตามหนังสือจ้างเหมา */
+  margin: 16.445pt 0; /* เว้นย่อหน้า 16.445pt ตามหนังสือจ้างเหมา */
+  text-align: justify; /* จัดย่อหน้าเกริ่นหนังสือ ชิด justify */
+} /* จบกฎย่อหน้าเกริ่นหนังสือ */
+#report-source { /* เริ่มรูปแบบบรรทัดวันที่และขอบเขตข้อมูล */
+  font-size: 15pt; /* ใช้ TH Sarabun New 15pt (20px) เท่ารายงานการจ้างเหมาตามตัวอย่างล่าสุด */
+  margin: 2mm 0 3mm; /* กำหนดช่องว่างรอบบรรทัดวันที่และขอบเขตข้อมูล 2mm 0 3mm */
+  overflow-wrap: anywhere; /* ให้บรรทัดวันที่และขอบเขตข้อมูล ตัดคำยาวได้เพื่อไม่ล้นกระดาษ */
+} /* จบกฎบรรทัดวันที่และขอบเขตข้อมูล */
+#report-page table { /* เริ่มรูปแบบตารางตัวชี้วัดสิบรายการ */
+  width: 100%; /* กำหนดความกว้างตารางตัวชี้วัดสิบรายการ 100% */
+  table-layout: fixed; /* ตรึงสัดส่วนคอลัมน์ไว้ตามความกว้างหัวตาราง */
+  border-collapse: collapse; /* รวมเส้นขอบเซลล์ตารางให้เป็นเส้นเดียว */
+  font-size: 15pt; /* ใช้ TH Sarabun New 15pt (20px) เท่ารายงานการจ้างเหมาตามตัวอย่างล่าสุด */
+  line-height: 20pt; /* ตั้งระยะบรรทัด 20pt สำหรับตารางตัวชี้วัดสิบรายการ */
+} /* จบกฎตารางตัวชี้วัดสิบรายการ */
+#report-page th, /* รวมตัวเลือก #report-page th ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+#report-page td { /* เริ่มรูปแบบเซลล์หัวตารางและเซลล์ข้อมูล */
+  border: 0.6pt solid #000; /* กำหนด border ของเซลล์หัวตารางและเซลล์ข้อมูล เป็น 0.6pt solid #000 */
+  padding: 1.4mm 2mm; /* เว้นพื้นที่ภายในเซลล์หัวตารางและเซลล์ข้อมูล เป็น 1.4mm 2mm เพื่อไม่ให้ข้อความชิดขอบ */
+  vertical-align: top; /* ตั้ง vertical-align ของเซลล์หัวตารางและเซลล์ข้อมูล เป็น top */
+  overflow-wrap: anywhere; /* ให้เซลล์หัวตารางและเซลล์ข้อมูล ตัดคำยาวได้เพื่อไม่ล้นกระดาษ */
+  background: #fff; /* ใช้พื้นหลัง #fff กับเซลล์หัวตารางและเซลล์ข้อมูล */
+  color: #000; /* ใช้สีข้อความ #000 กับเซลล์หัวตารางและเซลล์ข้อมูล */
+} /* จบกฎเซลล์หัวตารางและเซลล์ข้อมูล */
+#report-page thead th { /* เริ่มรูปแบบหัวคอลัมน์ตาราง */
+  text-align: center; /* จัดหัวคอลัมน์ตาราง ชิด center */
+  font-weight: bold; /* ใช้ตัวหนากับหัวคอลัมน์ตาราง */
+} /* จบกฎหัวคอลัมน์ตาราง */
+#report-page thead th:first-child { /* เริ่มรูปแบบคอลัมน์ชื่อรายการ */
+  width: 44%; /* กำหนดความกว้างคอลัมน์ชื่อรายการ 44% */
+} /* จบกฎคอลัมน์ชื่อรายการ */
+#report-page thead th:nth-child(2) { /* เริ่มรูปแบบคอลัมน์ปริมาณหรือมูลค่า */
+  width: 23%; /* กำหนดความกว้างคอลัมน์ปริมาณหรือมูลค่า 23% */
+} /* จบกฎคอลัมน์ปริมาณหรือมูลค่า */
+#report-page thead th:last-child { /* เริ่มรูปแบบคอลัมน์ความครอบคลุม */
+  width: 33%; /* กำหนดความกว้างคอลัมน์ความครอบคลุม 33% */
+} /* จบกฎคอลัมน์ความครอบคลุม */
+#report-page td:nth-child(2) { /* เริ่มรูปแบบตัวเลขปริมาณหรือมูลค่า */
+  text-align: right; /* จัดตัวเลขปริมาณหรือมูลค่า ชิด right */
+} /* จบกฎตัวเลขปริมาณหรือมูลค่า */
+#report-page td:last-child { /* เริ่มรูปแบบข้อความความครอบคลุมของแต่ละรายการ */
+  font-size: 15pt; /* ใช้ TH Sarabun New 15pt (20px) เท่ารายงานการจ้างเหมาตามตัวอย่างล่าสุด */
+} /* จบกฎข้อความความครอบคลุมของแต่ละรายการ */
+#report-page .report-group th { /* เริ่มรูปแบบหัวกลุ่มปริมาณและมูลค่า */
+  text-align: left; /* จัดหัวกลุ่มปริมาณและมูลค่า ชิด left */
+  font-size: 15pt; /* ใช้ TH Sarabun New 15pt (20px) เท่ารายงานการจ้างเหมาตามตัวอย่างล่าสุด */
+  font-weight: bold; /* ใช้ตัวหนากับหัวกลุ่มปริมาณและมูลค่า */
+} /* จบกฎหัวกลุ่มปริมาณและมูลค่า */
+#report-page .report-notes { /* เริ่มรูปแบบหมายเหตุข้อจำกัดข้อมูล */
+  margin-top: 3mm; /* เว้นระยะด้าน top ของหมายเหตุข้อจำกัดข้อมูล 3mm */
+  font-size: 15pt; /* ใช้ TH Sarabun New 15pt (20px) เท่ารายงานการจ้างเหมาตามตัวอย่างล่าสุด */
+  line-height: 20pt; /* ตั้งระยะบรรทัด 20pt สำหรับหมายเหตุข้อจำกัดข้อมูล */
+} /* จบกฎหมายเหตุข้อจำกัดข้อมูล */
+#report-page .report-notes p { /* เริ่มรูปแบบย่อหน้าหมายเหตุ */
+  margin: 1mm 0; /* กำหนดช่องว่างรอบย่อหน้าหมายเหตุ 1mm 0 */
+} /* จบกฎย่อหน้าหมายเหตุ */
+#report-page .letter-signature { /* เริ่มรูปแบบส่วนลงชื่อผู้รับรองหนังสือ */
+  margin: 5mm 0 0 auto; /* กำหนดช่องว่างรอบส่วนลงชื่อผู้รับรองหนังสือ 5mm 0 0 auto */
+  width: 90mm; /* กำหนดความกว้างส่วนลงชื่อผู้รับรองหนังสือ 90mm */
+  text-align: center; /* จัดส่วนลงชื่อผู้รับรองหนังสือ ชิด center */
+  font-size: 15pt; /* ใช้ TH Sarabun New 15pt (20px) เท่ารายงานการจ้างเหมาตามตัวอย่างล่าสุด */
+} /* จบกฎส่วนลงชื่อผู้รับรองหนังสือ */
+#report-page .letter-signature p { /* เริ่มรูปแบบบรรทัดลายเซ็นและชื่อผู้ลงนาม */
+  margin: 1mm 0; /* กำหนดช่องว่างรอบบรรทัดลายเซ็นและชื่อผู้ลงนาม 1mm 0 */
+  overflow-wrap: anywhere; /* ให้บรรทัดลายเซ็นและชื่อผู้ลงนาม ตัดคำยาวได้เพื่อไม่ล้นกระดาษ */
+} /* จบกฎบรรทัดลายเซ็นและชื่อผู้ลงนาม */
+#report-page footer { /* เริ่มรูปแบบข้อความฉบับตรวจทานท้ายหน้า */
+  margin-top: 4mm; /* เว้นระยะด้าน top ของข้อความฉบับตรวจทานท้ายหน้า 4mm */
+  border-top: 0; /* ลบเส้นคั่นก่อนฟุตเตอร์ตามคำขอ */
+  padding-top: 1.5mm; /* เว้นพื้นที่ภายในด้าน top ของข้อความฉบับตรวจทานท้ายหน้า 1.5mm */
+  font-size: 15pt; /* ใช้ TH Sarabun New 15pt (20px) เท่ารายงานการจ้างเหมาตามตัวอย่างล่าสุด */
+} /* จบกฎข้อความฉบับตรวจทานท้ายหน้า */
+.period-controls { /* เริ่มรูปแบบชุดตัวเลือกช่วงรายงาน */
+  display: flex; /* จัดชุดตัวเลือกช่วงรายงาน ด้วย flex */
+  flex-wrap: wrap; /* ให้ช่องช่วงเวลาขึ้นบรรทัดใหม่เมื่อพื้นที่ไม่พอ */
+  gap: 10px; /* เว้นระหว่างสมาชิกของชุดตัวเลือกช่วงรายงาน 10px */
+} /* จบกฎชุดตัวเลือกช่วงรายงาน */
+.period-controls label { /* เริ่มรูปแบบป้ายและช่องเลือกชนิดช่วง */
+  font-size: 12px; /* ใช้ขนาด 12px สำหรับป้ายและช่องเลือกชนิดช่วง */
+  min-width: 130px; /* กันความกว้างขั้นต่ำ 130px ให้ช่องช่วงเวลาอ่านง่าย */
+} /* จบกฎป้ายและช่องเลือกชนิดช่วง */
+.period-controls input, /* รวมตัวเลือก .period-controls input ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+.period-controls select, /* รวมตัวเลือก .period-controls select ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+.document-fields input { /* เริ่มรูปแบบช่องช่วงเวลาและข้อมูลหนังสือ */
+  display: block; /* จัดช่องช่วงเวลาและข้อมูลหนังสือ ด้วย block */
+  width: 100%; /* กำหนดความกว้างช่องช่วงเวลาและข้อมูลหนังสือ 100% */
+  min-height: 44px; /* กันความสูงขั้นต่ำของช่องช่วงเวลาและข้อมูลหนังสือ 44px */
+  margin: 5px 0 0; /* กำหนดช่องว่างรอบช่องช่วงเวลาและข้อมูลหนังสือ 5px 0 0 */
+  padding: 8px 10px; /* เว้นพื้นที่ภายในช่องช่วงเวลาและข้อมูลหนังสือ เป็น 8px 10px เพื่อไม่ให้ข้อความชิดขอบ */
+  border: 1px solid #ccd5ce; /* กำหนด border ของช่องช่วงเวลาและข้อมูลหนังสือ เป็น 1px solid #ccd5ce */
+  border-radius: 7px; /* กำหนด border-radius ของช่องช่วงเวลาและข้อมูลหนังสือ เป็น 7px */
+  background: #fff; /* ใช้พื้นหลัง #fff กับช่องช่วงเวลาและข้อมูลหนังสือ */
+  font: inherit; /* ให้ช่องกรอกใช้แบบอักษรเดียวกับส่วนควบคุมรอบข้าง */
+} /* จบกฎช่องช่วงเวลาและข้อมูลหนังสือ */
+.document-fields { /* เริ่มรูปแบบกล่องข้อมูลหนังสือที่กรอกเอง */
+  margin: 12px 0; /* กำหนดช่องว่างรอบกล่องข้อมูลหนังสือที่กรอกเอง 12px 0 */
+  font-size: 13px; /* ใช้ขนาด 13px สำหรับกล่องข้อมูลหนังสือที่กรอกเอง */
+} /* จบกฎกล่องข้อมูลหนังสือที่กรอกเอง */
+.document-fields summary { /* เริ่มรูปแบบปุ่มพับเปิดข้อมูลหนังสือ */
+  cursor: pointer; /* แสดงตัวชี้ที่สื่อว่าหัวกล่องข้อมูลหนังสือกดพับได้ */
+  color: #1e5631; /* ใช้สีข้อความ #1e5631 กับปุ่มพับเปิดข้อมูลหนังสือ */
+} /* จบกฎปุ่มพับเปิดข้อมูลหนังสือ */
+.document-fields > div { /* เริ่มรูปแบบกริดช่องเลขหนังสือ วันที่ ผู้รับ และผู้ลงนาม */
+  display: grid; /* จัดกริดช่องเลขหนังสือ วันที่ ผู้รับ และผู้ลงนาม ด้วย grid */
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* จัดช่องกรอกหนังสือสองคอลัมน์กว้างเท่ากัน */
+  gap: 12px; /* เว้นระหว่างสมาชิกของกริดช่องเลขหนังสือ วันที่ ผู้รับ และผู้ลงนาม 12px */
+  padding-top: 10px; /* เว้นพื้นที่ภายในด้าน top ของกริดช่องเลขหนังสือ วันที่ ผู้รับ และผู้ลงนาม 10px */
+} /* จบกฎกริดช่องเลขหนังสือ วันที่ ผู้รับ และผู้ลงนาม */
+@media (max-width: 650px) { /* ใช้กฎต่อไปนี้เฉพาะจอไม่เกิน 650 พิกเซล */
+  .document-fields > div { /* เริ่มรูปแบบกริดช่องเลขหนังสือ วันที่ ผู้รับ และผู้ลงนาม */
+    grid-template-columns: 1fr; /* จัดช่องกรอกเป็นหนึ่งคอลัมน์บนมือถือ */
+  } /* จบกฎกริดช่องเลขหนังสือ วันที่ ผู้รับ และผู้ลงนาม */
+  .period-controls { /* เริ่มรูปแบบชุดตัวเลือกช่วงรายงาน */
+    width: 100%; /* กำหนดความกว้างชุดตัวเลือกช่วงรายงาน 100% */
+  } /* จบกฎชุดตัวเลือกช่วงรายงาน */
+  .period-controls label { /* เริ่มรูปแบบป้ายและช่องเลือกชนิดช่วง */
+    flex: 1; /* ให้ช่องเลือกช่วงแบ่งความกว้างหน้าจอมือถือเท่ากัน */
+  } /* จบกฎป้ายและช่องเลือกชนิดช่วง */
+} /* จบกฎ@media (max-width: 650px) */
+@page { /* กำหนดขนาดและระยะขอบกระดาษในกล่องพิมพ์ */
+  size: A4 portrait; /* กำหนดกระดาษเป็น A4 แนวตั้ง */
+  margin: 20mm 20mm 5mm 30mm; /* ให้ทุกหน้าพิมพ์มีขอบเดียวกัน โดยหน้ารายงานไม่ใส่ padding ซ้ำ */
+} /* จบกฎ@page */
+@media print { /* ใช้กฎต่อไปนี้เฉพาะเมื่อพิมพ์ */
+  html, /* รวมตัวเลือก html ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  body { /* เริ่มรูปแบบพื้นหน้าเอกสารขณะพิมพ์ */
+    margin: 0; /* กำหนดช่องว่างรอบพื้นหน้าเอกสารขณะพิมพ์ 0 */
+    padding: 0; /* เว้นพื้นที่ภายในพื้นหน้าเอกสารขณะพิมพ์ เป็น 0 เพื่อไม่ให้ข้อความชิดขอบ */
+    background: white; /* ใช้พื้นหลัง white กับพื้นหน้าเอกสารขณะพิมพ์ */
+  } /* จบกฎพื้นหน้าเอกสารขณะพิมพ์ */
+  .masthead, /* รวมตัวเลือก .masthead ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  .bottom-nav, /* รวมตัวเลือก .bottom-nav ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  aside, /* รวมตัวเลือก aside ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  .report-controls, /* รวมตัวเลือก .report-controls ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  .document-fields, /* รวมตัวเลือก .document-fields ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  #import-status,
+  .report-notes-ui,
+  #report-source, /* รวมตัวเลือก #import-status ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  .skip, /* รวมตัวเลือก .skip ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  #overview, /* รวมตัวเลือก #overview ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  #module-view, /* รวมตัวเลือก #module-view ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  dialog { /* เริ่มรูปแบบ.masthead, .bottom-nav, aside, .report-controls, .document-fields, #import-status, .skip, #overview, #module-view, dialog */
+    display: none !important; /* ซ่อนองค์ประกอบควบคุมแอพที่ไม่ใช่เอกสารเมื่อพิมพ์ */
+  } /* จบกฎ.masthead, .bottom-nav, aside, .report-controls, .document-fields, #import-status, .skip, #overview, #module-view, dialog */
+  .app-shell { /* เริ่มรูปแบบโครงแอพขณะพิมพ์ */
+    display: block; /* จัดโครงแอพขณะพิมพ์ ด้วย block */
+    min-height: 0; /* กันความสูงขั้นต่ำของโครงแอพขณะพิมพ์ 0 */
+  } /* จบกฎโครงแอพขณะพิมพ์ */
+  main { /* เริ่มรูปแบบพื้นที่หลักขณะพิมพ์ */
+    margin: 0; /* กำหนดช่องว่างรอบพื้นที่หลักขณะพิมพ์ 0 */
+    padding: 0; /* เว้นพื้นที่ภายในพื้นที่หลักขณะพิมพ์ เป็น 0 เพื่อไม่ให้ข้อความชิดขอบ */
+  } /* จบกฎพื้นที่หลักขณะพิมพ์ */
+  #report-view { /* เริ่มรูปแบบหน้ารายงาน */
+    display: block !important; /* จัดหน้ารายงาน ด้วย block !important */
+    overflow: visible; /* แสดงเอกสารเต็มพื้นที่ขณะพิมพ์ ไม่ตัดตามกรอบเลื่อน */
+  } /* จบกฎหน้ารายงาน */
+  #report-page { /* เริ่มรูปแบบกระดาษรายงาน A4 */
+    margin: 0; /* กำหนดช่องว่างรอบกระดาษรายงาน A4 0 */
+    box-shadow: none; /* ลบเงากระดาษขณะพิมพ์ */
+    width: 160mm; /* พื้นที่เนื้อหา A4 หลังหักขอบซ้ายและขวา */
+    min-height: 0; /* กันความสูงขั้นต่ำของกระดาษรายงาน A4 0 */
+    padding: 0; /* ใช้ขอบจาก @page ป้องกันขอบซ้ำและรักษาขอบหน้า 2 เป็นต้นไป */
+  } /* จบกฎกระดาษรายงาน A4 */
+  #report-page tr, /* รวมตัวเลือก #report-page tr ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  .report-notes, /* รวมตัวเลือก .report-notes ในชุดรูปแบบเดียวกับบรรทัดถัดไป */
+  .letter-signature { /* เริ่มรูปแบบ#report-page tr, .report-notes, .letter-signature */
+    break-inside: avoid; /* ไม่แยกแถวตาราง หมายเหตุ หรือส่วนลงชื่อกลางส่วนเมื่อพิมพ์ */
+  } /* จบกฎ#report-page tr, .report-notes, .letter-signature */
+  * { /* เริ่มรูปแบบทุกองค์ประกอบขณะพิมพ์ */
+    -webkit-print-color-adjust: exact; /* ขอให้เบราว์เซอร์รักษาสีเอกสารตาม CSS ขณะพิมพ์ */
+    print-color-adjust: exact; /* ขอให้เบราว์เซอร์รักษาสีเอกสารตาม CSS ขณะพิมพ์ */
+  } /* จบกฎทุกองค์ประกอบขณะพิมพ์ */
+} /* จบกฎ@media print */
+/* กราฟพิมพ์ได้โดยไม่ใช้บริการภายนอกและไม่เปลี่ยนฟอร์มเดิม */
+#report-page .analytics-grid { display: grid; grid-template-columns: minmax(0, 1fr); row-gap: 20pt; } /* ส่วน 1–4 เรียงลงมาและเว้นหนึ่งบรรทัด 20pt */
+#report-page .analytics-panel { min-width: 0; break-inside: avoid; } /* ไม่ตัดกราฟกลางหน้า */
+#report-page .analytics-panel h3 { font-size: 15pt; margin: 0 0 1mm; border-bottom: 0; text-decoration: none; } /* ส่วน 1–5 ไม่มีเส้นใต้หัวข้อ คงเส้นแกนกราฟและช่องว่างหนึ่งบรรทัด */
+#report-page .analytics-products h3 { border-bottom: 0; } /* ลบเส้นใต้หัวข้อส่วน 2 โดยคงข้อความและเส้นกราฟ */
+#report-page .analytics-panel > :last-child { margin-bottom: 0; } /* ให้ระยะระหว่างส่วนมาจาก gap เพียงจุดเดียว */
+#report-page .analytics-waste-columns { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); column-gap: 3mm; }
+#report-page .analytics-chart { min-width: 0; }
+#report-page .analytics-cartesian { display: grid; margin-bottom: 20pt; padding-top: 20pt; }
+#report-page .analytics-y-axis, #report-page .analytics-plot-area { position: relative; height: var(--report-chart-height); min-width: 0; }
+#report-page .analytics-y-tick { position: absolute; right: 2mm; transform: translateY(50%); text-align: right; white-space: nowrap; }
+#report-page .analytics-plot-area { border-left: 0.3mm solid #333; }
+#report-page .analytics-plot-area.dual-scale { border-right: 0.3mm solid #333; }
+#report-page .analytics-y-axis-right .analytics-y-tick { right: auto; left: 2mm; text-align: left; }
+#report-page .analytics-gridline { position: absolute; left: 0; right: 0; border-top: 0.2mm solid #c8c8c8; }
+#report-page .analytics-gridline.zero { border-color: #333; border-width: 0.3mm; }
+#report-page .analytics-column { min-width: 0; text-align: center; }
+#report-page .analytics-column-plot { height: var(--report-chart-height); position: relative; }
+#report-page .analytics-column-value, #report-page .analytics-month-value { position: absolute; left: 0; width: 100%; display: block; line-height: 20pt; overflow-wrap: anywhere; text-align: center; }
+#report-page .analytics-column-bar, #report-page .analytics-month-bar { position: absolute; left: 25%; width: 50%; background: #347860; } /* รูปแบบแท่งกราฟส่วน 1, 2 และ 5 ใช้ฐานเดียวกัน */
+#report-page .analytics-column-bar { bottom: 0; }
+#report-page .sales .analytics-column-bar { background: #6686a4; }
+#report-page .analytics-column-label { display: block; min-height: 20pt; overflow-wrap: anywhere; }
+#report-page .analytics-product-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4mm; }
+#report-page .analytics-product-group { min-width: 0; }
+#report-page .analytics-product-label { font-weight: bold; text-align: center; margin: 0; }
+#report-page .analytics-product-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+#report-page .analytics-product-pair .analytics-column-bar { left: 20%; width: 80%; } /* แท่งผลิตชิดขอบกลางของคู่ */
+#report-page .analytics-product-pair .sales .analytics-column-bar { left: 0; } /* แท่งขายเริ่มตรงปลายแท่งผลิต จึงติดกันจริง */
+#report-page .analytics-product-pair .analytics-column-value { left: 20%; width: 80%; } /* ตัวเลขอยู่กึ่งกลางเหนือแท่ง */
+#report-page .analytics-product-pair .sales .analytics-column-value { left: 0; }
+#report-page .analytics-product-pair .analytics-column-label { box-sizing: border-box; padding-left: 20%; }
+#report-page .analytics-product-pair .sales .analytics-column-label { padding-left: 0; padding-right: 20%; }
+#report-page .analytics-caption { font-size: 15pt; margin: 1mm 0; line-height: 20pt; } /* รักษาคำอธิบายวิธีคำนวณเมื่อพิมพ์ */
+#report-page .analytics-panel td, #report-page .analytics-panel th { padding: 0.7mm 1mm; } /* ตารางรายได้กระชับ */
+#report-page .analytics-bank-table th:first-child { width: 65%; }
+#report-page .analytics-bank-table th:nth-child(2) { width: 35%; }
+#report-page .analytics-annual { margin-top: 20pt; } /* เว้นกราฟรายปีจากส่วนบน */
+#report-page .analytics-annual-rows { display: grid; gap: 3mm; }
+#report-page .analytics-months { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 0.5mm; }
+#report-page .analytics-month { text-align: center; min-width: 0; }
+#report-page .analytics-month-plot { height: var(--report-chart-height); position: relative; }
+#report-page .analytics-month-label { display: block; line-height: 20pt; }
+#report-page .analytics-month-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+#report-page .analytics-month-pair .analytics-month-bar { left: 0; width: 100%; bottom: 0; } /* คู่แท่งต่อเดือนติดกันและขึ้นจากฐานล่าง */
+#report-page .analytics-month-bar.sale { background: #6686a4; }
+#report-page .analytics-annual-legend { display: flex; gap: 6mm; margin: 0 0 0.5mm; }
+#report-page .analytics-annual-legend span::before { content: ''; display: inline-block; width: 3mm; height: 3mm; margin-right: 1.5mm; background: #347860; }
+#report-page .analytics-annual-legend .analytics-legend-sale::before { background: #6686a4; }
+.report-data-details { margin: 2mm 0; } /* ตารางเดิมยังเปิดดูได้ */
+@media print { /* กติกาพิมพ์เพิ่มเฉพาะรายงาน */
+  .report-data-details { display: none; } /* ไม่พิมพ์ตารางเดิมซ้ำกับกราฟ */
+} /* จบกติกาพิมพ์ */
+
+/* จัดส่วนจบหนังสือให้อยู่ด้วยกัน ไม่ปล่อยท้ายกระดาษลอยเดี่ยว */
+#report-page .report-closing { break-inside: avoid; }
+#report-page .letter-signature { margin-top: 20pt; }
+#report-page p { orphans: 3; widows: 3; }
+@media print {
+  #report-page .analytics-grid { break-inside: auto; }
+  #report-page .analytics-panel h3 { break-after: avoid; }
+}
+
+/* ตัวเลขหลายหลักขึ้นบรรทัดได้ แต่แนวกราฟและชื่อเดือนยังตรงกัน */
+
+
+
+
+.report-data-details table { width: 100%; border-collapse: collapse; }
+.report-data-details th, .report-data-details td { border: 1px solid #ccd5ce; padding: 6px; overflow-wrap: anywhere; }
+.report-data-details td:nth-child(2) { text-align: right; }
+
+#report-page .analytics-annual-rows, #report-page .analytics-annual .analytics-chart, #report-page .analytics-annual .analytics-cartesian { width: 100%; min-width: 0; } /* กรอบกว้างเท่าตารางภายในขอบ A4 เดิม */
+#report-page .analytics-annual .analytics-y-axis { display: grid; grid-template-rows: 0 1fr 0; padding-right: 1mm; } /* เผื่อแกนตามความกว้างเลขจริงแทนช่อง 12 มม. */
+#report-page .analytics-annual .analytics-y-tick { position: static; transform: none; align-self: center; justify-self: end; } /* ขีด 100/50/0 ตรงระดับเดิมโดยไม่ทับแท่ง */
+
+/* ตารางปริมาณใต้กราฟ 1 แทนข้อความอธิบาย โดยคงฟอนต์ 15pt และหน่วย */
+#report-page .analytics-quantity-table { width: 100%; table-layout: fixed; margin-top: 1mm; }
+#report-page .analytics-quantity-table thead th { width: 16.6666667%; } /* หกคอลัมน์เท่ากันและทับสัดส่วนตารางแนวตั้งเดิม */
+#report-page .analytics-quantity-table td, #report-page .analytics-quantity-table th { text-align: center; vertical-align: middle; overflow-wrap: anywhere; } /* หน่วยอยู่กับค่าที่เซลล์เดียวกัน ไม่ย่อฟอนต์เมื่อค่าตัวเลขยาว */
+#report-page .analytics-quantity-table tr { break-inside: avoid; }
+
+/* กราฟ 1 เต็มกรอบเนื้อหาเท่าตาราง: ช่องสเกลกว้างเท่าตัวเลขจริง ไม่ล้ำขอบ A4 */
+#report-page .analytics-waste .analytics-chart, #report-page .analytics-waste .analytics-cartesian { width: 100%; min-width: 0; }
+#report-page .analytics-waste .analytics-y-axis { display: grid; grid-template-rows: 0 1fr 0; padding-right: 1mm; }
+#report-page .analytics-waste .analytics-y-tick { position: static; transform: none; align-self: center; justify-self: end; }
+#report-page .analytics-waste-columns { column-gap: 2mm; }
+#report-page .analytics-waste .analytics-column-bar { left: 0; width: 100%; } /* แท่งเต็มช่อง ลดช่องว่างปลายซ้าย/ขวาของพื้นที่กราฟ โดยไม่เปลี่ยนความสูงหรือสเกล */
+
+/* หนึ่งบรรทัดว่างจริงหลังชื่อหมวดกราฟ 1 ก่อนตาราง ไม่รวมบรรทัดชื่อหมวด */
+#report-page .analytics-waste .analytics-chart { display: flow-root; }
+#report-page .analytics-waste-table { margin-top: 20pt; }
+/* ส่วน 2 ย้ายผลิต/ขายจากใต้คู่แท่งมาเป็นคำอธิบายสีเหนือกราฟ */
+#report-page .analytics-product-legend { display: flex; gap: 6mm; margin: 0 0 0.5mm; }
+#report-page .analytics-product-legend span::before { content: ''; display: inline-block; width: 3mm; height: 3mm; margin-right: 1.5mm; background: #347860; }
+#report-page .analytics-product-legend .analytics-legend-sold::before { background: #6686a4; }
+
+/* น้ำหมักเป็นลิตร: ตัวเลขสองสีในช่องแยก ไม่วาดบนสเกลน้ำหนัก และไม่มีแกนขวา */
+#report-page .analytics-unit-group { position: relative; z-index: 1; background: #fff; }
+#report-page .analytics-unit-plot { display: flex; align-items: center; justify-content: center; }
+#report-page .analytics-unit-value { color: #347860; text-align: center; overflow-wrap: anywhere; }
+#report-page .sales .analytics-unit-value { color: #6686a4; }
+
+#report-page .analytics-import-note { margin: 1mm 0 0; line-height: 20pt; overflow-wrap: anywhere; } /* ชี้แจงหน่วยผสมและยอดเดือนโดยไม่ย่อฟอนต์ */
+
+/* หน้ารายงานแบบย่อ: ไม่เปลี่ยนรูปกระดาษสารบรรณและข้อมูลใน PDF */
+#report-view [hidden] { display: none !important; }
+.report-simple-period { display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; }
+.report-simple-period label { display:grid; gap:6px; font-family:Anuphan,sans-serif; }
+.report-simple-period select,.report-simple-period input { min-height:44px; padding:9px 12px; border:1px solid #cbd5ce; border-radius:10px; font:inherit; background:#fff; }
+#report-month-choice { min-width:155px; }
+#report-year-choice { width:120px; }
+#report-view #import-status { color:#46614e; font:14px/1.6 Anuphan,sans-serif; margin:12px 0; }
+
+/* ตัวเลขบนแท่งย่อ k/m อ่านง่าย ไม่ชนกัน; ตารางยังเป็นยอดเต็ม */
+.analytics-column-value,.analytics-month-value{font-size:11pt!important;white-space:nowrap!important;word-break:normal!important;}
+
+/* v2.4.3: หัวข้ออยู่บนสุด ตัวเลือกอยู่แถบเดียวเหนือกระดาษ ไม่เปลี่ยนแม่แบบ PDF */
+@media screen {
+  #report-view .report-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    width: min(100%, 210mm);
+    margin: 0 auto;
+    padding: 0;
+  }
+  #report-view .report-heading h2 { margin: 0; color: #1e261c; }
+  #report-view .report-heading .eyebrow { margin: 0 0 4px; }
+  #report-view .report-simple-period {
+    display: grid;
+    grid-template-columns: minmax(100px, 1fr) minmax(80px, 140px) auto;
+    align-items: end;
+    gap: 12px;
+    width: 100%;
+    padding: 14px;
+    box-sizing: border-box;
+    border: 1px solid #dce5d5;
+    border-radius: 14px;
+    background: #fff;
+  }
+  #report-view .report-simple-period label { min-width: 0; margin: 0; }
+  #report-view .report-simple-period input,
+  #report-view .report-simple-period select,
+  #report-view .report-simple-period .mu-choice-trigger {
+    width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; margin: 0;
+  }
+  #report-view .report-simple-period #print { min-height: 48px; margin: 0; padding: 10px 16px; }
+  #report-view #import-status { width: min(100%, 210mm); margin: 12px auto; }
+}
+@media screen and (max-width: 420px) {
+  #report-view .report-simple-period { grid-template-columns: minmax(100px, 1fr) 84px auto; gap: 8px; padding: 10px; }
+  #report-view .report-simple-period #print { padding: 10px; }
+  #report-view .report-simple-period input { padding-inline: 8px; }
+  #report-view .report-simple-period .mu-choice-trigger { padding-inline: 8px; }
+}
+
+/* v2.4.4: ภาพรายงานพอดีความกว้างมือถือ แทนการตัดกระดาษด้านข้าง */
+@media screen {
+  #report-view { min-width: 0; overflow-x: hidden; }
+  #report-document { width: 100%; min-width: 0; max-width: 100%; overflow-x: hidden; }
+  #report-page { zoom: var(--report-preview-scale, 1); }
+}
+/* สำรองกรณีสั่งพิมพ์ผ่าน browser; PDF ดาวน์โหลดตรงไม่อ่านค่า zoom นี้ */
+@media print { #report-page { zoom: 1; } }
+
+/* Screen toolbar only: balanced month / year / PDF; paper and print unchanged. */
+@media screen and (min-width:600px){
+ #report-view .report-simple-period{grid-template-columns:minmax(160px,2fr) minmax(110px,1fr) minmax(110px,1fr);}
+ #report-view .report-simple-period #print{width:100%;min-height:54px;}
+}
+/* รูปแบบอักษรเนื้อหาเอกสารตรงกับรายงานพื้นที่สีเขียว; ไม่เปลี่ยนตำแหน่ง/ขนาดกราฟ */
+#report-page,#report-page .letterhead div,#report-page p,#report-page h2,#report-page h3,#report-page table,#report-page th,#report-page td,#report-page .analytics-caption,#report-page .analytics-product-label{font-family:SarabunReport,Tahoma,sans-serif!important;font-size:15pt!important;font-weight:400!important;line-height:20pt;text-shadow:none!important;filter:none!important;letter-spacing:normal}
+#report-page strong,#report-page b{font-weight:400!important}
+
+/* แท่งแคบลงเฉพาะกราฟขยะและผลิตเทียบขาย ไม่เปลี่ยนสเกล */
+#report-page .analytics-waste .analytics-column-bar{left:calc(50% - 9px);width:18px}
+#report-page .analytics-product-pair .analytics-column-bar{left:calc(100% - 18px);width:18px}
+#report-page .analytics-product-pair .sales .analytics-column-bar{left:0;width:18px}
+#report-page .analytics-product-pair .analytics-column-value{left:calc(100% - 39px);width:60px}
+#report-page .analytics-product-pair .sales .analytics-column-value{left:-21px;width:60px}
+
+/* เลื่อนเนื้อหาลงหนึ่งบรรทัด โดยตรายังคงตำแหน่งเดิม */
+#report-page .letterhead{min-height:calc(40mm + 20pt)}
+@media print{#report-page .analytics-products{break-before:page;page-break-before:always;padding-top:0!important}}
+
+/* กราฟผลิตใช้พื้นที่พล็อตกว้างเท่ากราฟขยะ; แกนลิตรชิดขวาภายในกรอบ */
+#report-page .analytics-products .analytics-cartesian{position:relative;grid-template-columns:max-content minmax(0,1fr)!important}
+#report-page .analytics-products .analytics-y-axis-right{position:absolute;right:0;bottom:0;width:12mm;pointer-events:none}
+#report-page .analytics-products .analytics-y-axis-right .analytics-y-tick{right:1mm;left:auto;text-align:right}
+#report-page .analytics-products .analytics-y-axis-right .analytics-axis-unit{right:0!important;left:auto!important}
+
+/* กราฟรายปีเต็มความกว้างพื้นที่รายงาน ไม่ขยายเกินขอบกระดาษ */
+#report-page .analytics-annual .analytics-cartesian{grid-template-columns:max-content minmax(0,1fr)!important;width:100%;box-sizing:border-box}
+
+#report-page .letterhead div{white-space:pre-line;line-height:20pt!important;margin:0;padding:0}
+#report-page .letterhead div p{margin:0;padding:0}
+/* ชื่อและตำแหน่งผู้ลงนามสองบรรทัดต่อกัน ไม่มีบรรทัดว่าง */
+#report-page .letter-signature{white-space:normal}
+#report-page .letter-signature p{margin:0;padding:0;line-height:20pt}
+
+#report-page .letter-signature{white-space:pre-line;line-height:20pt!important}
+
+/* กราฟใช้ความสูงแท่งและแกน ไม่แสดงตัวเลขเหนือแท่ง */
+#report-page .analytics-column-value,#report-page .analytics-month-value,#report-page .analytics-unit-value{display:none!important}
+
+#report-page .analytics-waste-table thead th { width: 14.2857143%; } /* เฉพาะตารางขยะเจ็ดคอลัมน์ รวมหมวดขยะกำพร้าที่ยังไม่มีข้อมูล */
+
+/* Monthly report: show editable production labels and exact tiny waste values only. */
+#report-page .analytics-products .analytics-column-value[contenteditable],#report-page .analytics-waste .analytics-column-value[data-report-tiny="true"]{display:block!important}
+#report-page .analytics-products .analytics-column-value[contenteditable]:empty{min-height:1.2em;min-width:1.8ch}

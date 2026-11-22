@@ -1,0 +1,6 @@
+/* Settings keeps installation optional; no downloads or permissions on navigation. */
+#settings-view{max-width:48rem;margin:0 auto;padding:clamp(1rem,3vw,2rem);}
+#settings-view[hidden]{display:none!important;}
+#settings-view .pwa-actions{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;}
+#settings-view #pwa-status{flex-basis:100%;overflow-wrap:anywhere;}
+@media(max-width:899px){#navigation.bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr));}#navigation>a,#navigation>button,#navigation>details{min-width:0;}}
