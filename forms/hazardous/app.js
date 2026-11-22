@@ -67,9 +67,14 @@ function saveCachedAgencyData() {
     } catch (_) {} // Optional, must never affect a committed receipt.
 }
 
+function currentHazardBangkokDate(now=new Date()) {
+    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now).map(({type,value})=>[type,value]));
+    return parts.year+'-'+parts.month+'-'+parts.day;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('date');
-    dateInput.valueAsDate = new Date();
+    if(!dateInput.value)dateInput.value=currentHazardBangkokDate();
 
     loadCachedAgencyData();
 
