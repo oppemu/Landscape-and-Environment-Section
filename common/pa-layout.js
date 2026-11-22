@@ -112,16 +112,49 @@
     window.PaDraft?.activate(mount,template?.name?template.name+"|"+mount.dataset.documentMonth:"");
     mount.closest('.pa-paper-view')?.setAttribute('aria-label','ตัวอย่างแบบรายงาน PA '+layout.length+' หน้า');
   }
-  renderPages(blank);
+
   const options=document.getElementById('pa-layout-options');
   const normal=value=>String(value).normalize('NFC').trim().replace(/\s+/gu,' ');
   const privateOrigin=location.origin==='http://127.0.0.1:5500';
+  const publicOrigin=location.origin==='https://oppemu.github.io'&&/^\/Landscape-and-Environment-Section(?:\/|$)/.test(location.pathname);
+  const catalogUrl='https://oppemu.github.io/Landscape-and-Environment-Section/assets/pa-public-catalog.json';
+  let publicCatalog=null,catalogPending=null,catalogFailed=false;
+  function decodePublicCatalog(data){
+    const byName=new Map();
+    const fields=(obj,keys)=>obj&&typeof obj==='object'&&!Array.isArray(obj)&&Object.keys(obj).sort().join(',')===keys;
+    const runs=(list,required)=>Array.isArray(list)&&(!required||list.length>0)&&list.length<=24&&list.every(run=>
+      fields(run,'bold,text')&&typeof run.bold==='boolean'&&typeof run.text==='string'&&run.text.trim()&&run.text.length<=900&&
+      !/[<>\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/u.test(run.text));
+    if(!fields(data,'templates,version')||data.version!==1||!Array.isArray(data.templates)||!data.templates.length||data.templates.length>100)throw Error('Invalid PA catalog');
+    for(const entry of data.templates){
+      if(!fields(entry,'displayName,native')||!safeName(entry.displayName)||/[<>]/.test(entry.displayName)||!fields(entry.native,'pages'))throw Error('Invalid PA profile');
+      const {pages}=entry.native;
+      if(!Array.isArray(pages)||!pages.length||pages.length>32||pages.some(page=>
+        !fields(page,'rows,widths')||pageWidths(page.widths)!==page.widths||
+        !Array.isArray(page.rows)||!page.rows.length||page.rows.length>8||page.rows.some(row=>
+          !fields(row,'agreement,target')||!runs(row.agreement,true)||!runs(row.target,false))))throw Error('Invalid PA page');
+      const displayName=normal(entry.displayName);
+      if(!displayName||byName.has(displayName))throw Error('Duplicate PA profile');
+      byName.set(displayName,pages);
+    }
+    return byName;
+  }
+  function loadPublicCatalog(){
+    if(!publicOrigin||location.hash!=='#pa-online'||publicCatalog||catalogPending||catalogFailed)return;
+    const ctl=new AbortController(), timer=setTimeout(()=>ctl.abort(),4000);
+    catalogPending=fetch(catalogUrl,{credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',signal:ctl.signal})
+      .then(r=>{if(!r.ok)throw Error('PA catalog unavailable');return r.json();})
+      .then(data=>{publicCatalog=decodePublicCatalog(data);if(location.hash==='#pa-online'&&document.activeElement===name)show();})
+      .catch(()=>{catalogFailed=true;if(location.hash==='#pa-online'&&document.activeElement===name)show();}).finally(()=>{clearTimeout(timer);catalogPending=null;});
+  }
   const savedKey='waste-pa-landscape-names-v1';
   let localNames=[], pending, lastFailure=0;
   const safeName=value=>typeof value==='string'&&value.length<=120&&value.length>0&&!/[\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069,@;\t|]/.test(value);
   if(privateOrigin)try{const saved=JSON.parse(window.localStorage.getItem(savedKey)||'[]');if(Array.isArray(saved)&&saved.length<=300&&saved.every(safeName)) localNames=saved;}catch(_){}
   const status=document.getElementById('pa-template-status'), download=document.getElementById('pa-layout-download');
   const printButton=document.getElementById('pa-layout-print');
+  if(!publicOrigin)renderPages(blank);
+  else setAvailability(false,'พิมพ์ชื่อและเลือกต้นแบบ PA ที่พบ');
   let selectedName='',templateAbort,epoch=0,printing=false;
   const clearPrint=()=>{document.body.classList.remove('pa-print-active');printing=false;};
   addEventListener('afterprint',clearPrint);
@@ -148,6 +181,7 @@
     if(download)download.textContent='ดาวน์โหลด PDF (ไม่รวมรูป)';
     epoch++; templateAbort?.abort();templateAbort=null;selectedName='';
     mount.dataset.templateAvailable='';
+    if(publicOrigin){mount.replaceChildren();mount.paPdfSnapshot=null;setAvailability(false,'พิมพ์ชื่อและเลือกต้นแบบ PA ที่พบ');return;}
     if(wasSelected)renderPages(blank);
     if(status){status.hidden=true;status.textContent='';}
     if(download)download.disabled=false;
@@ -164,7 +198,7 @@
     if(printButton)printButton.disabled=!available;
     if(status){status.hidden=!message;status.textContent=message;}
   }
-  function setDocumentName(value){if(identity.dataset.paDraftEdited==='true')return;identity.textContent='ชื่อผู้รับการประเมิน: '+value;}
+  function setDocumentName(value){if(!identity||identity.dataset.paDraftEdited==='true')return;identity.textContent='ชื่อผู้รับการประเมิน: '+value;}
   async function selectTemplate(value){
     invalidate();
     selectedName=value;
@@ -172,6 +206,14 @@
     mount.dataset.templateAvailable='false';
     if(download)download.disabled=true;
     if(printButton)printButton.disabled=true;
+    if(publicOrigin){
+      const pages=publicCatalog?.get(value);
+      if(!pages){setAvailability(false,'ยังไม่มีต้นแบบ PA สาธารณะที่ยืนยันสำหรับชื่อนี้');return;}
+
+      renderPages(pages,{name:value,pages,_renderPeriod:selectedPeriod});setDocumentName(value);
+      setTemplateOnly('แบบเปล่าสาธารณะ ไม่รวมผลการประเมินหรือหลักฐาน');
+      return;
+    }
     if(!privateOrigin){setAvailability(false,'ยังไม่มีต้นแบบ PA ของชื่อนี้ในเว็บที่เปิดอยู่');return;}
     setAvailability(false,'กำลังอ่านต้นแบบ PA ของบุคลากร');
     const ctl=new AbortController();templateAbort=ctl;
@@ -269,7 +311,7 @@
     setAvailability(true,missing||stopped?'บางรูปยังเปิดไม่ได้ ใช้ปุ่มพิมพ์เพื่อบันทึกหน้าที่เปิดรูปได้':'ตรวจว่ารูปปรากฏในตัวอย่างก่อนบันทึกเป็น PDF');
   }
   function hide(){options.replaceChildren();options.hidden=true;name.setAttribute('aria-expanded','false');}
-  function fillName(){const value=normal(name.value);identity.textContent='ชื่อผู้รับการประเมิน: '+(value||'____________________');}
+  function fillName(){const value=normal(name.value);if(identity)identity.textContent='ชื่อผู้รับการประเมิน: '+(value||'____________________');}
   function show(){
     hide();
     const query=normal(name.value).toLocaleLowerCase('th');
@@ -277,8 +319,9 @@
     if(!query)return;
     const profile=window.HubSelectedProfile?.get?.()?.name;
     const entries=new Map();
-    if(safeName(profile))entries.set(normal(profile),'profile');
-    if(Array.isArray(directory))for(const p of directory)if(safeName(p?.name))entries.set(normal(p.name),'directory');
+    if(publicOrigin){for(const value of publicCatalog?.keys()||[])entries.set(value,'public');}
+    else if(safeName(profile))entries.set(normal(profile),'profile');
+    if(!publicOrigin&&Array.isArray(directory))for(const p of directory)if(safeName(p?.name))entries.set(normal(p.name),'directory');
     for(const value of localNames)entries.set(value,'local');
     const names=[...entries.keys()].filter(n=>n.toLocaleLowerCase('th').startsWith(query)).slice(0,12);
     for(const value of names){
@@ -291,6 +334,8 @@
       });
       options.append(button);
     }
+    if(publicOrigin&&!names.length&&!publicCatalog&&status){status.hidden=false;status.textContent=catalogFailed?'ยังไม่มีรายการต้นแบบ PA สาธารณะให้ค้นหา':'กำลังตรวจรายการต้นแบบ PA สาธารณะ';}
+    if(publicOrigin&&publicCatalog&&!names.length&&!selectedName)setAvailability(false,'ไม่พบต้นแบบ PA สาธารณะตรงกับชื่อที่พิมพ์');
     if(names.length){options.hidden=false;name.setAttribute('aria-expanded','true');}
   }
   function localRoster(){
@@ -308,9 +353,9 @@
   viewPeriod.addEventListener('change',()=>{
     if(location.hash!=='#pa-online')return;
     if(!window.PaEvidence.periodFor(viewPeriod.value))viewPeriod.value=mount.dataset.documentMonth||window.PaEvidence.period(new Date(),0).month;
-    if(selectedName)selectTemplate(selectedName);else{invalidate();renderPages(blank);fillName();}
+    if(selectedName)selectTemplate(selectedName);else{invalidate();if(!publicOrigin)renderPages(blank);fillName();}
   });
-  name.addEventListener('input',()=>{invalidate();fillName();show();if(!localNames.length)localRoster();});
+  name.addEventListener('input',()=>{invalidate();fillName();show();if(!localNames.length)localRoster();loadPublicCatalog();});
   name.addEventListener('keydown',event=>{
     if(event.key==='ArrowDown'){show();if(options.firstElementChild){event.preventDefault();options.firstElementChild.focus();}}
     else if(event.key==='Escape')hide();
@@ -320,9 +365,9 @@
     if(event.relatedTarget!==name&&!options.contains(event.relatedTarget))hide();
   });
   addEventListener('hashchange',()=>{
-    if(location.hash==='#pa-online'){localRoster();return;}
-    defaultPeriod();renderPages(blank);
+    if(location.hash==='#pa-online'){localRoster();loadPublicCatalog();return;}
+    defaultPeriod();if(!publicOrigin)renderPages(blank);
     clearPrint();invalidate();name.value='';if(!privateOrigin)localNames=[];fillName();hide();
   });
-  localRoster();
+  localRoster();loadPublicCatalog();
 })();
