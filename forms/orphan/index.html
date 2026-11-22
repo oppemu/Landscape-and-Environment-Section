@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>บันทึกขยะกำพร้า | กองกายภาพและสิ่งแวดล้อม</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="app-form.css">
+
+<link rel="stylesheet" href="theme-unified.css">
+<link rel="stylesheet" href="popup-theme.css">
+<link rel="stylesheet" href="standalone-layout.css">
+<link rel="stylesheet" href="division-theme.css">
+<meta name="theme-color" content="#1e5631">
+<script src="thai-date.js" defer></script>
+<script src="config.js" defer></script>
+<script src="transport.js" defer></script>
+<script src="departments.js" defer></script>
+<script src="department-autocomplete.js" defer></script>
+<script src="waste-types.js" defer></script>
+<script src="waste-autocomplete.js" defer></script>
+<script src="waste-weights.js" defer></script>
+<script src="photo.js" defer></script>
+<script src="script.js" defer></script>
+</head>
+<body class="app-embedded">
+<a class="skip-link" href="#orphanForm">ข้ามไปกรอกข้อมูล</a>
+<div class="container">
+<div id="googleSignIn"></div>
+<form id="orphanForm" aria-label="แบบบันทึกขยะกำพร้า">
+<header class="division-masthead"><img src="division-logo.png" alt="กองกายภาพและสิ่งแวดล้อม มหาวิทยาลัยมหิดล"></header>
+<header class="module-toolbar"><div><p class="module-eyebrow">บันทึกข้อมูลสำหรับส่วนงาน</p><h1>บันทึกขยะกำพร้า</h1></div></header>
+
+<div id="orphanNotice" role="status" aria-live="polite" hidden></div>
+<button id="retryConnection" type="button" hidden>ลองเชื่อมต่ออีกครั้ง</button>
+<div class="form-section">
+<div class="form-group"><label for="orphanDate">วัน/เดือน/ปี</label><input id="orphanDate" name="date" type="date" readonly data-hide-thai-date="1"></div>
+<div class="form-group"><label for="orphanProvider">ผู้ให้ข้อมูล</label><input id="orphanProvider" name="provider" type="text" autocomplete="name"></div>
+<div class="form-group"><label for="orphanDepartment">ชื่อส่วนงาน</label><div class="department-picker"><input id="orphanDepartment" name="department" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="departmentOptions"><ul id="departmentOptions" role="listbox" aria-label="ชื่อส่วนงานที่แนะนำ" hidden></ul></div></div>
+</div>
+<div class="form-section">
+
+<div class="form-group"><label for="orphanWasteType">ประเภทขยะที่นำมาทิ้ง</label><div class="department-picker"><input id="orphanWasteType" name="wasteType" type="text" maxlength="2000" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="wasteOptions"><ul id="wasteOptions" role="listbox" aria-label="ประเภทขยะที่แนะนำ" hidden></ul></div></div>
+<div id="wasteWeights"></div>
+<div class="form-group"><label for="orphanTotalWeight">น้ำหนักขยะกำพร้ารวม (กิโลกรัม)</label><input id="orphanTotalWeight" name="totalWeightKg" type="number" readonly min="0" step="any" inputmode="decimal"></div>
+<div class="form-group"><label for="orphanOther">หมายเหตุ</label><textarea id="orphanOther" name="otherDetails" rows="1"></textarea></div>
+</div>
+
+<div class="form-group"><label for="orphanPhoto">แนบรูปขยะ (ไม่บังคับ)</label><input id="orphanPhoto" type="file" accept="image/jpeg,image/png" aria-describedby="photoHelp"><p id="photoHelp">รูป JPG หรือ PNG 1 รูป ไม่เกิน 1 MB รูปเก็บในโฟลเดอร์ของฐานข้อมูล</p><img id="photoPreview" alt="ตัวอย่างรูปขยะที่เลือก" hidden></div>
+<button id="orphanSubmit" type="submit" disabled aria-describedby="orphanNotice">บันทึกข้อมูล</button>
+</form>
+</div>
+</body>
+</html>

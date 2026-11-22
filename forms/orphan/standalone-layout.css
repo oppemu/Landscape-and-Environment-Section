@@ -1,0 +1,10 @@
+/* เฉพาะกรอบเว็บแยก: ฟอร์มใช้ style.css ของพืชสดและ app-form.css/theme-unified.css เดิมโดยตรง */
+.module-toolbar{box-sizing:border-box;display:flex;gap:10px;align-items:center;min-height:56px;padding:7px 14px;background:white;flex-shrink:0;width:100%;max-width:760px;margin:0 auto} /* จาก .module-toolbar ของแอป */
+.module-toolbar h2{font-size:18px;flex:1;color:var(--primary)} /* จากหัวฟอร์มของแอป */
+#orphanForm textarea{width:100%;padding:12px 14px;border:1px solid var(--border-color);border-radius:8px;box-sizing:border-box;font-family:Anuphan,sans-serif;font-size:16px;transition:all .3s ease;background:#fcfcfc;resize:vertical} /* ใช้ขนาดและผิวเดียวกับ input ต้นฉบับ */
+#orphanForm textarea:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(30,86,49,.1);background:#fff} /* focus แบบต้นฉบับ */
+#orphanNotice{margin:0 0 16px;line-height:1.65;color:#713b17;overflow-wrap:anywhere} /* มีเฉพาะผลส่ง/ปัญหาจำเป็น ไม่แสดงข้อมูลเชื่อมต่อ */
+#orphanForm [hidden]{display:none!important} /* สถานะและปุ่มที่ยังไม่ใช้ไม่กินพื้นที่ */
+#orphanForm button[type=button]{width:100%;padding:15px;border-radius:8px;font:inherit;margin-top:15px;min-height:48px} /* ปุ่มกู้รายการใช้สเกลเดียวกับปุ่มบันทึก */
+@media(min-width:900px){.module-toolbar{min-height:66px;padding:12px 24px}.module-toolbar h2{font-size:22px}} /* toolbar desktop ตามแอปเดิม */
+@media(max-width:600px){.module-toolbar{padding:7px 0}#orphanForm{padding:24px}} /* คง form padding จาก app-form.css ไม่ใช้ระยะใหม่ที่เดาเอง */

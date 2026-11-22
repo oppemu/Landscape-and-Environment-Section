@@ -1,0 +1,54 @@
+/* ปรับฟอร์มที่ฝังใน iframe ให้ใช้พื้นที่ร่วมกับแอป โดยจำกัด selector ที่ body.app-embedded เพื่อไม่ลบหัวข้อย่อยและป๊อปอัปเลือกข้อมูล */
+/* Integration only. Original controls, group boundaries and popup theme are unchanged. */
+body.app-embedded{
+  background:#fff!important;
+  display:block!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:24px!important;
+  box-sizing:border-box;
+}
+body.app-embedded>.container,
+body.app-embedded>main{
+  width:100%!important;
+  max-width:760px!important;
+  margin:0 auto!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  box-sizing:border-box;
+}
+body.app-embedded #salesForm>.card,
+body.app-embedded #humusForm>.card,
+body.app-embedded>main>.card{
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  padding:0!important;
+}
+/* ซ่อนเฉพาะหัวหน้าเดิมที่ซ้ำกับแอป ไม่ซ่อนหัวข้อในส่วนหรือในกล่องตัวเลือก */
+body.app-embedded>.container>.header,
+body.app-embedded #salesForm>.card>.header,
+body.app-embedded #humusForm>.card>.header,
+body.app-embedded>.container>.header-logo,
+body.app-embedded>.container>h2,
+body.app-embedded>.container>img[src="โลโก้กองกายภาพ.png"],
+body.app-embedded>.container>div:has(>img[src="โลโก้กองกายภาพ.png"]):not(.header),
+body.app-embedded>main>small,
+body.app-embedded>main>h1,
+body.app-embedded>main>h1+p{
+  display:none!important;
+}
+/* ลิงก์กลับของฟอร์มเดิมซ้ำกับปุ่มกลับของแอป จึงซ่อนเฉพาะลิงก์ระดับหน้านี้ */
+body.app-embedded>.container>a[href="index.html"]{display:none!important}
+@media(max-width:600px){body.app-embedded{padding:16px!important}}
+
+/* ซ่อน successPopup รุ่นเก่า: ใช้ป๊อปอัป UnifiedApi แยกรับเข้าคิวกับยืนยันเข้าชีต; ไม่ซ่อน dialog เลือกข้อมูล */
+#successPopup{display:none!important}
+
+/* v2.3.7 ฟอร์มเป็นพื้นผิวเดียว */
+form fieldset,form .form-section,form .section,form .card,form .form-card{border:0!important;box-shadow:none!important;background:transparent!important;border-radius:0!important;margin:0!important;padding:16px 0!important}
+form{border-radius:18px; background:#fff;padding:24px}form legend{font-weight:400;color:#171717}form label{color:#171717;font-weight:400}

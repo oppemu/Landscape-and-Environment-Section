@@ -1,0 +1,44 @@
+/* หน้าต่างร่วมทุกหน้า: ใช้สี ขนาดตัวอักษร ปุ่ม และ focus แบบเดียวกัน */
+@import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&display=swap');
+:root{--mu-popup-green:#a4c579;--mu-popup-ink:#202820;--mu-popup-line:#bed3c5;--mu-popup-soft:#fff;--mu-popup-backdrop:#20282066}
+@media screen{
+ dialog,.popup-content,#mu-result-popup>section{font-family:Anuphan,Tahoma,sans-serif!important;color:var(--mu-popup-ink)!important;background:#fff!important;border:1px solid var(--mu-popup-line)!important;border-top:5px solid var(--mu-popup-green)!important;border-radius:20px!important;box-shadow:0 18px 60px #12332633!important;padding:24px!important;box-sizing:border-box!important;font-size:17px!important;line-height:1.65!important;max-height:85dvh;overflow:auto}
+ dialog{width:min(520px,calc(100vw - 32px))}
+ dialog::backdrop{background:var(--mu-popup-backdrop)!important}
+ .popup-overlay,#mu-result-popup{background:var(--mu-popup-backdrop)!important;padding:16px!important;box-sizing:border-box}
+ .popup-content{max-width:520px!important;width:100%!important}
+ dialog h2,dialog h3,.popup-content h2,.popup-content h3,#mu-result-popup h2{font-size:22px!important;font-weight:700!important;color:var(--mu-popup-ink)!important;margin:0 0 16px!important;line-height:1.4}
+ dialog p,.popup-content p,#mu-result-popup p{font-size:inherit!important;overflow-wrap:anywhere}
+ dialog button,.popup-content button,#mu-result-popup button{font-family:Anuphan,Tahoma,sans-serif!important;font-size:17px!important;line-height:1.5!important;min-height:46px;border-radius:12px!important;padding:10px 16px!important;background:#fff!important;color:#203019!important;border:1px solid var(--mu-popup-green)!important;cursor:pointer}
+ dialog button.secondary,dialog button.text-button,dialog button.quiet,dialog button.cancel,.popup-content .close-popup-btn,.mu-choice-options button,.option-list button{background:var(--mu-popup-soft)!important;color:var(--mu-popup-ink)!important;border-color:var(--mu-popup-line)!important}
+ .mu-choice-options button[aria-pressed=true],.option-list button[aria-pressed=true]{background:#e3f0d7!important;color:var(--mu-popup-ink)!important}
+ dialog button:disabled,.popup-content button:disabled{opacity:.55;cursor:not-allowed}
+ dialog :focus-visible,.popup-content :focus-visible,#mu-result-popup :focus-visible{outline:3px solid #c48a24!important;outline-offset:3px!important}
+ dialog input,dialog textarea,dialog select,.popup-content input,.popup-content textarea{font:inherit!important;color:var(--mu-popup-ink);border:1px solid var(--mu-popup-line);border-radius:10px;padding:10px;box-sizing:border-box;max-width:100%}
+ .mu-dialog-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;flex-wrap:wrap}.mu-dialog-actions button{flex:1}
+ .popup-content .option-card,.popup-content .provider-btn,.popup-content .category-item,.popup-content .category-option{border:1px solid var(--mu-popup-line)!important;border-radius:12px!important;padding:12px!important;background:var(--mu-popup-soft)!important;color:var(--mu-popup-ink)!important;font:inherit!important}
+ .popup-content .option-card:has(input:checked){border-color:var(--mu-popup-green)!important;background:#e3f0d7!important}
+ .popup-content input[type=checkbox],.popup-content input[type=radio]{accent-color:var(--mu-popup-green)}
+ .popup-icon{color:var(--mu-popup-green)!important;background:var(--mu-popup-soft)!important}
+ .leaflet-popup-content-wrapper{font-family:Anuphan,Tahoma,sans-serif!important;color:var(--mu-popup-ink)!important;border:1px solid var(--mu-popup-line);border-top:5px solid var(--mu-popup-green);border-radius:20px!important;box-shadow:0 18px 60px #12332633!important}.leaflet-popup-content{font-size:17px!important;line-height:1.6!important}
+}
+@media screen and (min-width:1024px){dialog,.popup-content,#mu-result-popup>section{font-size:19px!important}dialog button,.popup-content button,#mu-result-popup button{font-size:19px!important}dialog h2,dialog h3,.popup-content h2,.popup-content h3,#mu-result-popup h2{font-size:24px!important}}
+@media(prefers-reduced-motion:reduce){dialog,.popup-content,.popup-overlay{animation:none!important;transition:none!important}}
+@media print{.mu-message-dialog,#mu-result-popup{display:none!important}}
+
+/* v245: animation indicates waiting only, never a successful Sheet write */
+.mu-send-spinner{display:block;width:44px;height:44px;margin:0 auto 18px;border:4px solid #e1ebdb;border-top-color:#46752d;border-radius:50%;animation:mu-send-spin .85s linear infinite;}
+@keyframes mu-send-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.mu-send-spinner{animation:none;border-top-color:#46752d;}}
+
+@media screen and (prefers-reduced-motion:no-preference){
+ #mu-result-popup .mu-send-spinner{animation:mu-send-spin .85s linear infinite!important;will-change:transform;}
+}
+
+/* ปุ่มและสถานะเลือกใช้ระบบสีเดียวกันทั้งกล่องตัวเลือก/แจ้งเตือน */
+@media screen {
+ dialog button,.popup-content button,#mu-result-popup button { transition:background-color .16s ease,transform .16s ease; }
+ dialog button:hover:not(:disabled),.popup-content button:hover:not(:disabled),#mu-result-popup button:hover:not(:disabled) { background:#f2f7ec!important; }
+ dialog button:active:not(:disabled),.popup-content button:active:not(:disabled),#mu-result-popup button:active:not(:disabled) { background:#e3f0d7!important;transform:scale(.98); }
+ .mu-choice-options button[aria-pressed=true],.popup-content .option-card:has(input:checked),.popup-content button[aria-pressed=true] { background:#e3f0d7!important;color:#202820!important;border-color:#a4c579!important; }
+}

@@ -1,0 +1,77 @@
+/* Theme source: waste app app.css + existing form theme; UI only, no schema changes. */
+:root{--primary:#1e5631;--secondary:#4c9a2a;--bg:#f4f7f6;--ink:#333;--muted:#737d76;--line:#e0e6e2}
+body.app-embedded{background:var(--bg)!important;padding:0 0 32px!important;color:var(--ink);font-family:Anuphan,Tahoma,sans-serif!important}
+.division-masthead{box-sizing:border-box;min-height:66px;display:flex;align-items:center;justify-content:center;background:white;border-bottom:1px solid var(--line);padding:12px 24px;width:100%}
+.division-masthead img{display:block;width:210px;height:auto;max-width:100%}
+.module-toolbar{display:block;background:transparent;max-width:760px;padding:24px 0 16px;margin:0 auto}
+.module-toolbar h1{font-family:Anuphan,Tahoma,sans-serif;font-size:26px;line-height:1.4;font-weight:600;color:var(--primary);margin:4px 0 8px}
+.module-eyebrow,.module-description{font-size:14px;line-height:1.6;color:var(--muted);margin:0}
+body.app-embedded>.container{padding:0!important;max-width:760px!important}
+#orphanForm{border:1px solid var(--line);border-radius:14px;box-shadow:0 5px 24px #1027190b;padding:24px;background:#fff;margin:0}
+#orphanForm label{font-size:16px;line-height:1.5;color:var(--ink);font-weight:400}
+#orphanForm input,#orphanForm textarea,#orphanForm select{font-family:Anuphan,Tahoma,sans-serif!important;font-size:16px!important;min-height:48px;border-radius:7px!important;border:1px solid #c7d6cb!important;box-sizing:border-box;max-width:100%;background:#fff!important}
+#orphanForm input:focus,#orphanForm textarea:focus,#orphanForm select:focus{border-color:var(--secondary)!important;box-shadow:0 0 0 3px #4c9a2a22!important;outline:none}
+#orphanForm button{font-family:Anuphan,Tahoma,sans-serif!important;font-size:16px!important;font-weight:600;border-radius:7px!important;min-height:48px}
+#orphanForm button[type=submit],#orphanForm #retrySame{background:var(--primary)!important;border:1px solid var(--primary)!important;color:#fff!important}
+#orphanForm button[type=button]{background:#fff;color:var(--primary);border:1px solid #c7d6cb}
+#orphanForm button:hover:not(:disabled){filter:brightness(.96)}
+#orphanForm button:disabled{background:#dce5df!important;border-color:#dce5df!important;color:#64726a!important;cursor:not-allowed;opacity:1}
+#orphanNotice:not([hidden]){padding:12px 14px;background:#fff7e8;border:1px solid #e5d2ad;border-radius:7px;font-size:14px}
+.skip-link{position:absolute;left:12px;top:-100px;background:#fff;color:var(--primary);padding:12px;z-index:20}.skip-link:focus{top:12px}
+:focus-visible{outline:3px solid var(--secondary);outline-offset:3px}
+@media(max-width:800px){body.app-embedded>.container{width:calc(100% - 32px)!important}.module-toolbar{padding:20px 16px 16px}.division-masthead{padding:12px 16px}}
+@media(max-width:480px){#orphanForm{padding:18px}.module-toolbar h1{font-size:24px}body.app-embedded{padding-bottom:20px!important}#orphanForm .form-group{min-width:0}}
+@media(prefers-reduced-motion:reduce){#orphanForm *{transition:none!important}}
+
+/* v1.4: centred form branding and mobile-first width */
+.division-masthead{padding:24px 16px 18px;border-bottom:0}
+.division-masthead img{width:250px;max-width:75vw;margin-inline:auto}
+.module-toolbar{text-align:center;max-width:540px;padding:12px 16px 20px}
+body.app-embedded>.container{max-width:540px!important;width:calc(100% - 28px)!important}
+#orphanForm{padding:24px 20px}#orphanForm button{width:100%;margin-top:12px}
+@media(max-width:480px){.division-masthead{padding-top:24px}.division-masthead img{width:230px}.module-toolbar h1{font-size:24px}#orphanForm{padding:22px 18px}.module-description{font-size:15px}}
+
+.department-picker{position:relative}
+#departmentOptions{list-style:none;padding:0;margin:4px 0 0;border:1px solid #c7d6cb;border-radius:8px;background:#fff;box-shadow:0 6px 18px #10271914;max-height:250px;overflow-y:auto;overscroll-behavior:contain}
+#departmentOptions[hidden]{display:none}
+#departmentOptions li{padding:12px 14px;min-height:48px;line-height:1.5;cursor:pointer;border-bottom:1px solid #edf2e9;font-size:16px}
+#departmentOptions li:last-child{border:0}
+#departmentOptions li:hover,#departmentOptions li[aria-selected=true]{background:#e8f2dc;color:#1e5631}
+
+/* v1.5 one card: logo/title and form together, no full-width header strip. */
+body.app-embedded{padding:24px 0!important}
+#orphanForm .division-masthead{background:transparent;border:0;min-height:0;padding:0 0 14px;justify-content:center}
+#orphanForm .division-masthead img{width:250px;max-width:100%;height:auto}
+#orphanForm .module-toolbar{padding:0 0 20px;text-align:center;background:transparent}
+#orphanForm .module-toolbar h1{margin:4px 0 6px}
+#orphanForm #photoPreview{display:block;max-width:100%;max-height:240px;object-fit:contain;border-radius:8px;margin-top:12px}
+#orphanForm #photoPreview[hidden]{display:none!important}
+#photoHelp{font-size:13px;color:var(--muted);line-height:1.6;margin-top:8px}
+@media(max-width:480px){body.app-embedded{padding:12px 0!important}}
+
+/* v1.6 themed native photo picker and submission progress */
+#orphanForm input[type=file]{width:100%;font:inherit;padding:10px;background:#fff;border:1px solid #c7d6cb;border-radius:10px;box-sizing:border-box}
+#orphanForm input[type=file]::file-selector-button{font:inherit;color:#23422d;background:#fff;border:1px solid #bdd1bf;border-radius:8px;padding:10px 14px;margin-right:10px;cursor:pointer;transition:background .2s,box-shadow .2s}
+#orphanForm input[type=file]::file-selector-button:hover{background:#e8f2dc;box-shadow:0 2px 8px #24492c20}
+#orphanSubmit.is-busy::before{content:"";display:inline-block;width:18px;height:18px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;margin-right:10px;vertical-align:middle;animation:orphan-spin .8s linear infinite}
+@keyframes orphan-spin{to{transform:rotate(360deg)}}
+#orphanForm input[readonly]{background:#f7faf6;color:#24392c}
+
+.department-picker{position:relative}
+#wasteOptions{list-style:none;padding:0;margin:4px 0 0;border:1px solid #c7d6cb;border-radius:8px;background:#fff;box-shadow:0 6px 18px #10271914;max-height:250px;overflow-y:auto;overscroll-behavior:contain}
+#wasteOptions[hidden]{display:none}
+#wasteOptions li{padding:12px 14px;min-height:48px;line-height:1.5;cursor:pointer;border-bottom:1px solid #edf2e9;font-size:16px}
+#wasteOptions li:last-child{border:0}
+#wasteOptions li:hover,#wasteOptions li[aria-selected=true]{background:#e8f2dc;color:#1e5631}
+
+
+#wasteScope{font-size:14px;line-height:1.6;color:#526156;margin:8px 0 0}
+
+.waste-weight-row{padding:14px;margin:12px 0;border:1px solid #d9e4db;border-radius:10px;background:#f8faf7}.waste-weight-row label{display:block}.waste-weight-row input{display:block;width:100%;margin-top:8px}
+
+/* Uniform full-width form controls; notes remain expandable. */
+#orphanForm .form-group,#orphanForm .department-picker{width:100%;min-width:0}
+#orphanForm input:not([type=file]),#orphanForm textarea,#orphanForm select{display:block;width:100%;height:48px;min-height:48px;padding:11px 12px;line-height:24px;box-sizing:border-box}
+#orphanForm textarea{resize:vertical;overflow:auto}
+#orphanForm input[type=file]{min-height:48px;padding:5px 8px}
+#orphanForm input[type=file]::file-selector-button{padding:6px 10px}
