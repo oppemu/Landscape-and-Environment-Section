@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<script src="../../config/app-config.js"></script>
+<script src="../../common/form-photo.js"></script>
+<script src="../../common/durable-outbox.js"></script><script src="../../common/unified-client.js"></script>
+<script src="../../common/runtime.js"></script>
+<script src="../../common/bridge.js" data-module="sale"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>บันทึกยอดจำหน่ายปุ๋ย</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../../common/app-form.css">
+<script src="../../common/thai-date.js" defer></script><link rel="stylesheet" href="../../common/theme-unified.css"><link rel="stylesheet" href="../../common/popup-select.css">
+<script src="../../common/popup-select.js" defer></script>
+<link rel="stylesheet" href="../../common/popup-theme.css"><script src="../../common/popup-theme.js" defer></script><link rel="stylesheet" href="../../common/file-picker.css"><link rel="stylesheet" href="../../common/forms-theme.css?v=1"></head>
+<body class="waste-module">
+    <div class="container">
+        <form id="salesForm" autocomplete="off">
+            <div class="card">
+                
+                <div class="header" style="text-align: center; margin-bottom: 20px;">
+                    <img src="โลโก้กองกายภาพ.png" alt="โลโก้กองกายภาพและสิ่งแวดล้อม" class="header-logo" style="width: 100%; max-width: 250px; margin-bottom: 15px; height: auto;">
+                    <h2 style="color: #1e5631; margin-top: 0; font-size: 24px;">ยอดจำหน่ายปุ๋ย</h2>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">วัน/เดือน/ปี</label>
+                    <input type="date" id="date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="buyerName">ชื่อผู้ซื้อ</label>
+                    <input type="text" id="buyerName" placeholder="กรอกชื่อ-สกุล หรือ หน่วยงาน">
+                </div>
+
+                <div class="form-group">
+                    <label for="buyerType">ประเภทผู้ซื้อ</label>
+                    <input type="text" id="buyerType" placeholder="กดเพื่อเลือกประเภทผู้ซื้อ" readonly style="cursor: pointer;">
+                </div>
+
+                <div class="form-group">
+                    <label for="bagSize">รายการและจำนวนสินค้า</label>
+                    <input type="text" id="bagSize" placeholder="กดเพื่อเลือกรูปแบบบรรจุและระบุจำนวน" readonly style="cursor: pointer;">
+                </div>
+
+                <div class="form-group" id="totalWeightGroup">
+                    <label for="totalWeight">น้ำหนักรวม (กิโลกรัม)</label>
+                    <!-- เพิ่ม readonly -->
+                    <input type="number" id="totalWeight" placeholder="0.00" step="0.01" min="0" inputmode="decimal" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">ราคาที่จำหน่าย (บาท)</label>
+                    <!-- เพิ่ม readonly -->
+                    <input type="number" id="price" placeholder="0.00" step="0.01" min="0" inputmode="decimal" readonly>
+                </div>
+
+                <div class="form-group autocomplete-container" style="margin-bottom: 0;">
+                    <label for="recorder">ผู้บันทึกข้อมูล</label>
+                    <input type="text" id="recorder" placeholder="พิมพ์ตัวอักษรแรกเพื่อค้นหาชื่อ" autocomplete="off">
+                    <div id="autocompleteList" class="autocomplete-dropdown hidden"></div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="receiptImage">แนบรูปประกอบ (ไม่บังคับ)</label>
+                    <input type="file" multiple id="receiptImage" accept="image/jpeg,image/png,image/webp" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-family: 'Anuphan', sans-serif; background-color: #fff; box-sizing: border-box;">
+                </div>
+
+            </div>
+
+            <button type="submit" id="submitBtn">บันทึกข้อมูล</button>
+        </form>
+    </div>
+
+    <!-- Popup เลือกประเภทผู้ซื้อ -->
+    <div id="buyerTypePopup" class="popup-overlay hidden">
+        <div class="popup-content" style="text-align: left; padding: 25px;">
+            <h3 style="margin-top: 0; color: #1e5631; text-align: center; font-size: 20px;">เลือกประเภทผู้ซื้อ</h3>
+            <div class="option-card-group">
+                <label class="option-card" data-value="บุคลากร">
+                    <input type="radio" name="buyerTypeRadio" value="บุคลากร">
+                    <span>บุคลากร</span>
+                </label>
+                <label class="option-card" data-value="บุคคลภายนอก">
+                    <input type="radio" name="buyerTypeRadio" value="บุคคลภายนอก">
+                    <span>บุคคลภายนอก</span>
+                </label>
+                <label class="option-card" data-value="บริษัทไม้เดิม">
+                    <input type="radio" name="buyerTypeRadio" value="บริษัทไม้เดิม">
+                    <span>บริษัทไม้เดิม</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup เลือกขนาดถุงและจำนวน -->
+    <div id="bagSizePopup" class="popup-overlay hidden">
+        <div class="popup-content" style="text-align: left; padding: 20px; max-height: 85vh; overflow-y: auto; width: 340px;">
+            <h3 style="margin-top: 0; color: #1e5631; text-align: center; font-size: 20px;">ระบุรายการและจำนวน</h3>
+            
+            <!-- ปุ๋ยแบบเม็ด -->
+            <div style="margin-top: 15px; padding-bottom: 5px; border-bottom: 2px solid #e8f5e9;">
+                <span style="font-weight: 600; color: #1e5631;">ฮิวมัสชนิดเม็ด</span>
+            </div>
+            <div class="option-card-group" style="margin-top: 10px;">
+                <div class="option-card bag-option" data-type="pellet-2kg">
+                    <label style="display: flex; align-items: center; width: 100%; margin: 0; cursor: pointer;">
+                        <input type="checkbox" value="เม็ด: ถุง 2 กก.">
+                        <span style="flex: 1; font-size: 15px;">บรรจุถุง 2 กก.</span>
+                    </label>
+                    <input type="number" class="bag-qty hidden" min="0" step="1" placeholder="จำนวน (ถุง)" inputmode="numeric">
+                </div>
+            </div>
+
+            <!-- ปุ๋ยหมักชนิดผง -->
+            <div style="margin-top: 20px; padding-bottom: 5px; border-bottom: 2px solid #e8f5e9;">
+                <span style="font-weight: 600; color: #1e5631;">ฮิวมัสชนิดผง</span>
+            </div>
+            <div class="option-card-group" style="margin-top: 10px;">
+                <div class="option-card bag-option" data-type="powder-unbagged">
+                    <label style="display: flex; align-items: center; width: 100%; margin: 0; cursor: pointer;">
+                        <input type="checkbox" value="ผง: ไม่บรรจุถุง">
+                        <span style="flex: 1; font-size: 15px;">ไม่บรรจุถุง</span>
+                    </label>
+                    <input type="number" class="bag-qty hidden" min="0" step="0.1" placeholder="จำนวน (กก.)" inputmode="decimal">
+                </div>
+                <div class="option-card bag-option" data-type="powder-small">
+                    <label style="display: flex; align-items: center; width: 100%; margin: 0; cursor: pointer;">
+                        <input type="checkbox" value="ผง: ถุงเล็ก">
+                        <span style="flex: 1; font-size: 15px;">ถุงเล็ก 4 กก.</span>
+                    </label>
+                    <input type="number" class="bag-qty hidden" min="0" step="1" placeholder="จำนวน (ถุง)" inputmode="numeric">
+                </div>
+                <div class="option-card bag-option" data-type="powder-large">
+                    <label style="display: flex; align-items: center; width: 100%; margin: 0; cursor: pointer;">
+                        <input type="checkbox" value="ผง: ถุงใหญ่">
+                        <span style="flex: 1; font-size: 15px;">ถุงใหญ่ 10 กก.</span>
+                    </label>
+                    <input type="number" class="bag-qty hidden" min="0" step="1" placeholder="จำนวน (ถุง)" inputmode="numeric">
+                </div>
+            </div>
+
+            <!-- น้ำหมักชีวภาพ -->
+            <div style="margin-top: 20px; padding-bottom: 5px; border-bottom: 2px solid #e8f5e9;">
+                <span style="font-weight: 600; color: #1e5631;">น้ำหมักชีวภาพ</span>
+            </div>
+            <div class="option-card-group" style="margin-top: 10px;">
+                <div class="option-card bag-option" data-type="liquid">
+                    <label style="display: flex; align-items: center; width: 100%; margin: 0; cursor: pointer;">
+                        <input type="checkbox" value="น้ำหมักชีวภาพ">
+                        <span style="flex: 1; font-size: 15px;">น้ำหมัก</span>
+                    </label>
+                    <input type="number" class="bag-qty hidden" min="0" step="0.1" placeholder="จำนวน (ลิตร)" inputmode="decimal">
+                </div>
+            </div>
+
+            <button type="button" id="confirmBagSizeBtn" class="popup-confirm-btn" style="margin-top: 25px;">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- Popup บันทึกสำเร็จ -->
+    <div id="successPopup" class="popup-overlay hidden">
+        <div class="popup-content" style="text-align: center;">
+            <div class="popup-icon">✓</div>
+            <h3>บันทึกข้อมูลสำเร็จ</h3>
+            <p>ระบบได้บันทึกยอดจำหน่ายเรียบร้อยแล้ว</p>
+            <p style="font-size: 16px; margin-top: 15px; color: #888;">(แตะที่ใดก็ได้เพื่อปิดหน้าต่างนี้)</p>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
