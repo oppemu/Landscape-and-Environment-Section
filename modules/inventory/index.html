@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; frame-src https://script.google.com https://*.googleusercontent.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>คลังวัสดุและยืมคืน | Mahidol Environment Hub</title>
+<link rel="stylesheet" href="inventory.css">
+<script defer src="../../config/app-config.js"></script><script defer src="../../common/unified-client.js"></script><script defer src="../../common/inventory.js"></script><script defer src="../../common/inventory-client.js"></script><script defer src="../../common/form-photo.js"></script><script defer src="inventory-ui.js"></script>
+<script src="../../common/thai-date.js" defer></script><link rel="stylesheet" href="../../common/theme-unified.css"><link rel="stylesheet" href="../../common/popup-select.css">
+<script src="../../common/popup-select.js" defer></script>
+<link rel="stylesheet" href="../../common/popup-theme.css"><script src="../../common/popup-theme.js" defer></script><link rel="stylesheet" href="../../common/app-form.css"><link rel="stylesheet" href="../../common/file-picker.css"><link rel="stylesheet" href="../../common/forms-theme.css?v=1"></head>
+<body class="waste-module">
+<main class="inventory-shell">
+<header class="heading"><div><p class="eyebrow">MAHIDOL ENVIRONMENT HUB</p><h1>คลังวัสดุและยืมคืน</h1><p>ทุกการยืมมีเลขเคส ติดตามคืนบางส่วนและตรวจสภาพได้ในเคสเดิม</p></div><span class="mode-label" id="mode-label">กำลังเชื่อมต่อ</span></header>
+<section class="notice" aria-label="ข้อมูลคลัง"><strong id="connection-title">คลังวัสดุส่วนกลาง</strong><p id="connection-detail">กำลังอ่านข้อมูลคลัง</p><div class="toolbar"><button type="button" id="refresh-ledger" class="secondary">โหลดข้อมูลล่าสุด</button><button type="button" id="verify-receipt" class="secondary" hidden>ตรวจสอบผลในทะเบียน</button></div></section>
+
+<section id="summary" class="summary" aria-label="ภาพรวมคลัง"></section>
+<nav class="tabs" aria-label="งานคลัง"><button type="button" data-tab="stock" aria-current="page">สต๊อกและเบิกของ</button><button type="button" data-tab="cases">เคสยืมและรับคืน</button><button type="button" data-tab="inspections">ตรวจของคืน</button><button type="button" data-tab="counts">ตรวจนับสต๊อก</button><button type="button" data-tab="history">ประวัติทั้งหมด</button></nav>
+<div class="search-row"><label for="search">ค้นหาชื่อของ รหัสของ เลขเคส หรือชื่อบุคคล</label><input id="search" type="search" placeholder="ค้นหาในรายการที่กำลังเปิด…" autocomplete="off"></div>
+<section id="stock-panel" class="panel"><div class="section-heading"><div><h2>สต๊อกในห้องเก็บของ</h2><p>พร้อมจ่ายไม่รวมของที่ยืมอยู่ ของรอตรวจคืน หรือของชำรุด</p></div><button type="button" id="new-item">+ เพิ่มรายการของ</button></div><div id="stock-list"></div></section>
+<section id="cases-panel" class="panel" hidden><div class="section-heading"><div><h2>เคสยืมและรับคืน</h2><p>ยืมเพิ่มสร้างเคสใหม่ การคืนต้องเลือกเคสเดิมเสมอ</p></div><label>สถานะ <select id="case-filter"><option value="active">ยังไม่ปิดเคส</option><option value="all">ทั้งหมด</option><option value="open">รอคืน</option><option value="partial">คืนบางส่วน</option><option value="inspection">รอตรวจคืน</option><option value="closed">ปิดเคส</option><option value="overdue">เกินกำหนดคืน</option></select></label></div><div id="case-list"></div></section>
+<section id="inspections-panel" class="panel" hidden><div class="section-heading"><div><h2>ตรวจของที่รับคืน</h2><p>ตรวจครบทุกชิ้นในแต่ละรอบรับคืน ของใช้ได้จึงกลับเป็นพร้อมจ่าย ส่วนชำรุดแยกพักไว้</p></div></div><div id="inspection-list"></div></section>
+<section id="counts-panel" class="panel" hidden><div class="section-heading"><div><h2>ตรวจนับของพร้อมจ่าย</h2><p>บันทึกจำนวนที่นับจริงก่อน การปรับยอดต้องให้ผู้ดูแลทบทวนอีกขั้น หากมีการเคลื่อนไหวแล้วต้องตรวจนับใหม่</p></div></div><div id="count-list"></div></section>
+<section id="history-panel" class="panel" hidden><div class="section-heading"><div><h2>ประวัติการเคลื่อนไหว</h2><p>แยกวันที่ทำรายการกับเวลาบันทึก ไม่มีปุ่มลบหรือเขียนทับประวัติเดิม</p></div></div><div id="history-list"></div></section>
+<footer>จำนวนแต่ละรายการแสดงตามหน่วยของรายการนั้น ไม่รวมหน่วยต่างกันเป็นยอดเดียว · ไม่ใช่การรับรองมาตรฐาน ISO</footer>
+</main>
+<dialog id="form-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button type="button" id="close-dialog" class="quiet" aria-label="ปิดหน้าต่าง">ปิด</button></div><div id="dialog-description" class="dialog-description"></div><form id="action-form"><div id="form-fields" class="form-grid"></div><label>รูปประกอบ (ไม่บังคับ)<input id="inventory-photo" type="file" multiple accept="image/jpeg,image/png,image/webp"></label><p id="form-error" class="error" role="alert"></p><div class="dialog-actions"><button type="button" id="cancel-dialog" class="secondary">ยกเลิก</button><button type="submit" id="save-action">บันทึกเข้าทะเบียน</button></div></form></dialog>
+<dialog id="case-dialog" aria-labelledby="case-title"><div class="dialog-head"><h2 id="case-title">รายละเอียดเคส</h2><button type="button" id="close-case" class="quiet">ปิด</button></div><div id="case-detail"></div></dialog>
+</body></html>
