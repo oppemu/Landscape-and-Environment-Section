@@ -17,6 +17,8 @@
     actions.append(feedback,send);form.append(actions);
   }
   form.noValidate=true;
+  // iPhone Photos may supply HEIC even for a camera photo. Decode it locally if supported.
+  photos.accept='image/jpeg,image/png,image/heic,image/heif,.heic,.heif';
   send.disabled=false;
   function message(text,state='info'){
     feedback.dataset.state=state;
@@ -68,8 +70,8 @@
     return;
   }
   const key=/^[A-Za-z0-9_-]{1,64}$/;
-  let choices=new Map(),peers=new Map(),employeeKey='',endpoint='',generation=0,pending=false,requestId='';
-  const forget=()=>{requestId='';};
+  let choices=new Map(),peers=new Map(),employeeKey='',endpoint='',generation=0,pending=false,requestId='',prepared=null;
+  const forget=()=>{requestId='';prepared=null;};
   function reset(){
     generation++;pending=false;send.disabled=false;forget();employeeKey='';endpoint='';choices.clear();peers.clear();peerList.replaceChildren();peerBox.hidden=true;
     gate.disabled=true;showReporter();resetDraft();
@@ -153,22 +155,99 @@
           :'ยังเปิดรายการหัวข้อ PA สำหรับชื่อนี้ไม่ได้ จึงยังส่งรายงานไม่ได้');
     }
   }
-  function encodePhoto(file){
+  const MAX_INPUT=25000000, MAX_PART=3000000, SAFE_PART=1900000;
+  const failPhoto=code=>Object.assign(Error(code),{photoCode:code});
+  function readPhoto(blob,asUrl){
     return new Promise((resolve,reject)=>{
-      const reader=new FileReader();
-      reader.onerror=reader.onabort=()=>reject(Error('photo'));
-      reader.onload=()=>{
-        const value=reader.result;
-        const match=typeof value==='string'&&/^data:[^,]*;base64,([A-Za-z0-9+/]+={0,2})$/.exec(value);
-        const data=match&&match[1];
-        if(!data||data.length>4000000)return reject(Error('photo'));
-        // Mobile pickers can omit MIME; verify picture bytes instead of relying on the file name.
-        const mimeType=data.startsWith('iVBORw0KGgo')?'image/png':data.startsWith('/9j/')?'image/jpeg':'';
-        if(!mimeType||(file.type&&file.type!==mimeType))return reject(Error('photo'));
-        resolve({mimeType,data});
+      const reader=new FileReader(), finish=(fn,value)=>{
+        clearTimeout(timer);reader.onload=reader.onerror=reader.onabort=null;fn(value);
       };
-      reader.readAsDataURL(file);
+      const timer=setTimeout(()=>{finish(reject,failPhoto('read'));try{reader.abort();}catch(_){}},12000);
+      reader.onerror=reader.onabort=()=>finish(reject,failPhoto('read'));
+      reader.onload=()=>finish(resolve,reader.result);
+      try{if(asUrl)reader.readAsDataURL(blob);else reader.readAsArrayBuffer(blob);}
+      catch(_){finish(reject,failPhoto('read'));}
     });
+  }
+  async function encodeAccepted(blob,mimeType){
+    const result=await readPhoto(blob,true);
+    const match=typeof result==='string'&&/^data:[^,]*;base64,([A-Za-z0-9+/]+={0,2})$/.exec(result);
+    const data=match&&match[1];
+    if(!data||data.length>4000000||
+      (mimeType==='image/png'?!data.startsWith('iVBORw0KGgo'):!data.startsWith('/9j/')))throw failPhoto('read');
+    return {mimeType,data};
+  }
+  async function detectPhoto(file){
+    const bytes=new Uint8Array(await readPhoto(file.slice(0,64),false));
+    if([137,80,78,71,13,10,26,10].every((v,i)=>bytes[i]===v))return 'image/png';
+    if(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)return 'image/jpeg';
+    const ascii=i=>String.fromCharCode(...bytes.subarray(i,i+4));
+    const brands=['heic','heix','hevc','hevx','heim','heis','hevm','hevs','mif1','msf1'];
+    if(ascii(4)==='ftyp'&&Array.from({length:Math.floor((bytes.length-8)/4)},(_,i)=>8+4*i)
+      .some(i=>i!==12&&brands.includes(ascii(i))))return 'image/heic';
+    throw failPhoto('type');
+  }
+  async function openPhoto(file,type){
+    const payload=file.type===type?file:new Blob([file],{type});
+    const url=URL.createObjectURL(payload), image=new Image();
+    try{
+      await new Promise((resolve,reject)=>{
+        const finish=(fn)=>{clearTimeout(timer);image.onload=image.onerror=null;fn();};
+        const failure=()=>reject(failPhoto(type==='image/heic'?'heic':'read'));
+        const timer=setTimeout(()=>finish(failure),12000);
+        image.onload=()=>finish(resolve);image.onerror=()=>finish(failure);
+        image.src=url;
+      });
+      return {image,dispose:()=>URL.revokeObjectURL(url)};
+    }catch(error){URL.revokeObjectURL(url);throw error;}
+  }
+  function canvasJpeg(canvas,quality){
+    return new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>reject(failPhoto('read')),10000);
+      try{
+        canvas.toBlob(blob=>{
+          clearTimeout(timer);
+          if(!blob||blob.type!=='image/jpeg')reject(failPhoto('read'));else resolve(blob);
+        },'image/jpeg',quality);
+      }catch(_){clearTimeout(timer);reject(failPhoto('read'));}
+    });
+  }
+  async function resizePhoto(file,type){
+    const decoded=await openPhoto(file,type), canvas=document.createElement('canvas');
+    try{
+      const {image}=decoded,w=image.naturalWidth,h=image.naturalHeight;
+      if(!w||!h||w*h>65000000)throw failPhoto('dimensions');
+      const context=canvas.getContext('2d',{alpha:false});
+      if(!context)throw failPhoto('read');
+      for(const [edge,quality] of [[1920,.84],[1600,.76],[1280,.72]]){
+        const scale=Math.min(1,edge/Math.max(w,h));
+        canvas.width=Math.max(1,Math.round(w*scale));canvas.height=Math.max(1,Math.round(h*scale));
+        context.fillStyle='#fff';context.fillRect(0,0,canvas.width,canvas.height);
+        context.drawImage(image,0,0,canvas.width,canvas.height);
+        const output=await canvasJpeg(canvas,quality);
+        if(output.size<=SAFE_PART)return await encodeAccepted(output,'image/jpeg');
+      }
+      throw failPhoto('dimensions');
+    }finally{canvas.width=1;canvas.height=1;decoded.dispose();}
+  }
+  async function encodePhoto(file,normalize){
+    const type=await detectPhoto(file);
+    if(file.type&&file.type!==type&&!(type==='image/heic'&&/^image\/hei[cf](?:-sequence)?$/.test(file.type)))throw failPhoto('type');
+    if(type==='image/heic'||file.size>MAX_PART||(normalize&&file.size>SAFE_PART))return resizePhoto(file,type);
+    return encodeAccepted(file,type);
+  }
+  async function encodePhotos(files){
+    const normalize=files.reduce((n,f)=>n+f.size,0)>6000000;
+    const out=[];
+    // Only one decoded camera image in memory at a time on mobile.
+    for(const file of files)out.push(await encodePhoto(file,normalize));
+    return out;
+  }
+  function photoError(error){
+    if(error?.photoCode==='heic')return 'เครื่องนี้อ่านรูป HEIC ไม่ได้ กรุณาเลือก JPEG/PNG หรือเปลี่ยนกล้องเป็น “เข้ากันได้มากที่สุด” แล้วถ่ายใหม่';
+    if(error?.photoCode==='type')return 'ไฟล์นี้ไม่ใช่รูป JPG, PNG หรือ HEIC ที่รองรับ กรุณาเลือกภาพใหม่';
+    if(error?.photoCode==='dimensions')return 'รูปนี้มีความละเอียดสูงเกินไป กรุณาแนบภาพที่เล็กลง';
+    return 'ยังไม่ได้ส่งรายงาน เพราะอ่านรูปไม่ได้ กรุณาแนบรูปใหม่แล้วลองอีกครั้ง';
   }
   form.addEventListener('input',forget);
   form.addEventListener('change',forget);
@@ -179,27 +258,29 @@
     const day=date.value,description=note.value.trim(), files=Array.from(photos.files||[]);
     const actual=new Date(day+'T00:00:00Z');
     if(!/^20\d{2}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(actual.getTime())||actual.toISOString().slice(0,10)!==day||!description||description.length>1500){message('กรอกวันที่และรายละเอียดงานให้ครบ','error');return;}
-    if(!files.length||files.length>3||files.some(f=>(f.type&&!['image/jpeg','image/png'].includes(f.type))||f.size<1||f.size>3000000)||files.reduce((n,f)=>n+f.size,0)>6000000){message('แนบรูป JPG หรือ PNG 1–3 รูป รูปละไม่เกิน 3 MB รวมไม่เกิน 6 MB หากเป็น HEIC ให้เลือกไฟล์ JPG หรือ PNG แทน','error');return;}
+    if(!files.length||files.length>3){message('แนบรูปประกอบ 1–3 รูปก่อนส่ง','error');return;}
+    if(files.some(f=>f.size<1||f.size>MAX_INPUT)){message('แนบรูปขนาดไม่เกิน 25 MB ต่อรูป หรือลองเลือกภาพที่เล็กลง','error');return;}
     const collaborators=[...peers.values()].filter(p=>p.check.checked).map(p=>({employeeKey:p.key,assignmentKey:p.topic.value}));
     if(collaborators.length>10||collaborators.some(p=>!peers.get(p.employeeKey).assignments.some(a=>a.key===p.assignmentKey))){message('เลือกหัวข้อ PA ให้ผู้ร่วมงานแต่ละคน (ไม่เกิน 10 คน)','error');return;}
     requestId ||= nextRequestId();
     const turn=generation, selectedName=getReporter(), authorAssignmentKey=assignment.value, activeEmployee=employeeKey,
       selectedEndpoint=endpoint, clientRequestId=requestId;
-    pending=true;send.disabled=true;gate.disabled=true;message('กำลังเตรียมรูปและส่งรายงาน…');
+    pending=true;send.disabled=true;gate.disabled=true;message('กำลังเตรียมรูป… กรุณาเปิดหน้านี้ไว้');
     let attempted=false;
     try{
-      const attached=await Promise.all(files.map(encodePhoto));
+      const attached=prepared?.id===clientRequestId?prepared.photos:await encodePhotos(files);
       if(turn!==generation||!onRoute()||getReporter()!==selectedName)return;
-      attempted=true;
+      prepared={id:clientRequestId,photos:attached};
+      attempted=true;message('กำลังส่งรายงาน… กรุณาเปิดหน้านี้ไว้');
       const ack=await window.UnifiedApi.request({action:'paWorkReportSubmit',employeeKey:activeEmployee,workDate:day,authorAssignmentKey,
         description,photos:attached,collaborators,clientRequestId},selectedEndpoint);
       if(turn!==generation)return;
       if(ack?.ok!==true||ack.requestId!==clientRequestId||typeof ack.reportId!=='string'||!/^pa_[a-f0-9]{64}$/.test(ack.reportId)||typeof ack.duplicate!=='boolean')throw Error('receipt');
       resetDraft();for(const peer of peers.values())updatePeerTopics(peer,false);forget();message('บันทึกรายงานแล้ว','success');
-    }catch(_){
+    }catch(error){
       if(turn===generation)message(attempted
         ?'ยังยืนยันผลการส่งไม่ได้ ลองกดส่งอีกครั้งโดยไม่แก้ข้อมูล ระบบจะใช้รหัสเดิมเพื่อไม่บันทึกซ้ำ'
-        :'ยังไม่ได้ส่งรายงาน เพราะอ่านรูปไม่ได้ กรุณาเลือกไฟล์ JPG หรือ PNG แล้วลองอีกครั้ง','error');
+        :photoError(error),'error');
     }
     finally{if(turn===generation){pending=false;send.disabled=false;gate.disabled=false;}}
   });
