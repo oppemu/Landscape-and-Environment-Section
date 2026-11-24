@@ -23,3 +23,10 @@
 #pa-work-fields :is(#pa-work-date,#pa-work-description):focus{outline:2px solid var(--form-theme-green,#226146);outline-offset:2px;border-color:var(--form-theme-green,#226146);background:#fff}
 #pa-work-fields:disabled :is(#pa-work-date,#pa-work-description){background:#eef3ef;color:#415e4d}
 @media(max-width:550px){#pa-work-fields :is(#pa-work-date,#pa-work-description){font-size:16px}}
+
+#pa-work-actions{display:grid;gap:8px;margin-top:14px}
+#pa-work-send{min-height:48px;touch-action:manipulation}
+#pa-work-send-status{margin:0;padding:9px 12px;border:1px solid #c8ddce;border-radius:10px;background:#f4f9f5;color:#19382a;overflow-wrap:anywhere}
+#pa-work-send-status:empty{padding:0;border:0;margin:0;background:none}
+#pa-work-send-status[data-state="error"]{background:#fff4ed;color:#742b11;border-color:#f1c4ac}
+#pa-work-send-status[data-state="success"]{background:#eaf7ee;color:#205638}
