@@ -20,7 +20,7 @@
 <script src="waste-types.js" defer></script>
 <script src="waste-autocomplete.js" defer></script>
 <script src="waste-weights.js" defer></script>
-<script src="photo.js" defer></script>
+<script src="photo.js?v=large-photo-20261124" defer></script>
 <script src="script.js" defer></script>
 </head>
 <body class="app-embedded">
@@ -33,6 +33,7 @@
 
 <div id="orphanNotice" role="status" aria-live="polite" hidden></div>
 <button id="retryConnection" type="button" hidden>ลองเชื่อมต่ออีกครั้ง</button>
+<section class="form-section" aria-label="ทางเลือกสำหรับมือถือ"><p><strong>เชื่อมต่อ Google ไม่ได้?</strong> <a href="https://script.google.com/a/macros/mahidol.ac.th/s/AKfycbzUg3am2Ic-msNgkZiVqu8wc1E4cCoFKy7pGfDDp7zU00hqjJWN_anseWMABBiCYMA5ZQ/exec?mode=form" target="_blank" rel="noopener noreferrer" aria-describedby="orphanMobileHelp">เปิดฟอร์มโดยตรงด้วยบัญชีมหิดล (แท็บใหม่)</a></p><p id="orphanMobileHelp">ข้อมูลที่กรอกในหน้านี้จะไม่ย้ายไปอีกแท็บ ฟอร์มโดยตรงแนบ JPG หรือ PNG ได้ไม่เกิน 1 MB หากกดบันทึกแล้วแต่ยังยืนยันผลไม่ได้ ให้ผู้ดูแลตรวจรายการเดิมก่อนส่งใหม่</p></section>
 <div class="form-section">
 <div class="form-group"><label for="orphanDate">วัน/เดือน/ปี</label><input id="orphanDate" name="date" type="date" readonly data-hide-thai-date="1"></div>
 <div class="form-group"><label for="orphanProvider">ผู้ให้ข้อมูล</label><input id="orphanProvider" name="provider" type="text" autocomplete="name"></div>
@@ -46,7 +47,7 @@
 <div class="form-group"><label for="orphanOther">หมายเหตุ</label><textarea id="orphanOther" name="otherDetails" rows="1"></textarea></div>
 </div>
 
-<div class="form-group"><label for="orphanPhoto">แนบรูปขยะ (ไม่บังคับ)</label><input id="orphanPhoto" type="file" accept="image/jpeg,image/png" aria-describedby="photoHelp"><p id="photoHelp">รูป JPG หรือ PNG 1 รูป ไม่เกิน 1 MB รูปเก็บในโฟลเดอร์ของฐานข้อมูล</p><img id="photoPreview" alt="ตัวอย่างรูปขยะที่เลือก" hidden></div>
+<div class="form-group"><label for="orphanPhoto">แนบรูปขยะ (ไม่บังคับ)</label><input id="orphanPhoto" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" aria-describedby="photoHelp photoStatus"><p id="photoHelp">แนบรูป JPG หรือ PNG ได้ 1 รูป ฟอร์มจะย่อรูปขนาดใหญ่ให้อัตโนมัติก่อนบันทึก</p><p id="photoStatus" role="status" aria-live="polite"></p><button id="photoRemove" type="button" hidden>เอารูปออก</button><img id="photoPreview" alt="ตัวอย่างรูปขยะที่เลือก" hidden></div>
 <button id="orphanSubmit" type="submit" disabled aria-describedby="orphanNotice">บันทึกข้อมูล</button>
 </form>
 </div>
