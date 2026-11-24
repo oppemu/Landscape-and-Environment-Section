@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="report.css?v=20261121-waste-edit" />
   <script src="common/thai-date.js" defer></script><link rel="stylesheet" href="common/theme-unified.css"><link rel="stylesheet" href="common/popup-select.css">
 <script src="common/popup-select.js" defer></script>
-<link rel="stylesheet" href="common/popup-theme.css"><script src="common/popup-theme.js" defer></script><link rel="stylesheet" href="common/file-picker.css"><link rel="stylesheet" href="common/pe-visual-theme.css?v=2"><link rel="stylesheet" href="common/settings.css"><link rel="stylesheet" href="common/dashboard.css?v=2.4.103" /><link rel="stylesheet" href="common/desktop-layout.css?v=5"><link rel="stylesheet" href="common/knowledge-home.css?v=11"><link rel="stylesheet" href="common/eco-navigation.css?v=9"><link rel="stylesheet" href="common/forms-theme.css?v=1"><link rel="stylesheet" href="common/dashboard-forest.css?v=bar-feedback-20261121"><link rel="stylesheet" href="common/pa-online.css?v=34"><link rel="stylesheet" href="common/pa-work.css?v=4"></head>
+<link rel="stylesheet" href="common/popup-theme.css"><script src="common/popup-theme.js" defer></script><link rel="stylesheet" href="common/file-picker.css"><link rel="stylesheet" href="common/pe-visual-theme.css?v=2"><link rel="stylesheet" href="common/settings.css"><link rel="stylesheet" href="common/dashboard.css?v=2.4.103" /><link rel="stylesheet" href="common/desktop-layout.css?v=5"><link rel="stylesheet" href="common/knowledge-home.css?v=11"><link rel="stylesheet" href="common/eco-navigation.css?v=9"><link rel="stylesheet" href="common/forms-theme.css?v=1"><link rel="stylesheet" href="common/dashboard-forest.css?v=bar-feedback-20261121"><link rel="stylesheet" href="common/pa-online.css?v=34"><link rel="stylesheet" href="common/pa-work.css?v=mobile-send-20261123"></head>
   <body class="profile-required">
     <a class="skip" href="#main">ข้ามไปเนื้อหา</a>
     <div class="app-shell">
@@ -60,7 +60,7 @@
           <h1 id="pa-work-title">รายงานการปฏิบัติงาน</h1>
           <p id="pa-work-status" role="status" aria-live="polite">ยังไม่ได้เชื่อมระบบรายงานการปฏิบัติงาน จึงยังส่งรายงานไม่ได้</p>
           <p id="pa-work-identity" hidden></p>
-          <form id="pa-work-form" autocomplete="off">
+          <form id="pa-work-form" autocomplete="off" novalidate>
             <fieldset id="pa-work-fields" disabled>
               <legend>ข้อมูลการปฏิบัติงาน</legend>
               <label for="pa-work-date">วันที่ปฏิบัติงาน</label>
@@ -75,8 +75,11 @@
                 <legend>ผู้ร่วมปฏิบัติงาน (เลือกได้หลายคน)</legend>
                 <div id="pa-work-peer-list"></div>
               </fieldset>
-              <button class="button" type="submit">ส่งรายงานการปฏิบัติงาน</button>
             </fieldset>
+            <div id="pa-work-actions">
+              <p id="pa-work-send-status" role="status" aria-live="polite" aria-atomic="true">กำลังเปิดระบบส่งรายงาน หากปุ่มไม่พร้อมให้รีเฟรชหน้า</p>
+              <button id="pa-work-send" class="button" type="submit" aria-describedby="pa-work-send-status" disabled>ส่งรายงานการปฏิบัติงาน</button>
+            </div>
           </form>
         </section>
         <section id="pa-online-view" class="pa-online-card" aria-labelledby="pa-layout-title" hidden>
@@ -376,7 +379,7 @@
     <script src="common/bank-import-parser.js"></script>
     <script src="common/bank-name-handoff.js"></script>
     <script src="common/bank-direct-open.js"></script>
-    <script src="common/module-host.js?v=9"></script><script src="common/pa-api-transport.js?v=1"></script><script src="common/pa-online.js?v=6"></script><script src="common/pa-pagination.js?v=9"></script><script src="common/pa-evidence.js?v=mahidl-photo-media-20261122"></script><script src="common/pa-draft.js?v=3"></script><script src="common/pa-layout.js?v=photo-resilient-20261122"></script><script src="common/pa-layout-pdf.js?v=25"></script><script src="common/pa-work.js?v=8"></script>
+    <script src="common/module-host.js?v=9"></script><script src="common/pa-api-transport.js?v=1"></script><script src="common/pa-online.js?v=6"></script><script src="common/pa-pagination.js?v=9"></script><script src="common/pa-evidence.js?v=mahidl-photo-media-20261122"></script><script src="common/pa-draft.js?v=3"></script><script src="common/pa-layout.js?v=photo-resilient-20261122"></script><script src="common/pa-layout-pdf.js?v=25"></script><script src="common/pa-work.js?v=mobile-send-20261123"></script>
     <script src="common/profile-controller.js?v=staff-instant-20261122"></script>
 
     <script src="modules/contractor-landscape/work-options.js"></script>
