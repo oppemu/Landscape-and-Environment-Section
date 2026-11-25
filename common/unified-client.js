@@ -157,6 +157,7 @@
   }
   function verifyResult(job,result,body){
     if(!result||!result.id)throw error('ยังยืนยันการบันทึกไม่ได้ กรุณาคงข้อมูลเดิมไว้','OUTCOME_UNCERTAIN');
+    if(body.action==='landscapeDailySubmit'&&(result.status!=='success'||result.requestId!==job.requestId||result.id!==job.requestId||!Number.isInteger(result.sourceRow)||result.sourceRow<2))throw error('ยังยืนยันรายงานไม่ได้ กรุณาลองส่งรายการเดิมอีกครั้ง','OUTCOME_UNCERTAIN');
     if(body.action==='treeReportSubmit'&&(result.status!=='success'||result.requestId!==job.requestId||result.id!==job.requestId||!Number.isInteger(result.sourceRow)||result.sourceRow<2))throw error('ยังยืนยันรายงานต้นไม้ไม่ได้','OUTCOME_UNCERTAIN');
     if(body.module==='food'&&body.payload.locations!==undefined){
       const n=Array.isArray(body.payload.locations)?body.payload.locations.length:0;
@@ -171,7 +172,7 @@
       if(root.navigator&&root.navigator.onLine===false)throw error('ยังไม่ได้เชื่อมต่ออินเทอร์เน็ต ข้อมูลยังอยู่ในฟอร์ม','OFFLINE');
       const url=endpoint(),who=await connectionInfo(url);
       const key=await digest({spreadsheetId:who.spreadsheetId,actor:who.email,body});
-      const slot=optionalFood(body)?'mu-food-attempt-v1:'+await digest({url,key}):null;
+      const slot=(optionalFood(body)||body.action==='landscapeDailySubmit')?'mu-'+(optionalFood(body)?'food':'daily')+'-attempt-v1:'+await digest({url,key}):null;
       // ส่งซ้ำด้วยข้อมูลเดิมใช้รหัสเดิม ไม่ส่งเอง; ฟอร์มเศษอาหารคงรหัสเมื่อรีเฟรชแท็บเดิม
       const requestId=attemptIds.get(key)||(slot&&foodAttemptId(slot))||uid();attemptIds.set(key,requestId);
       if(slot)foodAttemptId(slot,requestId);
@@ -236,5 +237,5 @@
       try{reader.readAsDataURL(file);}catch(e){finish(e);}
     });
   }
-  root.UnifiedApi=Object.freeze({verifyAccess:connectionInfo,request,save,treeReport,importExcel,readFile,connect:getReady,endpoint,diagnoseConnection,submissionStatus:notice});
+  root.UnifiedApi=Object.freeze({verifyAccess:connectionInfo,request,save,treeReport,landscapeDaily:payload=>mutation({action:'landscapeDailySubmit',payload}),importExcel,readFile,connect:getReady,endpoint,diagnoseConnection,submissionStatus:notice});
 })(window);

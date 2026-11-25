@@ -11,6 +11,7 @@
     ['humusquality', 'ผลิตฮิวมัส', 'humusquality/index.html', 'check'],
     ['sale', 'จำหน่ายผลผลิต', 'sale/index.html', 'bag'],
     ['inventory', 'คลังและยืมคืน', 'inventory/index.html', 'inventory'],
+    ['landscape-daily', 'รายงานประจำวันภูมิทัศน์', 'landscape-daily/index.html?v=20261125-daily1', 'report'],
     ['incident', 'รายงานเหตุการณ์', 'incident/index.html', 'report'],
     ['tree', 'แดชบอร์ด', 'tree/index.html', 'map'],
   ];
