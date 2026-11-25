@@ -1,12 +1,12 @@
-/* Nine explicit site weights form one server-confirmed batch. Never clear an uncertain draft. */
+/* Keep all nine site keys in the batch; a blank measurement is not a zero. Never clear an uncertain draft. */
 'use strict';
 (function(){
  const $=id=>document.getElementById(id),now=new Date(),pad=v=>String(v).padStart(2,'0');
  const locations=HubFoodModel.locations;
  $('foodDate').value=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
  const values=()=>locations.map((_,i)=>({weight:$('foodWeight'+i).value,bins:$('foodBins'+i).value,time:$('foodTime'+i).value,problem:$('foodProblem'+i).value}));
- const totals=()=>{const data=values();data.forEach((v,i)=>$('foodToggle'+i).classList.toggle('is-complete',HubFoodModel.complete(v)));$('foodBinsTotal').value=HubFoodModel.total(data,'bins');$('foodWeightTotal').value=HubFoodModel.total(data,'weight');};
- locations.forEach((_,i)=>['foodWeight','foodBins','foodTime'].forEach(k=>$(k+i).addEventListener('input',totals)));
+ const totals=()=>{const data=values();data.forEach((v,i)=>$('foodToggle'+i).classList.toggle('is-complete',HubFoodModel.hasData(v)));$('foodBinsTotal').value=HubFoodModel.total(data,'bins');$('foodWeightTotal').value=HubFoodModel.total(data,'weight');};
+ locations.forEach((_,i)=>['foodWeight','foodBins','foodTime','foodProblem'].forEach(k=>$(k+i).addEventListener('input',totals)));
  locations.forEach((_,i)=>{
   const toggle=$('foodToggle'+i),panel=$('foodPanel'+i);
   toggle.addEventListener('click',()=>{const expanded=toggle.getAttribute('aria-expanded')==='true';toggle.setAttribute('aria-expanded',String(!expanded));panel.hidden=expanded;});
@@ -22,6 +22,7 @@
   try{
    UnifiedApi.endpoint(); // ตรวจลิงก์และวิธีเปิดเว็บก่อนอ่านรูปหรือปิดปุ่ม
    const points=HubFoodModel.points(values());
+   if(!points.some(HubFoodModel.hasData))throw Error('กรอกข้อมูลอย่างน้อยหนึ่งช่องในจุดที่ต้องการบันทึก');
    const payload={date:$('foodDate').value,recorder:$('foodRecorder').value.trim(),locations:points};
    controls.forEach(n=>n.disabled=true);this.textContent='กำลังบันทึก…';this.classList.add('is-loading');this.setAttribute('aria-busy','true');
    UnifiedApi.submissionStatus('preparing','กำลังรับข้อมูล');
