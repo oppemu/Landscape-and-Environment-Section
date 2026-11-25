@@ -1,4 +1,4 @@
-/* Keep all nine site keys in the batch; a blank measurement is not a zero. Never clear an uncertain draft. */
+/* Keep ordered site keys in the batch; a blank measurement is not a zero. Never clear an uncertain draft. */
 'use strict';
 (function(){
  const $=id=>document.getElementById(id),now=new Date(),pad=v=>String(v).padStart(2,'0');
@@ -22,7 +22,7 @@
   try{
    UnifiedApi.endpoint(); // ตรวจลิงก์และวิธีเปิดเว็บก่อนอ่านรูปหรือปิดปุ่ม
    const points=HubFoodModel.points(values());
-   if(!points.some(HubFoodModel.hasData))throw Error('กรอกข้อมูลอย่างน้อยหนึ่งช่องในจุดที่ต้องการบันทึก');
+
    const payload={date:$('foodDate').value,recorder:$('foodRecorder').value.trim(),locations:points};
    controls.forEach(n=>n.disabled=true);this.textContent='กำลังบันทึก…';this.classList.add('is-loading');this.setAttribute('aria-busy','true');
    UnifiedApi.submissionStatus('preparing','กำลังรับข้อมูล');
@@ -30,7 +30,7 @@
    saving=true;
    await UnifiedApi.save('food',payload); // Promise resolves only after confirmed Sheet receipt. No automatic retry is started here.
    locations.forEach((_,i)=>['foodWeight','foodBins','foodTime','foodProblem'].forEach(k=>$(k+i).value=''));$('foodPhoto').value='';totals();
-  }catch(error){uncertain=saving&&['FOOD_BATCH_UNCONFIRMED','CONFLICT','SERVICE_ERROR','VERIFY_FAILED','VIEW_REFRESH_FAILED','TIMEOUT'].includes(error.code);if(uncertain){const message='ยังยืนยันรายการนี้ไม่ได้ ข้อมูลที่กรอกยังอยู่ กรุณาอย่ากรอกชุดใหม่ ให้ตรวจรายการเดิมกับผู้ดูแลก่อน';$('foodBatchNotice').textContent=message;$('foodBatchNotice').hidden=false;UnifiedApi.submissionStatus('blocked',message);}else UnifiedApi.submissionStatus('blocked',error.message);}
+  }catch(error){uncertain=saving&&['FOOD_BATCH_UNCONFIRMED','OUTCOME_UNCERTAIN','CONFLICT','SERVICE_ERROR','VERIFY_FAILED','VIEW_REFRESH_FAILED','TIMEOUT'].includes(error.code);if(uncertain){const message='ยังยืนยันรายการนี้ไม่ได้ ข้อมูลที่กรอกยังอยู่ กรุณาอย่ากรอกชุดใหม่ ให้ตรวจรายการเดิมกับผู้ดูแลก่อน';$('foodBatchNotice').textContent=message;$('foodBatchNotice').hidden=false;UnifiedApi.submissionStatus('blocked',message);}else UnifiedApi.submissionStatus('blocked',error.message);}
   finally{this.classList.remove('is-loading');this.removeAttribute('aria-busy');if(!uncertain)controls.forEach((n,i)=>n.disabled=prior[i]);this.textContent=uncertain?'รอการตรวจสอบรายการเดิม':'บันทึกข้อมูล';}
  });
 })();

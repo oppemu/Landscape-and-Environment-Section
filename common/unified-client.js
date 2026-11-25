@@ -147,7 +147,10 @@
   function verifyResult(job,result,body){
     if(!result||!result.id)throw error('ยังยืนยันการบันทึกไม่ได้ กรุณาคงข้อมูลเดิมไว้','OUTCOME_UNCERTAIN');
     if(body.action==='treeReportSubmit'&&(result.status!=='success'||result.requestId!==job.requestId||result.id!==job.requestId||!Number.isInteger(result.sourceRow)||result.sourceRow<2))throw error('ยังยืนยันรายงานต้นไม้ไม่ได้','OUTCOME_UNCERTAIN');
-    if(body.module==='food'&&body.payload.locations!==undefined&&(result.id!==job.requestId||result.batchId!==job.requestId||result.rowCount!==9||!Array.isArray(result.ids)||result.ids.length!==9||new Set(result.ids).size!==9))throw error('ยังยืนยันข้อมูลครบ 9 จุดไม่ได้','OUTCOME_UNCERTAIN');
+    if(body.module==='food'&&body.payload.locations!==undefined){
+      const n=Array.isArray(body.payload.locations)?body.payload.locations.length:0;
+      if(![9,10].includes(n)||result.id!==job.requestId||result.batchId!==job.requestId||result.rowCount!==n||!Array.isArray(result.ids)||result.ids.length!==n||result.ids.some(id=>typeof id!=='string'||!id.trim())||new Set(result.ids).size!==n)throw error('ยังยืนยันข้อมูลครบ '+n+' จุดไม่ได้','OUTCOME_UNCERTAIN');
+    }
     return result;
   }
   async function directMutation(body){
