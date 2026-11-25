@@ -8,7 +8,7 @@
   .kc-heading::after {content:"";height:1px;flex:1;background:#d5dfd6}
   #forms-view #cards.cards {
     display:grid;align-content:start;align-items:stretch;width:100%;max-width:none;min-width:0;
-    grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:auto;gap:12px;margin:0;padding:0;flex:0 0 auto;
+    grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(128px,1fr);gap:12px;margin:0;padding:0;flex:0 0 auto;
   }
   #forms-view #cards .card.kc-card {
     display:grid;grid-template-columns:minmax(0,1fr) 28px;grid-template-rows:auto 1fr;
@@ -49,12 +49,6 @@
 @media screen and (prefers-reduced-motion:reduce) { #forms-view #cards .card.kc-card {transition:none!important;transform:none!important} }
 
 
-/* The Excel entry on the form catalog, without changing its route or layout. */
-#forms-view #cards #bank-import-card {
-  position:relative;isolation:isolate;overflow:hidden;
-  background:linear-gradient(120deg,#fff 12%,#f5faf5 64%,#e8f4eb 100%)!important;
-  border-color:#b5ccbb;
-}
 /* One clipped highlight shared by all form catalog cards, including Excel. */
 @media screen {
   #forms-view #cards .card.kc-card {position:relative;isolation:isolate;overflow:hidden}

@@ -119,7 +119,7 @@
       }
       if (id === 'report') (report.enter || report.render)(); // อ่านข้อมูลสดเมื่อเปิดรายงานหากเชื่อม Google แล้ว
     }
-    for (const [id, title, path, symbol] of [...modules, ['pa-work-report', 'รายงานการปฏิบัติงาน', null, 'check']]) {
+    for (const [id, title, path, symbol] of [...modules, ['pa-work-report', 'รายงานPA', null, 'check']]) {
       if (id === HubConfig.dashboardRoute) continue;
       const card = document.createElement('a');
       card.href = '#' + id;
