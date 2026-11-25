@@ -36,14 +36,15 @@
  #foodPrepareForm .food-point:nth-child(7){--food-head:#495429;--food-body:#f0f3e5;--food-line:#a4ad81;}
  #foodPrepareForm .food-point:nth-child(8){--food-head:#4b475f;--food-body:#f0eef5;--food-line:#a6a0b8;}
  #foodPrepareForm .food-point:nth-child(9){--food-head:#77435b;--food-body:#f8eaf0;--food-line:#be98aa;}
- #foodPrepareForm .food-point{background:var(--food-body)!important;border-color:var(--food-line)!important;}
- #foodPrepareForm .food-point .food-point-toggle{background:var(--food-head)!important;color:#fff!important;border-radius:0!important;min-height:54px;font-weight:700;}
+ #foodPrepareForm .food-point:nth-child(10){--food-head:#344d68;--food-body:#eaf0f6;--food-line:#8fa4b9;}
+ #foodPrepareForm .food-point{background:var(--food-body,#e8f3eb)!important;border-color:var(--food-line,#85a995)!important;}
+ #foodPrepareForm .food-point .food-point-toggle{background:var(--food-head,#20583f)!important;color:#fff!important;border-radius:0!important;min-height:54px;font-weight:700;}
  #foodPrepareForm .food-point .food-point-toggle:hover{box-shadow:inset 0 0 0 2px #fff7;}
  #foodPrepareForm .food-point .food-point-toggle:focus-visible{outline:3px solid #fff;outline-offset:-5px;}
  #foodPrepareForm .food-point .food-point-toggle.is-complete .food-chevron::before{content:'✓';margin-inline-end:.55rem;display:inline-block;transform:rotate(0);}
  #foodPrepareForm .food-point .food-point-toggle.is-complete[aria-expanded="true"] .food-chevron::before{transform:rotate(180deg);}
  #foodPrepareForm .food-point-panel label{color:#172825!important;font-weight:650;}
- #foodPrepareForm .food-point-panel :is(input,textarea){background:#fff!important;color:#172825!important;border-color:var(--food-line)!important;}
+ #foodPrepareForm .food-point-panel :is(input,textarea){background:#fff!important;color:#172825!important;border-color:var(--food-line,#85a995)!important;}
 }
 @media screen and (max-width:390px){
  #foodPrepareForm .food-point .food-point-toggle{padding:12px!important;gap:8px;}
