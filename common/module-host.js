@@ -47,7 +47,7 @@
       if (id === HubConfig.dashboardRoute && desktop?.matches === false) id = 'overview';
       let selected = modules.find((item) => item[0] === id);
       if (!selected && !['overview', 'forms', 'report', 'report-landscape', 'settings', 'pa-online', 'pa-work-report', bankRoute].includes(id)) id = 'overview';
-      if (selected && !getName()) {
+      if (selected && id !== 'food' && !getName()) {
         id = 'overview';
         selected = null;
         openProfile();

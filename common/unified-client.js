@@ -141,9 +141,20 @@
     if(!anchor||document.getElementById('mu-diagnose-connection'))return;
     const button=document.createElement('button');button.id='mu-diagnose-connection';button.type='button';button.className='button';button.textContent='ตรวจการเชื่อมต่อ';button.onclick=()=>diagnoseConnection().catch(()=>{});anchor.after(button);
   }
-  // เก็บรหัสกันซ้ำเฉพาะในหน้านี้ ไม่เขียนเนื้อหา/รูป/งานรอส่งลงเครื่อง
+  // เศษอาหาร 10 จุดเก็บเฉพาะลายนิ้วมือและรหัสกันซ้ำในแท็บ ไม่เก็บข้อมูลหรือรูป
   let lastVerified=null;
   const activeSubmissions=new Map(), attemptIds=new Map();
+  function optionalFood(body){
+    return body.action==='saveRecord'&&body.module==='food'&&Array.isArray(body.payload?.locations)&&body.payload.locations.length===10;
+  }
+  function foodAttemptId(slot,value){
+    try{
+      if(value===null){root.sessionStorage.removeItem(slot);return null;}
+      if(value!==undefined){root.sessionStorage.setItem(slot,value);return value;}
+      const id=root.sessionStorage.getItem(slot);
+      return /^[a-f0-9]{32}$/.test(id||'')?id:null;
+    }catch(_){return null;}
+  }
   function verifyResult(job,result,body){
     if(!result||!result.id)throw error('ยังยืนยันการบันทึกไม่ได้ กรุณาคงข้อมูลเดิมไว้','OUTCOME_UNCERTAIN');
     if(body.action==='treeReportSubmit'&&(result.status!=='success'||result.requestId!==job.requestId||result.id!==job.requestId||!Number.isInteger(result.sourceRow)||result.sourceRow<2))throw error('ยังยืนยันรายงานต้นไม้ไม่ได้','OUTCOME_UNCERTAIN');
@@ -160,11 +171,13 @@
       if(root.navigator&&root.navigator.onLine===false)throw error('ยังไม่ได้เชื่อมต่ออินเทอร์เน็ต ข้อมูลยังอยู่ในฟอร์ม','OFFLINE');
       const url=endpoint(),who=await connectionInfo(url);
       const key=await digest({spreadsheetId:who.spreadsheetId,actor:who.email,body});
-      // กดซ้ำหลัง timeout ในหน้าเดิมใช้รหัสเดิม แต่ไม่ส่งซ้ำเองและไม่เก็บข้ามการปิดหน้า
-      const requestId=attemptIds.get(key)||uid();attemptIds.set(key,requestId);
+      const slot=optionalFood(body)?'mu-food-attempt-v1:'+await digest({url,key}):null;
+      // ส่งซ้ำด้วยข้อมูลเดิมใช้รหัสเดิม ไม่ส่งเอง; ฟอร์มเศษอาหารคงรหัสเมื่อรีเฟรชแท็บเดิม
+      const requestId=attemptIds.get(key)||(slot&&foodAttemptId(slot))||uid();attemptIds.set(key,requestId);
+      if(slot)foodAttemptId(slot,requestId);
       job={key,requestId,endpoint:url,actor:who.email,spreadsheetId:who.spreadsheetId};
       const result=verifyResult(job,await request({...body,requestId,expectedActor:who.email,expectedSpreadsheetId:who.spreadsheetId},url),body);
-      attemptIds.delete(key);notice('confirmed','ส่งสำเร็จ',result.id);
+      attemptIds.delete(key);if(slot)foodAttemptId(slot,null);notice('confirmed','ส่งสำเร็จ',result.id);
       if(root.dispatchEvent&&root.Event)root.dispatchEvent(new root.Event('mu:data-changed'));
       return result;
     }catch(e){notice('blocked',e.message);throw e;}
@@ -173,8 +186,8 @@
   async function mutation(body){
     try {
     const selected=root.HubSelectedProfile&&root.HubSelectedProfile.get();
-    if(!selected)throw error('กรุณาเลือกชื่อผู้กรอกก่อนส่งข้อมูล','REPORTER_REQUIRED');
-    body={...body,selectedReporter:{name:selected.name,email:selected.email,source:selected.source||'staff'}};
+    if(!selected&&!optionalFood(body))throw error('กรุณาเลือกชื่อผู้กรอกก่อนส่งข้อมูล','REPORTER_REQUIRED');
+    if(selected)body={...body,selectedReporter:{name:selected.name,email:selected.email,source:selected.source||'staff'}};
     const key=await digest({endpoint:endpoint(),body});
     if(activeSubmissions.has(key))return activeSubmissions.get(key);
     const work=directMutation(body).finally(()=>activeSubmissions.delete(key));activeSubmissions.set(key,work);return await work;
