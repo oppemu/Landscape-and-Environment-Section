@@ -137,13 +137,14 @@
       const signatures=node('section',{class:'pa-signatures','aria-label':'ส่วนลงนาม'});
       signatures.dataset.reportOwner=template.name;
       const ownerPosition=paperForm?.position||signerPositions.get(template.name)||window.HubStaffByName?.(template.name)?.position||'';
+      const ownerName=paperForm?.fullName||(template.name==='กรรณิการ์ ศรีราณี'?'นางสาวกรรณิการ์ ศรีราณี':template.name);
       const signers=[
-        ['ผู้รับการประเมิน',paperForm?.fullName||template.name,ownerPosition,true],
+        ['ผู้รับการประเมิน',ownerName,ownerPosition,true],
         [paperForm?'ผู้ประเมิน (ผู้บังคับบัญชาชั้นต้น)':'ผู้ประเมิน','นายมนัสชาย ประเดิมชัย','หัวหน้างานภูมิทัศน์และสิ่งแวดล้อม',false]
       ];
       for(const [role,person,position,owner] of signers){
         const signer=node('div',{class:'pa-signature-person'});
-        signer.append(node('div',{},'ลงชื่อ ..................................................... '+role),node('div',{'data-pa-signature-fixed':''},'('+person+')'),
+        signer.append(node('div',owner?{'data-pa-signature-fixed':''}:{},owner?'ลงชื่อ '+person+' '+role:'ลงชื่อ ..................................................... '+role),node('div',{'data-pa-signature-fixed':''},'('+person+')'),
           node('div',owner?{'data-pa-signature-fixed':'','data-pa-signature-position':''}:{'data-pa-signature-fixed':''},'ตำแหน่ง '+(position||'__________________________________')),
           node('div',owner?{'data-pa-signature-fixed':'','data-pa-signature-date':''}:{},owner?'วันที่ '+signatureDate():'วันที่ ______ / ______ / ______'));
         signatures.append(signer);
