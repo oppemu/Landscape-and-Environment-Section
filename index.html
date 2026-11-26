@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="report.css?v=20261121-waste-edit" />
   <script src="common/thai-date.js" defer></script><link rel="stylesheet" href="common/theme-unified.css"><link rel="stylesheet" href="common/popup-select.css">
 <script src="common/popup-select.js" defer></script>
-<link rel="stylesheet" href="common/popup-theme.css"><script src="common/popup-theme.js" defer></script><link rel="stylesheet" href="common/file-picker.css"><link rel="stylesheet" href="common/pe-visual-theme.css?v=2"><link rel="stylesheet" href="common/settings.css"><link rel="stylesheet" href="common/dashboard.css?v=2.4.103" /><link rel="stylesheet" href="common/desktop-layout.css?v=5"><link rel="stylesheet" href="common/knowledge-home.css?v=12"><link rel="stylesheet" href="common/eco-navigation.css?v=9"><link rel="stylesheet" href="common/forms-theme.css?v=1"><link rel="stylesheet" href="common/dashboard-forest.css?v=bar-feedback-20261121"><link rel="stylesheet" href="common/pa-online.css?v=pa-niramon-source-20261126"><link rel="stylesheet" href="common/pa-work.css?v=mobile-send-20261123"></head>
+<link rel="stylesheet" href="common/popup-theme.css"><script src="common/popup-theme.js" defer></script><link rel="stylesheet" href="common/file-picker.css"><link rel="stylesheet" href="common/pe-visual-theme.css?v=2"><link rel="stylesheet" href="common/settings.css"><link rel="stylesheet" href="common/dashboard.css?v=2.4.103" /><link rel="stylesheet" href="common/desktop-layout.css?v=5"><link rel="stylesheet" href="common/knowledge-home.css?v=12"><link rel="stylesheet" href="common/eco-navigation.css?v=9"><link rel="stylesheet" href="common/forms-theme.css?v=1"><link rel="stylesheet" href="common/dashboard-forest.css?v=bar-feedback-20261121"><link rel="stylesheet" href="common/pa-online.css?v=pa-toolbar-20261126"><link rel="stylesheet" href="common/pa-work.css?v=mobile-send-20261123"></head>
   <body class="profile-required">
     <a class="skip" href="#main">ข้ามไปเนื้อหา</a>
     <div class="app-shell">
@@ -88,9 +88,16 @@
           <section id="pa-layout" aria-labelledby="pa-layout-title">
             <h1 id="pa-layout-title" class="pa-layout-sr">แบบรายงาน PA งานภูมิทัศน์</h1>
             <div class="pa-layout-name">
-              <input id="pa-layout-name" type="search" autocomplete="off" maxlength="120" placeholder="พิมพ์ชื่อหรือนามสกุล" aria-label="พิมพ์ชื่อบุคลากรงานภูมิทัศน์" aria-controls="pa-layout-options" aria-expanded="false">
-              <div id="pa-layout-options" class="pa-layout-options" hidden></div>
-              <label id="pa-layout-period-label" for="pa-layout-period">เดือนที่แสดง <input type="month" id="pa-layout-period" min="2000-01" max="2099-12" required></label>
+              <div class="pa-toolbar-field pa-toolbar-name">
+                <label for="pa-layout-name">ชื่อเจ้าของรายงาน</label>
+                <input id="pa-layout-name" type="search" autocomplete="off" maxlength="120" placeholder="พิมพ์ชื่อหรือนามสกุล" aria-label="พิมพ์ชื่อบุคลากรงานภูมิทัศน์" aria-controls="pa-layout-options" aria-expanded="false">
+                <div id="pa-layout-options" class="pa-layout-options" hidden></div>
+              </div>
+              <div class="pa-toolbar-field pa-toolbar-period">
+                <label id="pa-layout-period-label" for="pa-layout-period">เดือนที่แสดง</label>
+                <input type="month" id="pa-layout-period" min="2000-01" max="2099-12" required>
+              </div>
+              <p id="pa-template-status" role="status" aria-live="polite" hidden></p>              <button id="pa-layout-print" class="button" type="button">พิมพ์ / บันทึกเป็น PDF</button>
               <p id="pa-template-status" role="status" aria-live="polite" hidden></p>              <button id="pa-layout-print" class="button" type="button">พิมพ์ / บันทึกเป็น PDF</button>
               <p id="pa-layout-pdf-error" role="alert" hidden>ดาวน์โหลด PDF ไม่สำเร็จ กรุณาลองใหม่</p>
             </div>
