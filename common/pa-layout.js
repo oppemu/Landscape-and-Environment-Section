@@ -153,18 +153,22 @@
   if(privateOrigin)try{const saved=JSON.parse(window.localStorage.getItem(savedKey)||'[]');if(Array.isArray(saved)&&saved.length<=300&&saved.every(safeName)) localNames=saved;}catch(_){}
   const status=document.getElementById('pa-template-status'), download=document.getElementById('pa-layout-download');
   const printButton=document.getElementById('pa-layout-print');
-  const originalLink=document.getElementById('pa-original-selected');
-  let originals=null, originalsPending=null, originalsRetryAfter=0;
-  function loadOriginals(){
-    if(!publicOrigin||location.hash!=='#pa-online'||originals||originalsPending||Date.now()<originalsRetryAfter||typeof window.UnifiedApi?.request!=='function')return;
-    originalsPending=window.UnifiedApi.request({action:'paOriginalOctoberCatalog'}).then(data=>{
-      if(data?.version!==1||!Array.isArray(data.items)||data.items.length>7)throw Error('Invalid PA index');
+  let personalReports=null,personalPending=null,personalRetryAfter=0;
+  function loadPersonalReports(){
+    if(!publicOrigin||location.hash!=='#pa-online'||personalReports||personalPending||Date.now()<personalRetryAfter||typeof window.UnifiedApi?.request!=='function')return;
+    personalPending=window.UnifiedApi.request({action:'paPersonalBlankReportCatalog'}).then(data=>{
+      if(data?.version!==2||!Array.isArray(data.items)||data.items.length>7)throw Error('Invalid PA report catalog');
       const entries=new Map();for(const item of data.items){
-        if(!safeName(item?.name)||entries.has(item.name)||(item.fileId!==null&&!/^[A-Za-z0-9_-]{10,160}$/.test(item.fileId)))throw Error('Invalid PA item');
-        entries.set(item.name,item.fileId);
+        if(!safeName(item?.name)||/[<>]/u.test(item.name)||entries.has(item.name)||typeof item.reporting!=='boolean'||!Array.isArray(item.topics)||!item.topics.length||item.topics.length>60)throw Error('Invalid PA profile');
+        const unique=new Set();
+        for(const t of item.topics){
+          if(typeof t?.key!=='string'||!/^[A-Za-z0-9_-]{1,64}$/.test(t.key)||unique.has(t.key)||typeof t.label!=='string'||!t.label.trim()||t.label.length>240||/[<>\u0000-\u001f\u202a-\u202e\u2066-\u2069]/u.test(t.label))throw Error('Invalid PA topic');
+          unique.add(t.key);
+        }
+        entries.set(item.name,{pages:item.topics.map(t=>({rows:[{agreement:[{text:t.label,bold:true,reportKey:t.key}],target:[]}]})),reporting:item.reporting});
       }
-      originals=entries;if(location.hash==='#pa-online'&&document.activeElement===name)show();
-    }).catch(()=>{originalsRetryAfter=Date.now()+30000;}).finally(()=>{originalsPending=null;});
+      personalReports=entries;if(location.hash==='#pa-online'&&document.activeElement===name)show();
+    }).catch(()=>{personalRetryAfter=Date.now()+10000;}).finally(()=>{personalPending=null;});
   }
   if(!publicOrigin)renderPages(blank);
   else setAvailability(false,'พิมพ์ชื่อและเลือกต้นแบบ PA ที่พบ');
@@ -190,7 +194,6 @@
     try{window.print();}catch(_){clearPrint();}
   });
   function invalidate(){
-    if(originalLink){originalLink.hidden=true;originalLink.removeAttribute('href');}
     const wasSelected=Boolean(selectedName);
     if(download)download.textContent='ดาวน์โหลด PDF (ไม่รวมรูป)';
     epoch++; templateAbort?.abort();templateAbort=null;selectedName='';
@@ -222,15 +225,12 @@
     if(download)download.disabled=true;
     if(printButton)printButton.disabled=true;
     if(publicOrigin){
-      if(originals?.has(value)){
-        const id=originals.get(value);
-        if(id&&originalLink){
-          originalLink.href='https://drive.google.com/file/d/'+id+'/view';
-          originalLink.hidden=false;
-          setAvailability(false,'PDF ต้นฉบับประจำเดือนตุลาคม 2569');
-          return;
-        }
-        if(!publicCatalog?.has(value)){setAvailability(false,'ยังไม่มี PDF ต้นฉบับของชื่อนี้');return;}
+      const personal=personalReports?.get(value);
+      if(personal){
+        renderPages(personal.pages,{name:value,pages:personal.pages,_renderPeriod:selectedPeriod});setDocumentName(value);
+        setAvailability(true,personal.reporting?'กำลังอ่านรูปจากรายงาน':'แบบรายงานเปล่า ยังไม่พบประวัติการส่งรายงานของชื่อนี้');
+        if(personal.reporting)void loadSelectedPhotoMedia(value,personal.pages,selectedPeriod,turn);
+        return;
       }
       const pages=publicCatalog?.get(value);
       if(!pages){setAvailability(false,'ยังไม่มีต้นแบบ PA สาธารณะที่ยืนยันสำหรับชื่อนี้');return;}
@@ -393,13 +393,13 @@
     if(!query)return;
     const profile=window.HubSelectedProfile?.get?.()?.name;
     const entries=new Map();
-    if(publicOrigin){for(const value of publicCatalog?.keys()||[])entries.set(value,'public');for(const [value,id] of originals||[])entries.set(value,id?'original':'pending');}
+    if(publicOrigin){for(const value of publicCatalog?.keys()||[])entries.set(value,'public');for(const value of personalReports?.keys()||[])entries.set(value,'personal');}
     else if(safeName(profile))entries.set(normal(profile),'profile');
     if(!publicOrigin&&Array.isArray(directory))for(const p of directory)if(safeName(p?.name))entries.set(normal(p.name),'directory');
     for(const value of localNames)entries.set(value,'local');
     const names=[...entries.keys()].filter(n=>n.toLocaleLowerCase('th').includes(query)).slice(0,12);
     for(const value of names){
-      const button=node('button',{type:'button'},value+(entries.get(value)==='profile'?' (ชื่อที่ใช้ในแอป)':entries.get(value)==='original'?' · ต้นฉบับ ต.ค. 2569':entries.get(value)==='pending'?' · ยังไม่มี PDF':''));
+      const button=node('button',{type:'button'},value+(entries.get(value)==='profile'?' (ชื่อที่ใช้ในแอป)':''));
       button.addEventListener('click',()=>{name.value=value;hide();name.focus();selectTemplate(value);});
       button.addEventListener('keydown',event=>{
         if(event.key==='ArrowDown'){event.preventDefault();(button.nextElementSibling||button).focus();}
@@ -409,7 +409,7 @@
       options.append(button);
     }
     if(publicOrigin&&!names.length&&!publicCatalog&&status){status.hidden=false;status.textContent=catalogFailed?'ยังไม่มีรายการต้นแบบ PA สาธารณะให้ค้นหา':'กำลังตรวจรายการต้นแบบ PA สาธารณะ';}
-    if(publicOrigin&&publicCatalog&&!names.length&&!selectedName)setAvailability(false,originalsPending?'กำลังค้นหารายชื่อ PDF ต้นฉบับ…':'ไม่พบเอกสาร PA ตรงกับชื่อที่พิมพ์');
+    if(publicOrigin&&publicCatalog&&!names.length&&!selectedName)setAvailability(false,personalPending?'กำลังค้นหาแบบรายงาน PA…':'ไม่พบเอกสาร PA ตรงกับชื่อที่พิมพ์');
     if(names.length){options.hidden=false;name.setAttribute('aria-expanded','true');}
   }
   function localRoster(){
@@ -429,7 +429,7 @@
     if(!window.PaEvidence.periodFor(viewPeriod.value))viewPeriod.value=mount.dataset.documentMonth||window.PaEvidence.period(new Date(),0).month;
     if(selectedName)selectTemplate(selectedName);else{invalidate();if(!publicOrigin)renderPages(blank);fillName();}
   });
-  name.addEventListener('input',()=>{invalidate();fillName();show();if(!localNames.length)localRoster();loadPublicCatalog();loadOriginals();});
+  name.addEventListener('input',()=>{invalidate();fillName();show();if(!localNames.length)localRoster();loadPublicCatalog();loadPersonalReports();});
   name.addEventListener('keydown',event=>{
     if(event.key==='ArrowDown'){show();if(options.firstElementChild){event.preventDefault();options.firstElementChild.focus();}}
     else if(event.key==='Escape')hide();
@@ -439,9 +439,9 @@
     if(event.relatedTarget!==name&&!options.contains(event.relatedTarget))hide();
   });
   addEventListener('hashchange',()=>{
-    if(location.hash==='#pa-online'){localRoster();loadPublicCatalog();loadOriginals();return;}
+    if(location.hash==='#pa-online'){localRoster();loadPublicCatalog();loadPersonalReports();return;}
     defaultPeriod();if(!publicOrigin)renderPages(blank);
     clearPrint();invalidate();name.value='';if(!privateOrigin)localNames=[];fillName();hide();
   });
-  localRoster();loadPublicCatalog();loadOriginals();
+  localRoster();loadPublicCatalog();loadPersonalReports();
 })();

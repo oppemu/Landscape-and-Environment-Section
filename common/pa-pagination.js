@@ -27,7 +27,7 @@
       return [{agreement:assigned,target:[],assignedKey:'assigned:'+code},row];
     })}));
     for(const page of reportRows)for(const row of page.rows){
-      const lines=row.agreement, positions=row.assignedKey?[{code:row.assignedKey,index:0}]:lines.map((line,index)=>({code:heading(line),index})).filter(x=>x.code);
+      const lines=row.agreement, positions=lines.length===1&&/^[A-Za-z0-9_-]{1,64}$/.test(lines[0].reportKey||'')?[{code:'report:'+lines[0].reportKey,index:0}]:row.assignedKey?[{code:row.assignedKey,index:0}]:lines.map((line,index)=>({code:heading(line),index})).filter(x=>x.code);
       if(!positions.length){output.push({widths:page.widths,topic:null,rows:[row],photos:[],evidence:true});continue;}
       const leaves=positions.filter((p,i)=>!(positions[i+1]?.code.startsWith(p.code+'.')));
       // Keep hierarchy and unnumbered leading notes exactly once; never infer evidence under parent headings.
