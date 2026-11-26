@@ -153,6 +153,19 @@
   if(privateOrigin)try{const saved=JSON.parse(window.localStorage.getItem(savedKey)||'[]');if(Array.isArray(saved)&&saved.length<=300&&saved.every(safeName)) localNames=saved;}catch(_){}
   const status=document.getElementById('pa-template-status'), download=document.getElementById('pa-layout-download');
   const printButton=document.getElementById('pa-layout-print');
+  const originalLink=document.getElementById('pa-original-selected');
+  let originals=null, originalsPending=null, originalsRetryAfter=0;
+  function loadOriginals(){
+    if(!publicOrigin||location.hash!=='#pa-online'||originals||originalsPending||Date.now()<originalsRetryAfter||typeof window.UnifiedApi?.request!=='function')return;
+    originalsPending=window.UnifiedApi.request({action:'paOriginalOctoberCatalog'}).then(data=>{
+      if(data?.version!==1||!Array.isArray(data.items)||data.items.length>7)throw Error('Invalid PA index');
+      const entries=new Map();for(const item of data.items){
+        if(!safeName(item?.name)||entries.has(item.name)||(item.fileId!==null&&!/^[A-Za-z0-9_-]{10,160}$/.test(item.fileId)))throw Error('Invalid PA item');
+        entries.set(item.name,item.fileId);
+      }
+      originals=entries;if(location.hash==='#pa-online'&&document.activeElement===name)show();
+    }).catch(()=>{originalsRetryAfter=Date.now()+30000;}).finally(()=>{originalsPending=null;});
+  }
   if(!publicOrigin)renderPages(blank);
   else setAvailability(false,'พิมพ์ชื่อและเลือกต้นแบบ PA ที่พบ');
   let selectedName='',templateAbort,epoch=0,printing=false;
@@ -177,6 +190,7 @@
     try{window.print();}catch(_){clearPrint();}
   });
   function invalidate(){
+    if(originalLink){originalLink.hidden=true;originalLink.removeAttribute('href');}
     const wasSelected=Boolean(selectedName);
     if(download)download.textContent='ดาวน์โหลด PDF (ไม่รวมรูป)';
     epoch++; templateAbort?.abort();templateAbort=null;selectedName='';
@@ -208,6 +222,16 @@
     if(download)download.disabled=true;
     if(printButton)printButton.disabled=true;
     if(publicOrigin){
+      if(originals?.has(value)){
+        const id=originals.get(value);
+        if(id&&originalLink){
+          originalLink.href='https://drive.google.com/file/d/'+id+'/view';
+          originalLink.hidden=false;
+          setAvailability(false,'PDF ต้นฉบับประจำเดือนตุลาคม 2569');
+          return;
+        }
+        if(!publicCatalog?.has(value)){setAvailability(false,'ยังไม่มี PDF ต้นฉบับของชื่อนี้');return;}
+      }
       const pages=publicCatalog?.get(value);
       if(!pages){setAvailability(false,'ยังไม่มีต้นแบบ PA สาธารณะที่ยืนยันสำหรับชื่อนี้');return;}
 
@@ -369,13 +393,13 @@
     if(!query)return;
     const profile=window.HubSelectedProfile?.get?.()?.name;
     const entries=new Map();
-    if(publicOrigin){for(const value of publicCatalog?.keys()||[])entries.set(value,'public');}
+    if(publicOrigin){for(const value of publicCatalog?.keys()||[])entries.set(value,'public');for(const [value,id] of originals||[])entries.set(value,id?'original':'pending');}
     else if(safeName(profile))entries.set(normal(profile),'profile');
     if(!publicOrigin&&Array.isArray(directory))for(const p of directory)if(safeName(p?.name))entries.set(normal(p.name),'directory');
     for(const value of localNames)entries.set(value,'local');
-    const names=[...entries.keys()].filter(n=>n.toLocaleLowerCase('th').startsWith(query)).slice(0,12);
+    const names=[...entries.keys()].filter(n=>n.toLocaleLowerCase('th').includes(query)).slice(0,12);
     for(const value of names){
-      const button=node('button',{type:'button'},value+(entries.get(value)==='profile'?' (ชื่อที่ใช้ในแอป)':''));
+      const button=node('button',{type:'button'},value+(entries.get(value)==='profile'?' (ชื่อที่ใช้ในแอป)':entries.get(value)==='original'?' · ต้นฉบับ ต.ค. 2569':entries.get(value)==='pending'?' · ยังไม่มี PDF':''));
       button.addEventListener('click',()=>{name.value=value;hide();name.focus();selectTemplate(value);});
       button.addEventListener('keydown',event=>{
         if(event.key==='ArrowDown'){event.preventDefault();(button.nextElementSibling||button).focus();}
@@ -385,7 +409,7 @@
       options.append(button);
     }
     if(publicOrigin&&!names.length&&!publicCatalog&&status){status.hidden=false;status.textContent=catalogFailed?'ยังไม่มีรายการต้นแบบ PA สาธารณะให้ค้นหา':'กำลังตรวจรายการต้นแบบ PA สาธารณะ';}
-    if(publicOrigin&&publicCatalog&&!names.length&&!selectedName)setAvailability(false,'ไม่พบต้นแบบ PA สาธารณะตรงกับชื่อที่พิมพ์');
+    if(publicOrigin&&publicCatalog&&!names.length&&!selectedName)setAvailability(false,originalsPending?'กำลังค้นหารายชื่อ PDF ต้นฉบับ…':'ไม่พบเอกสาร PA ตรงกับชื่อที่พิมพ์');
     if(names.length){options.hidden=false;name.setAttribute('aria-expanded','true');}
   }
   function localRoster(){
@@ -405,7 +429,7 @@
     if(!window.PaEvidence.periodFor(viewPeriod.value))viewPeriod.value=mount.dataset.documentMonth||window.PaEvidence.period(new Date(),0).month;
     if(selectedName)selectTemplate(selectedName);else{invalidate();if(!publicOrigin)renderPages(blank);fillName();}
   });
-  name.addEventListener('input',()=>{invalidate();fillName();show();if(!localNames.length)localRoster();loadPublicCatalog();});
+  name.addEventListener('input',()=>{invalidate();fillName();show();if(!localNames.length)localRoster();loadPublicCatalog();loadOriginals();});
   name.addEventListener('keydown',event=>{
     if(event.key==='ArrowDown'){show();if(options.firstElementChild){event.preventDefault();options.firstElementChild.focus();}}
     else if(event.key==='Escape')hide();
@@ -415,9 +439,9 @@
     if(event.relatedTarget!==name&&!options.contains(event.relatedTarget))hide();
   });
   addEventListener('hashchange',()=>{
-    if(location.hash==='#pa-online'){localRoster();loadPublicCatalog();return;}
+    if(location.hash==='#pa-online'){localRoster();loadPublicCatalog();loadOriginals();return;}
     defaultPeriod();if(!publicOrigin)renderPages(blank);
     clearPrint();invalidate();name.value='';if(!privateOrigin)localNames=[];fillName();hide();
   });
-  localRoster();loadPublicCatalog();
+  localRoster();loadPublicCatalog();loadOriginals();
 })();
