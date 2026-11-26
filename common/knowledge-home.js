@@ -47,9 +47,11 @@
 /* Public, editor-curated homepage feed. The rest of the app stays independent. */
 (() => {
 'use strict';
+const workPhotos=[{"tag":"พื้นที่สีเขียว","title":"ดูแลไม้ดอกในเรือนเพาะชำ","description":"รดน้ำและดูแลไม้กระถางในเรือนเพาะชำ เพื่อเตรียมต้นไม้สำหรับพื้นที่สีเขียวของมหาวิทยาลัย","alt":"งานรดน้ำไม้ดอกในเรือนเพาะชำ","image":"common/pa-home-nursery.jpg","credit":"งานภูมิทัศน์และสิ่งแวดล้อม"},{"tag":"จัดการขยะ","title":"เก็บเศษอาหารประจำวัน","description":"ทีมงานรวบรวมเศษอาหารจากจุดเก็บภายในมหาวิทยาลัย เพื่อนำไปจัดการต่อ","alt":"ทีมงานรวบรวมถังเก็บเศษอาหาร","image":"common/pa-home-food-waste.jpg","credit":"งานภูมิทัศน์และสิ่งแวดล้อม"},{"tag":"จัดการขยะ","title":"ดูแลกองปุ๋ย","description":"ทีมงานดูแลกองปุ๋ยของงานภูมิทัศน์และสิ่งแวดล้อม","alt":"ทีมงานใช้คราดดูแลกองปุ๋ย","image":"common/pa-home-compost.jpg","credit":"งานภูมิทัศน์และสิ่งแวดล้อม"}];
 const fallback=[{"date":"","tag":"พื้นที่สีเขียว","title":"เติมร่มเงาให้ศาลายา","description":"งานภูมิทัศน์ดูแลต้นไม้ สนามหญ้า และพื้นที่ส่วนกลาง เพื่อให้มหาวิทยาลัยร่มรื่นและใช้งานได้ทุกวัน","image":"https://science.mahidol.ac.th/news/wp-content/uploads/2021/05/May64-19-09-768x576.jpg","alt":"กิจกรรมปลูกต้นไม้ที่มหาวิทยาลัยมหิดล ศาลายา","link":"https://science.mahidol.ac.th/news/may64-19-01/","credit":"ภาพจากคณะวิทยาศาสตร์ มหาวิทยาลัยมหิดล"},{"date":"","tag":"กิจกรรม","title":"ปลูกต้นไม้ร่วมกับชุมชนมหิดล","description":"การเพิ่มพื้นที่สีเขียวเป็นงานที่หลายส่วนงานร่วมกันทำ ตั้งแต่การปลูกต้นไม้ไปจนถึงการดูแลให้เติบโต","image":"https://inmu.mahidol.ac.th/th/wp-content/uploads/2024/06/050667_2-1024x683.jpg","alt":"กิจกรรมปลูกต้นไม้เนื่องในวันสิ่งแวดล้อมโลก","link":"https://inmu.mahidol.ac.th/th/10080/","credit":"ภาพจากสถาบันโภชนาการ มหาวิทยาลัยมหิดล"},{"date":"","tag":"จัดการขยะ","title":"คัดแยกตั้งแต่ต้นทาง","description":"ทีมงานแบ่งเก็บขยะตามประเภท ขยะรีไซเคิลเข้าสู่ธนาคารขยะ ส่วนเศษอาหารและเศษพืชนำไปใช้ประโยชน์ตามกระบวนการของมหาวิทยาลัย","image":"","alt":"","link":"https://ns.mahidol.ac.th/nurse_th/annual_activities/2568/11/green.html","credit":""}];
 const $=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt)e.textContent=txt;return e;};
 function safe(value,photo=false){
+ if(photo && /^common\/pa-home-(?:nursery|food-waste|compost)\.jpg$/.test(value)) return value;
  try{const u=new URL(value);if(u.protocol!=='https:'||u.username||u.password||u.port)return '';
  if(u.hostname==='mahidol.ac.th'||u.hostname.endsWith('.mahidol.ac.th'))return u.href;
  if(u.hostname==='drive.google.com'){
@@ -91,7 +93,7 @@ function start(){
  function arm(){clearTimeout(timer);if(!paused&&!hover&&!focused&&!document.hidden&&!target.hidden&&slides.length>1)timer=setTimeout(()=>step(1),6500);}
  function step(n){i=(i+n+slides.length)%slides.length;show();arm();}
  function render(r){
-  feed=clean(r);slides=feed.filter(x=>x.image);if(!slides.length)slides=feed;i=0;show();arm();
+  const featured=clean(workPhotos); const articleRows=clean(r); feed=featured.concat(articleRows); slides=featured.filter(x=>x.image); if(!slides.length) slides=articleRows.filter(x=>x.image); i=0;show();arm();
   grid.replaceChildren();
   if(!feed.length){grid.append($('p','lh-empty','ยังไม่มีข่าวที่เผยแพร่'));return;}
   for(const r of feed.slice(0,6)){
