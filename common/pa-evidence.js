@@ -88,7 +88,7 @@
          !Array.isArray(row.photos)||!row.photos.length||row.photos.length>3)throw Error('PA photo item');
       const code=digits(row.topicCode), label=topicLabel(row.assignmentLabel), candidates=keys.get(code)||[];
       const explicit='report:'+row.assignmentKey;
-      const dest=bound.size?(topicLabel(bound.get(row.assignmentKey))===label&&rendered.has(explicit)&&['topic','assigned-work'].includes(row.placement)?explicit:null):row.placement==='assigned-work'
+      const dest=bound.size?(topicLabel(bound.get(row.assignmentKey))===label&&['topic','assigned-work'].includes(row.placement)?explicit:null):row.placement==='assigned-work'
        ?parent.length===1&&parent[0].code===code&&label===topicLabel(parent[0].line.text)?'assigned:'+code:null
        :row.placement==='topic'&&rendered.has(code)&&candidates.length===1&&candidates[0]===label?code:null;
       if(!dest)throw Error('PA photo topic mismatch');

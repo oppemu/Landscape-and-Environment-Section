@@ -248,3 +248,24 @@
   #pa-layout .pa-proof-item img {height:auto;max-height:360px}
   #pa-layout .pa-paper-foot {bottom:3px;font-size:14px}
 }
+
+#pa-layout .pa-paper-personal-source .pa-source-cover {margin-bottom:6px;text-align:left}
+#pa-layout .pa-paper-personal-source .pa-source-annex {text-align:right;font-weight:700}
+#pa-layout .pa-paper-personal-source :is(.pa-paper-title,.pa-paper-period) {text-align:center}
+#pa-layout .pa-paper-personal-source .pa-source-identity {display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+#pa-layout .pa-paper-personal-source .pa-source-identity .pa-paper-name {text-align:left;padding:0;margin:0}
+#pa-layout .pa-paper-personal-source .pa-source-guide {margin:4px 0}
+#pa-layout .pa-paper-personal-source:first-child {padding-top:4.5%}
+#pa-layout .pa-paper-personal-source:first-child table {height:62%}
+#pa-layout .pa-paper-personal-source:last-child table {height:63%}
+#pa-layout .pa-paper-personal-source .pa-proof:not([data-count="0"]) {flex-direction:row;flex-wrap:wrap;align-items:start;justify-content:center}
+#pa-layout .pa-paper-personal-source .pa-proof-item {width:min(100%,29cqw)}
+#pa-layout .pa-paper-personal-source .pa-proof-item img {height:auto;max-height:22cqw}
+@media screen and (max-width:640px) {
+  #pa-layout .pa-paper-personal-source:first-child {padding-top:14px}
+  #pa-layout .pa-paper-personal-source .pa-source-identity {grid-template-columns:1fr}
+  #pa-layout .pa-paper-personal-source :is(.pa-paper-period,.pa-source-guide) {white-space:normal}
+  #pa-layout .pa-paper-personal-source:first-child table,#pa-layout .pa-paper-personal-source:last-child table {height:auto}
+  #pa-layout .pa-paper-personal-source .pa-proof-item {width:100%}
+  #pa-layout .pa-paper-personal-source .pa-proof-item img {max-height:360px}
+}

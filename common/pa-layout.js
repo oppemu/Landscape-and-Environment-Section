@@ -42,10 +42,21 @@
     mount.paPdfSnapshot=null;
     mount.dataset.documentMonth=(template?._renderPeriod||reportPeriod()).month;
     const pages=document.createDocumentFragment();
-    const layout=window.PaPagination.paginate(definitions,evidenceByTopic);
+    const paperForm=template?.paperForm;
+    const layout=paperForm?definitions.map((p,i)=>({...p,number:i+1})):window.PaPagination.paginate(definitions,evidenceByTopic);
     layout.forEach(({rows,widths,topic,continuation,photos,captionOnly,evidence,number},i)=>{
-    const page=node('article',{class:'pa-paper','aria-label':'หน้า '+number,'data-topic':topic||'', 'data-continuation':String(Boolean(continuation))});
-    if(i===0){
+    const page=node('article',{class:'pa-paper'+(paperForm?' pa-paper-personal-source':''),'aria-label':'หน้า '+number,'data-topic':topic||'', 'data-continuation':String(Boolean(continuation))});
+    if(i===0&&paperForm){
+      const heading=node('div',{class:'pa-source-cover'});
+      heading.append(node('div',{class:'pa-source-annex'},'เอกสารแนบท้าย 2'),node('h3',{class:'pa-paper-title'},'แบบติดตามผลการปฏิบัติงาน'),node('p',{class:'pa-paper-period'},(template?._renderPeriod||reportPeriod()).label.replace('ประจำเดือน','รอบการประเมินเดือน')),
+        node('strong',{},'ส่วนที่ 1 ข้อมูลของผู้รับการประเมิน'));
+      identity=node('div',{class:'pa-paper-name'},'ชื่อผู้รับการประเมิน: '+template.name);
+      identity.dataset.sourceName=paperForm.fullName;
+      const fields=node('div',{class:'pa-source-identity'});
+      fields.append(identity,node('div',{},'ตำแหน่ง '+paperForm.position),node('div',{},'สังกัดภาควิชา '+paperForm.unit),node('div',{},'คณะ / เทียบเท่า '+paperForm.division));
+      heading.append(fields,node('p',{class:'pa-source-guide'},'ส่วนที่ 2 รายงานความก้าวหน้าผลการปฏิบัติงานตามข้อตกลงการปฏิบัติงาน : ให้ผู้รับการประเมินรายงานความก้าวหน้าของภาระงานที่ทำข้อตกลงการปฏิบัติงาน โดยเทียบกับตัวชี้วัดเป้าหมายผลสำเร็จของภาระงานตามเกณฑ์การประเมิน หากมีปัญหา/อุปสรรคให้ระบุรายละเอียด พร้อมให้ผู้รับการประเมินและผู้บังคับบัญชาชั้นต้นลงลายมือชื่อไว้ด้วย'));
+      page.append(heading);
+    }else if(i===0){
       identity=node('div',{class:'pa-paper-name'},'ชื่อผู้รับการประเมิน: ____________________');
       page.append(node('img',{class:'pa-paper-logo',src:'assets/report-reference/logo-MU_blackwhite.png',alt:'ตรามหาวิทยาลัยมหิดล'}));
       const cover=node('div',{class:'pa-paper-cover-line'});
@@ -62,15 +73,16 @@
       const row=node('tr'), task=node('td'), progress=node('td'), issues=node('td');
       def.agreement.forEach(line=>task.append(node(line.bold?'strong':'div',{},line.text)));
       (def.target||[]).forEach(line=>progress.append(node(line.bold?'strong':'div',{},line.text)));
-      if(evidence){
-        const proof=node('div',{class:'pa-proof','data-count':String(photos.length),role:'group','aria-label':'พื้นที่ภาพหลักฐาน'});
+      const rowPhotos=paperForm?(!def.continued?evidenceByTopic?.get('report:'+def.reportKey)||[]:[]):photos;
+      if(evidence||paperForm){
+        const proof=node('div',{class:'pa-proof','data-count':String(rowPhotos.length),role:'group','aria-label':'พื้นที่ภาพหลักฐาน'});
         if(captionOnly)progress.append(node('div',{class:'pa-proof-caption'},captionOnly));
-        if(photos.length){
-          const geometry=window.PaPagination.photoSlot(photos.length);
+        if(rowPhotos.length){
+          const geometry=window.PaPagination.photoSlot(rowPhotos.length);
           const validWidths=pageWidths(widths), maxWidth=258*validWidths[1]/validWidths.reduce((a,b)=>a+b,0)-3.175;
           Object.entries({'--pa-proof-width':Math.min(geometry.widthMm,maxWidth),'--pa-proof-height':geometry.heightMm,'--pa-proof-gap':window.PaPagination.PHOTO_LAYOUT.gapMm})
             .forEach(([key,value])=>proof.style.setProperty(key,(value/258*100)+'cqw'));
-          photos.forEach((photo,i)=>{
+          rowPhotos.forEach((photo,i)=>{
             const item=node('figure',{class:'pa-proof-item'});
             if(photo.caption)item.append(node('figcaption',{class:'pa-proof-caption'},photo.caption));
             if(photo.drivePreview){
@@ -95,15 +107,16 @@
   });
     if(template?.name&&pages.lastElementChild){
       let last=pages.lastElementChild;
-      if(last.querySelector('.pa-proof-item')||last.querySelectorAll('tbody td > :not(.pa-proof)').length>12){
+      if(!paperForm&&(last.querySelector('.pa-proof-item')||last.querySelectorAll('tbody td > :not(.pa-proof)').length>12)){
         last=node('article',{class:'pa-paper pa-signature-only','aria-label':'หน้าลงนาม','data-topic':'signature','data-continuation':'false'});
         last.append(node('footer',{class:'pa-paper-foot'},String(layout.length+1)));pages.append(last);
       }
       const signatures=node('section',{class:'pa-signatures','aria-label':'ส่วนลงนาม'});
-      for(const [role,person] of [['ผู้รับการประเมิน',template.name],['ผู้ประเมิน','________________________']]){
+      const signers=paperForm?[['ผู้รับการประเมิน',paperForm.fullName,paperForm.position],['ผู้ประเมิน (ผู้บังคับบัญชาชั้นต้น)',paperForm.reviewer,paperForm.reviewerPosition]]:[['ผู้รับการประเมิน',template.name],['ผู้ประเมิน','________________________']];
+      for(const [role,person,position] of signers){
         const signer=node('div',{class:'pa-signature-person'});
         signer.append(node('div',{},'ลงชื่อ ..................................................... '+role),node('div',{},'('+person+')'),
-          node('div',{},'ตำแหน่ง __________________________________'),node('div',{},'วันที่ ______ / ______ / ______'));
+          node('div',{},'ตำแหน่ง '+(position||'__________________________________')),node('div',{},'วันที่ ______ / ______ / ______'));
         signatures.append(signer);
       }
       last.querySelector('.pa-paper-foot').before(signatures);
@@ -165,7 +178,25 @@
           if(typeof t?.key!=='string'||!/^[A-Za-z0-9_-]{1,64}$/.test(t.key)||unique.has(t.key)||typeof t.label!=='string'||!t.label.trim()||t.label.length>240||/[<>\u0000-\u001f\u202a-\u202e\u2066-\u2069]/u.test(t.label))throw Error('Invalid PA topic');
           unique.add(t.key);
         }
-        entries.set(item.name,{pages:item.topics.map(t=>({rows:[{agreement:[{text:t.label,bold:true,reportKey:t.key}],target:[]}]})),reporting:item.reporting});
+        const heading=t=>/^\d+(?:\.\d+)+/.exec(t.label)?.[0];
+        let pages=item.topics.map(t=>({rows:[{agreement:[{text:t.label,bold:true,reportKey:t.key}],target:[]}]})), paperForm=null;
+        if(item.paperForm?.version===1){
+          const form=item.paperForm, fields=['fullName','position','unit','division','reviewer','reviewerPosition'];
+          const text=t=>typeof t==='string'&&t.length>0&&t.length<=240&&!/[<>]/.test(t);
+          if(fields.some(k=>!text(form[k]))||!Array.isArray(form.pages)||form.pages.length!==7)throw Error('Invalid source form');
+          const byCode=new Map(item.topics.map(t=>[heading(t),t]));
+          const grouped=new Set();
+          pages=form.pages.map(p=>({widths:[29,51,20],rows:p.map(r=>{
+            const t=byCode.get(r.code);if(!t||!Array.isArray(r.notes)||r.notes.length>12||!r.notes.every(text)||typeof r.continued!=='boolean')throw Error('Invalid source row');
+            if(!r.continued)grouped.add(t.key);
+            const notes=r.notes.map(text=>({text,bold:false}));
+            const agreement=r.continued?[{text:r.code+' (ต่อ)',bold:true}]:[{text:t.label,bold:true,reportKey:t.key},...notes];
+            return {agreement,target:[],reportKey:t.key,continued:r.continued};
+          })}));
+          if(grouped.size!==item.topics.length)throw Error('Incomplete source form');
+          paperForm=form;
+        }
+        entries.set(item.name,{pages,reporting:item.reporting,paperForm});
       }
       personalReports=entries;if(location.hash==='#pa-online'&&document.activeElement===name)show();
     }).catch(()=>{personalRetryAfter=Date.now()+10000;}).finally(()=>{personalPending=null;});
@@ -216,7 +247,7 @@
     if(printButton)printButton.disabled=!available;
     if(status){status.hidden=!message;status.textContent=message;}
   }
-  function setDocumentName(value){if(!identity||identity.dataset.paDraftEdited==='true')return;identity.textContent='ชื่อผู้รับการประเมิน: '+value;}
+  function setDocumentName(value){if(!identity||identity.dataset.paDraftEdited==='true')return;identity.textContent='ชื่อผู้รับการประเมิน: '+(identity.dataset.sourceName||value);}
   async function selectTemplate(value){
     invalidate();
     selectedName=value;
@@ -227,9 +258,9 @@
     if(publicOrigin){
       const personal=personalReports?.get(value);
       if(personal){
-        renderPages(personal.pages,{name:value,pages:personal.pages,_renderPeriod:selectedPeriod});setDocumentName(value);
+        renderPages(personal.pages,{name:value,pages:personal.pages,_renderPeriod:selectedPeriod,paperForm:personal.paperForm});setDocumentName(value);
         setAvailability(true,personal.reporting?'กำลังอ่านรูปจากรายงาน':'แบบรายงานเปล่า ยังไม่พบประวัติการส่งรายงานของชื่อนี้');
-        if(personal.reporting)void loadSelectedPhotoMedia(value,personal.pages,selectedPeriod,turn);
+        if(personal.reporting)void loadSelectedPhotoMedia(value,personal.pages,selectedPeriod,turn,personal.paperForm);
         return;
       }
       const pages=publicCatalog?.get(value);
@@ -305,7 +336,7 @@
     finally{clearTimeout(timer);if(epoch===turn)templateAbort=null;}
   }
 
-  async function loadSelectedPhotoMedia(value,pages,selectedPeriod,turn){
+  async function loadSelectedPhotoMedia(value,pages,selectedPeriod,turn,paperForm=null){
     if(!publicOrigin||location.hash!=='#pa-online'||!pages||selectedName!==value||epoch!==turn)return;
     const api=window.UnifiedApi;
     if(typeof api?.request!=='function'||typeof api.endpoint!=='function'){
@@ -316,7 +347,7 @@
     setAvailability(false,'กำลังตรวจสิทธิ์บัญชีมหิดลและโหลดรูป…');
     let timer;
     try{
-      const data={name:value,pages,_renderPeriod:selectedPeriod};
+      const data={name:value,pages,_renderPeriod:selectedPeriod,paperForm};
       const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('PA photo timeout')),20000);});
       const response=await Promise.race([api.request({action:'paWorkReportPhotoMedia',selectedName:value,month:selectedPeriod.month},api.endpoint()),deadline]);
       if(!current())return;
