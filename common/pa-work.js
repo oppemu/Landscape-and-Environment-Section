@@ -158,7 +158,7 @@
           :'ยังเปิดรายการหัวข้อ PA สำหรับชื่อนี้ไม่ได้ จึงยังส่งรายงานไม่ได้');
     }
   }
-  const MAX_INPUT=25000000, MAX_PART=3000000, SAFE_PART=1900000;
+  const MAX_INPUT=25000000, MAX_PHOTOS=1, SAFE_PART=1900000;
   const failPhoto=code=>Object.assign(Error(code),{photoCode:code});
   function readPhoto(blob,asUrl){
     return new Promise((resolve,reject)=>{
@@ -176,7 +176,7 @@
     const result=await readPhoto(blob,true);
     const match=typeof result==='string'&&/^data:[^,]*;base64,([A-Za-z0-9+/]+={0,2})$/.exec(result);
     const data=match&&match[1];
-    if(!data||data.length>4000000||
+    if(!data||data.length>2533336||
       (mimeType==='image/png'?!data.startsWith('iVBORw0KGgo'):!data.startsWith('/9j/')))throw failPhoto('read');
     return {mimeType,data};
   }
@@ -222,7 +222,7 @@
       if(!w||!h||w*h>65000000)throw failPhoto('dimensions');
       const context=canvas.getContext('2d',{alpha:false});
       if(!context)throw failPhoto('read');
-      for(const [edge,quality] of [[1920,.84],[1600,.76],[1280,.72]]){
+      for(const [edge,quality] of [[1920,.84],[1600,.76],[1280,.72],[960,.68],[720,.62]]){
         const scale=Math.min(1,edge/Math.max(w,h));
         canvas.width=Math.max(1,Math.round(w*scale));canvas.height=Math.max(1,Math.round(h*scale));
         context.fillStyle='#fff';context.fillRect(0,0,canvas.width,canvas.height);
@@ -233,17 +233,16 @@
       throw failPhoto('dimensions');
     }finally{canvas.width=1;canvas.height=1;decoded.dispose();}
   }
-  async function encodePhoto(file,normalize){
+  async function encodePhoto(file){
     const type=await detectPhoto(file);
     if(file.type&&file.type!==type&&!(type==='image/heic'&&/^image\/hei[cf](?:-sequence)?$/.test(file.type)))throw failPhoto('type');
-    if(type==='image/heic'||file.size>MAX_PART||(normalize&&file.size>SAFE_PART))return resizePhoto(file,type);
+    if(type==='image/heic'||file.size>SAFE_PART)return resizePhoto(file,type);
     return encodeAccepted(file,type);
   }
   async function encodePhotos(files){
-    const normalize=files.reduce((n,f)=>n+f.size,0)>6000000;
     const out=[];
     // Only one decoded camera image in memory at a time on mobile.
-    for(const file of files)out.push(await encodePhoto(file,normalize));
+    for(const file of files)out.push(await encodePhoto(file));
     return out;
   }
   function photoError(error){
@@ -261,7 +260,7 @@
     const day=date.value,description=note.value.trim(), files=Array.from(photos.files||[]);
     const actual=new Date(day+'T00:00:00Z');
     if(!/^20\d{2}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(actual.getTime())||actual.toISOString().slice(0,10)!==day||!description||description.length>1500){message('กรอกวันที่และรายละเอียดงานให้ครบ','error');return;}
-    if(!files.length||files.length>3){message('แนบรูปประกอบ 1–3 รูปก่อนส่ง','error');return;}
+    if(!files.length||files.length!==MAX_PHOTOS){message('แนบรูปประกอบ 1 รูปก่อนส่ง','error');return;}
     if(files.some(f=>f.size<1||f.size>MAX_INPUT)){message('แนบรูปขนาดไม่เกิน 25 MB ต่อรูป หรือลองเลือกภาพที่เล็กลง','error');return;}
     const collaborators=[...peers.values()].filter(p=>p.check.checked).map(p=>({employeeKey:p.key,assignmentKey:p.topic.value}));
     if(collaborators.length>10||collaborators.some(p=>!peers.get(p.employeeKey).assignments.some(a=>a.key===p.assignmentKey))){message('เลือกหัวข้อ PA ให้ผู้ร่วมงานแต่ละคน (ไม่เกิน 10 คน)','error');return;}
