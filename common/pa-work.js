@@ -73,7 +73,9 @@
   let choices=new Map(),peers=new Map(),employeeKey='',endpoint='',generation=0,pending=false,requestId='',prepared=null;
   const forget=()=>{requestId='';prepared=null;};
   function reset(){
-    generation++;pending=false;send.disabled=false;forget();employeeKey='';endpoint='';choices.clear();peers.clear();peerList.replaceChildren();peerBox.hidden=true;
+    generation++;pending=false;send.disabled=false;forget();employeeKey='';endpoint='';choices.clear();peers.clear();peerList.replaceChildren();peerBox.hidden=false;
+    const hint=document.createElement('p');hint.className='pa-work-peer-hint';
+    hint.textContent='ยังไม่มีรายชื่อผู้ร่วมงานที่เลือกได้ในตอนนี้';peerList.append(hint);
     gate.disabled=true;showReporter();resetDraft();
     assignment.replaceChildren(new Option('เลือกงาน',''));
   }
@@ -144,7 +146,8 @@
       if(!data.assignments.length){connection('ยังไม่มีหัวข้อ PA ที่ใช้บันทึกได้สำหรับชื่อนี้');return;}
       employeeKey=data.staff.key;endpoint=selectedEndpoint;showReporter(data.staff.displayName);
       for(const x of data.assignments){choices.set(x.key,x.label);assignment.add(new Option(x.label,x.key));}
-      for(const p of data.peers)addPeer(p);peerBox.hidden=!data.peers.length;
+      if(data.peers.length){peerList.replaceChildren();for(const p of data.peers)addPeer(p);}
+      else if(peerList.firstElementChild)peerList.firstElementChild.textContent='ไม่มีรายชื่อผู้ร่วมงานให้เลือก ส่งรายงานของตัวเองได้ตามปกติ';
       gate.disabled=false;status.textContent='ใช้ชื่อที่เลือกในแอปเป็นชื่อผู้รายงาน';message('');
      }catch(error){
       if(turn!==generation||!onRoute())return;
