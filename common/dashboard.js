@@ -67,9 +67,21 @@ function sumFoodWeights(rows,month){
  return {value:Math.round(total*100)/100,note:known===chosen.length?known+' รายการ':'มีน้ำหนัก '+known+' จาก '+chosen.length+' รายการ'};
 }
 function hasPartialFood(payload){return payload.warnings?.food?.status==='partial';}
+function isLegacyMunicipal(row) {
+ return validDate(row?.date)&&row.id==='LEGACY-MUNICIPAL-'+row.date&&row.beforeWeight==null&&row.afterWeight==null&&typeof row.weight==='number'&&num(row.weight)!==null;
+}
+function municipalDashboardRows(rows) {
+ const legacyDates=new Set();
+ const historical=rows.filter(row=>{if(!isLegacyMunicipal(row)||legacyDates.has(row.date))return false;legacyDates.add(row.date);return true;});
+ return historical.concat(rows.filter(row=>row?.entryStatus==='เข้า'&&!legacyDates.has(row.date)));
+}
+function municipalDashboardWeight(row) {
+ if(isLegacyMunicipal(row))return row.weight;
+ return num(row.beforeWeight)!==null&&num(row.afterWeight)!==null&&Number(row.afterWeight)>=Number(row.beforeWeight)?Number(row.afterWeight)-Number(row.beforeWeight):null;
+}
 function overview(payload,month,selectedBankSummary){
  const ds=payload.datasets||{},get=k=>payload.errors&&payload.errors[k]?null:ds[k];
- const waste=[['food','เศษอาหาร','weight'],['fresh','พืชสด','weight'],['general','ขยะทั่วไป',r=>r.entryStatus==='เข้า'&&num(r.beforeWeight)!==null&&num(r.afterWeight)!==null&&Number(r.afterWeight)>=Number(r.beforeWeight)?Number(r.afterWeight)-Number(r.beforeWeight):null],['hazard','ขยะอันตราย','weight'],['orphan','ขยะกำพร้า','weight']].map(([key,label,field])=>({key,label,...(key==='food'?sumFoodWeights(get(key),month):sumMetric(key==='general'&&Array.isArray(get(key))?get(key).filter(r=>r.entryStatus==='เข้า'):get(key),month,field))}));
+ const waste=[['food','เศษอาหาร','weight'],['fresh','พืชสด','weight'],['general','ขยะทั่วไป',municipalDashboardWeight],['hazard','ขยะอันตราย','weight'],['orphan','ขยะกำพร้า','weight']].map(([key,label,field])=>({key,label,...(key==='food'?sumFoodWeights(get(key),month):sumMetric(key==='general'&&Array.isArray(get(key))?municipalDashboardRows(get(key)):get(key),month,field))}));
  // Optional aggregate endpoint; never consume private contact/photo fields.
  for(const item of waste){const a=payload.extra&&payload.extra.month===month&&payload.extra.waste&&payload.extra.waste[item.key];if(item.key==='food'){if(hasPartialFood(payload)){item.subset=true;item.note='เฉพาะชุดที่ยืนยันได้ · '+item.note;}if(!Array.isArray(get('food'))&&a?.status==='confirmed-subset'&&typeof a.kg==='number'&&Number.isFinite(a.kg)&&a.kg>=0&&Number.isSafeInteger(a.count)&&a.count>0){item.value=a.kg;item.note='เฉพาะชุดเศษอาหารที่ยืนยันแล้ว · '+a.count+' รายการ';item.subset=true;}continue;}if(a&&a.status==='ready'&&num(a.kg)!==null){item.value=Number(a.kg);item.note=String(a.count||0)+' รายการ';}else if(a&&a.status!=='ready'){item.value=null;item.note=a.status==='empty'?'ไม่มีรายการในเดือนนี้':'ยังอ่านข้อมูลไม่ได้';}}
  waste.push({key:'recycle',label:'ขยะรีไซเคิล',...recycleMetric(selectedBankSummary||bankSummary(payload,month))});
