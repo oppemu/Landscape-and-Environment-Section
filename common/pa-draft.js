@@ -17,7 +17,7 @@
         lines.forEach((line,k)=>result.push([prefix+'|cell|'+i+'|'+j+'|'+k,line]));
       }));
     }
-    root.querySelectorAll(".pa-signature-person > div").forEach((el,i)=>result.push(["signature|"+i,el]));
+    root.querySelectorAll(".pa-signature-person > div").forEach((el,i)=>{if(!el.hasAttribute("data-pa-signature-fixed"))result.push(["signature|"+i,el]);});
     return result;
   }
   function writeDraft(key,el){

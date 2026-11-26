@@ -30,6 +30,29 @@
     return element;
   };
   let identity;
+  const signerPositions=new Map(), signerRequests=new Map();
+  const thaiDate=new Intl.DateTimeFormat('th-TH-u-ca-buddhist',{timeZone:'Asia/Bangkok',day:'numeric',month:'long',year:'numeric'});
+  function signatureDate(now=new Date()){
+    const parts=Object.fromEntries(thaiDate.formatToParts(now).map(p=>[p.type,p.value]));
+    return parts.day+' '+parts.month+' พ.ศ. '+parts.year;
+  }
+  function updateSignatureDate(){for(const el of mount.querySelectorAll('[data-pa-signature-date]'))el.textContent='วันที่ '+signatureDate();}
+  function updateSignerPosition(person){
+    const section=mount.querySelector('.pa-signatures');
+    if(section?.dataset.reportOwner!==person)return;
+    const field=section.querySelector('[data-pa-signature-position]');
+    if(field&&signerPositions.get(person))field.textContent='ตำแหน่ง '+signerPositions.get(person);
+  }
+  function loadSignerPosition(person){
+    if(!publicOrigin||typeof window.UnifiedApi?.request!=='function'||signerPositions.has(person)||signerRequests.has(person))return;
+    const reply=window.UnifiedApi.request({action:'paReportSignerPosition',selectedName:person});
+    signerRequests.set(person,reply);
+    reply.then(r=>{
+      if(r?.name===person&&typeof r.position==='string'&&r.position.trim()&&r.position.length<=160&&!/[<>]/.test(r.position)){
+        signerPositions.set(person,r.position.trim());updateSignerPosition(person);
+      }
+    }).catch(()=>{}).finally(()=>signerRequests.delete(person));
+  }
   const blank=sections.map((topics,i)=>({rows:(i===2?[topics.slice(0,2),topics.slice(2)]:i===12?topics.map(t=>[t]):[topics]).map(group=>({
       agreement:[...group.map(text=>({text,bold:true})),{text:'เป้าหมาย',bold:false}],
       target:[{text:group[group.length-1],bold:true},{text:'เป้าหมาย',bold:false}]
@@ -112,16 +135,23 @@
         last.append(node('footer',{class:'pa-paper-foot'},String(layout.length+1)));pages.append(last);
       }
       const signatures=node('section',{class:'pa-signatures','aria-label':'ส่วนลงนาม'});
-      const signers=paperForm?[['ผู้รับการประเมิน',paperForm.fullName,paperForm.position],['ผู้ประเมิน (ผู้บังคับบัญชาชั้นต้น)',paperForm.reviewer,paperForm.reviewerPosition]]:[['ผู้รับการประเมิน',template.name],['ผู้ประเมิน','________________________']];
-      for(const [role,person,position] of signers){
+      signatures.dataset.reportOwner=template.name;
+      const ownerPosition=paperForm?.position||signerPositions.get(template.name)||window.HubStaffByName?.(template.name)?.position||'';
+      const signers=[
+        ['ผู้รับการประเมิน',paperForm?.fullName||template.name,ownerPosition,true],
+        [paperForm?'ผู้ประเมิน (ผู้บังคับบัญชาชั้นต้น)':'ผู้ประเมิน','นายมนัสชาย ประเดิมชัย','หัวหน้างานภูมิทัศน์และสิ่งแวดล้อม',false]
+      ];
+      for(const [role,person,position,owner] of signers){
         const signer=node('div',{class:'pa-signature-person'});
-        signer.append(node('div',{},'ลงชื่อ ..................................................... '+role),node('div',{},'('+person+')'),
-          node('div',{},'ตำแหน่ง '+(position||'__________________________________')),node('div',{},'วันที่ ______ / ______ / ______'));
+        signer.append(node('div',{},'ลงชื่อ ..................................................... '+role),node('div',{'data-pa-signature-fixed':''},'('+person+')'),
+          node('div',owner?{'data-pa-signature-fixed':'','data-pa-signature-position':''}:{'data-pa-signature-fixed':''},'ตำแหน่ง '+(position||'__________________________________')),
+          node('div',owner?{'data-pa-signature-fixed':'','data-pa-signature-date':''}:{},owner?'วันที่ '+signatureDate():'วันที่ ______ / ______ / ______'));
         signatures.append(signer);
       }
       last.querySelector('.pa-paper-foot').before(signatures);
     }
     mount.replaceChildren(pages);
+    if(template?.name&&!template?.paperForm?.position)loadSignerPosition(template.name);
     window.PaDraft?.activate(mount,template?.name?template.name+"|"+mount.dataset.documentMonth:"");
     mount.closest('.pa-paper-view')?.setAttribute('aria-label','ตัวอย่างแบบรายงาน PA '+layout.length+' หน้า');
   }
@@ -206,6 +236,7 @@
   let selectedName='',templateAbort,epoch=0,printing=false;
   const clearPrint=()=>{document.body.classList.remove('pa-print-active');printing=false;};
   addEventListener('afterprint',clearPrint);
+  addEventListener('beforeprint',updateSignatureDate);
   printButton?.addEventListener('click',async()=>{
     if(printing||location.hash!=='#pa-online'||mount.dataset.templateAvailable==='false')return;
     const choice=epoch;
@@ -221,6 +252,10 @@
       if(epoch!==choice||location.hash!=='#pa-online'){clearPrint();return;}
       if(!decoded){clearPrint();setAvailability(true,'มีรูปที่ยังเปิดไม่ได้ จึงยังพิมพ์แบบรวมรูปไม่ได้ ลองตรวจลิงก์ Drive หรือใช้ปุ่ม PDF ไม่รวมรูป');return;}
     }
+    const pendingPosition=signerRequests.get(selectedName);
+    if(pendingPosition){let timer;await Promise.race([pendingPosition.catch(()=>{}),new Promise(r=>{timer=setTimeout(r,4500);})]);clearTimeout(timer);}
+    if(epoch!==choice||location.hash!=='#pa-online'){clearPrint();return;}
+    updateSignatureDate();
     document.body.classList.add('pa-print-active');
     try{window.print();}catch(_){clearPrint();}
   });
