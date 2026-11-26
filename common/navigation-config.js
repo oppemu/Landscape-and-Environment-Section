@@ -6,7 +6,7 @@
   'use strict';
   const modules = [
     ['general', 'ขยะทั่วไป · เทศบาล', 'general/index.html', 'report'],
-    ['food', 'เก็บเศษอาหาร', 'food/index.html?v=20261125-food10-label', 'bowl'],
+    ['food', 'เก็บเศษอาหาร', 'food/index.html?v=20261126-food-condo', 'bowl'],
     ['fresh', 'รับพืชสด', 'fresh/index.html', 'leaf'],
     ['humusquality', 'ผลิตฮิวมัส', 'humusquality/index.html', 'check'],
     ['sale', 'จำหน่ายผลผลิต', 'sale/index.html', 'bag'],
