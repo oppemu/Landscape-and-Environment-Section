@@ -215,20 +215,21 @@
       }catch(_){clearTimeout(timer);reject(failPhoto('read'));}
     });
   }
-  async function resizePhoto(file,type){
+  async function resizePhoto(file,type,forReport=false){
     const decoded=await openPhoto(file,type), canvas=document.createElement('canvas');
     try{
       const {image}=decoded,w=image.naturalWidth,h=image.naturalHeight;
       if(!w||!h||w*h>65000000)throw failPhoto('dimensions');
       const context=canvas.getContext('2d',{alpha:false});
       if(!context)throw failPhoto('read');
-      for(const [edge,quality] of [[1800,.82],[1440,.76],[1120,.72],[880,.66],[640,.60]]){
+      const steps=forReport?[[1440,.81],[1280,.77],[1120,.74],[960,.71]]:[[1800,.82],[1440,.76],[1120,.72],[880,.66],[640,.60]];
+      for(const [edge,quality] of steps){
         const scale=Math.min(1,edge/Math.max(w,h));
         canvas.width=Math.max(1,Math.round(w*scale));canvas.height=Math.max(1,Math.round(h*scale));
         context.fillStyle='#fff';context.fillRect(0,0,canvas.width,canvas.height);
         context.drawImage(image,0,0,canvas.width,canvas.height);
         const output=await canvasJpeg(canvas,quality);
-        if(output.size<=SAFE_PART)return await encodeAccepted(output,'image/jpeg');
+        if(output.size<=(forReport?240000:SAFE_PART))return await encodeAccepted(output,'image/jpeg');
       }
       throw failPhoto('dimensions');
     }finally{canvas.width=1;canvas.height=1;decoded.dispose();}
@@ -242,7 +243,16 @@
   async function encodePhotos(files){
     const out=[];
     // Only one decoded camera image in memory at a time on mobile.
-    for(const file of files)out.push(await encodePhoto(file));
+    for(const file of files){
+      const original=await encodePhoto(file);
+      if(original.data.length>360000){
+        try{
+          const variant=await resizePhoto(file,await detectPhoto(file),true);
+          if(variant.data.length<original.data.length*.79)original.reportVariant=variant;
+        }catch(_){/* Keep the original if a smaller, readable copy cannot be made. */}
+      }
+      out.push(original);
+    }
     return out;
   }
   function photoError(error){
