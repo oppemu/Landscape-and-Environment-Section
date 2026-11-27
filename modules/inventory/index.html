@@ -2,11 +2,11 @@
 <html lang="th">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; frame-src https://script.google.com https://*.googleusercontent.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://docs.google.com; frame-src https://script.google.com https://*.googleusercontent.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>คลังวัสดุและยืมคืน | Mahidol Environment Hub</title>
 <link rel="stylesheet" href="inventory.css">
-<script defer src="../../config/app-config.js"></script><script defer src="../../common/unified-client.js"></script><script defer src="../../common/inventory.js"></script><script defer src="../../common/inventory-client.js"></script><script defer src="../../common/form-photo.js"></script><script defer src="inventory-ui.js?v=catalog1"></script>
-<script defer src="inventory-catalog.js"></script><script src="../../common/thai-date.js" defer></script><link rel="stylesheet" href="../../common/theme-unified.css"><link rel="stylesheet" href="../../common/popup-select.css">
+<script defer src="../../config/app-config.js"></script><script defer src="../../common/unified-client.js"></script><script defer src="../../common/inventory.js"></script><script defer src="../../common/inventory-client.js"></script><script defer src="../../common/form-photo.js"></script><script defer src="inventory-catalog.js?v=source2"></script><script defer src="inventory-ui.js?v=source2"></script>
+<script src="../../common/thai-date.js" defer></script><link rel="stylesheet" href="../../common/theme-unified.css"><link rel="stylesheet" href="../../common/popup-select.css">
 <script src="../../common/popup-select.js" defer></script>
 <link rel="stylesheet" href="../../common/popup-theme.css"><script src="../../common/popup-theme.js" defer></script><link rel="stylesheet" href="../../common/app-form.css"><link rel="stylesheet" href="../../common/file-picker.css"><link rel="stylesheet" href="../../common/forms-theme.css?v=1"></head>
 <body class="waste-module">
@@ -20,8 +20,7 @@
 <section id="stock-panel" class="panel"><div class="section-heading"><div><h2>สต๊อกในห้องเก็บของ</h2><p>พร้อมจ่ายไม่รวมของที่ยืมอยู่ ของรอตรวจคืน หรือของชำรุด</p></div><button type="button" id="new-item">+ เพิ่มรายการของ</button></div><div id="stock-list"></div>
 <details class="notice" id="inventory-catalog" open>
   <summary><strong>ทะเบียนรายการของ (ดูอย่างเดียว)</strong></summary>
-  <p>ดูชื่อและรหัสได้ก่อนตรวจนับ ไฟล์อ่านบนเครื่องนี้เท่านั้น ไม่ส่งขึ้นระบบ และไม่เปลี่ยนยอดคลัง</p>
-  <div class="toolbar"><label for="catalog-file">เลือกไฟล์ทะเบียนคลัง (.json)</label><input id="catalog-file" type="file" accept=".json,application/json"><button type="button" id="catalog-clear" class="secondary" hidden>ล้างรายการที่เปิด</button></div>
+  <p>แสดงชื่อและรหัสจากฐานข้อมูลแอปขยะ รายการในทะเบียนนี้ยังไม่ใช่ยอดพร้อมจ่าย</p>
   <div class="search-row"><label for="catalog-search">ค้นหาชื่อหรือรหัสในทะเบียน</label><input id="catalog-search" type="search" autocomplete="off" disabled></div>
   <p id="catalog-status" role="status" aria-live="polite"></p>
   <div class="table-wrap" id="catalog-table" hidden><table><thead><tr><th scope="col">รหัส</th><th scope="col">วัสดุ / อุปกรณ์</th><th scope="col">สถานะ</th></tr></thead><tbody id="catalog-body"></tbody></table></div>
