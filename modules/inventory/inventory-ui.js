@@ -51,13 +51,14 @@
   // คำนวณการ์ดสรุปและเลือกแผงตามแท็บจาก state ล่าสุด
   function render(){
     const items=Object.values(state.items),cases=Object.values(state.cases),pending=Object.values(state.returns).filter(r=>!r.inspected);
-    $('summary').replaceChildren(...[[items.length,'รายการในทะเบียน'],[cases.filter(c=>c.status!=='closed').length,'เคสยืมที่ยังไม่ปิด'],[pending.length,'รอบรับคืนที่รอตรวจ'],[items.filter(i=>i.available<=i.minimum).length,'รายการถึงจุดเติมของ']].map(([n,label])=>{const m=el('div',undefined,'metric');m.append(el('strong',num(n)),el('span',label));return m;}));
+    $('summary').replaceChildren(...[[items.length,'รายการในทะเบียน'],[cases.filter(c=>c.status!=='closed').length,'เคสยืมที่ยังไม่ปิด'],[pending.length,'รอบรับคืนที่รอตรวจ'],[items.filter(i=>i.available<=i.minimum).length,'รายการถึงจุดเติมของ']].map(([n,label])=>{const m=el('div',undefined,'metric');m.append(el('strong',ready?num(n):'—'),el('span',label));return m;}));
     document.querySelectorAll('[data-tab]').forEach(b=>{if(b.dataset.tab===tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
     ['stock','cases','inspections','counts','history'].forEach(t=>$(t+'-panel').hidden=t!==tab);
     renderStock();renderCases();renderInspections();renderCounts();renderHistory();$('new-item').disabled=!canWrite('create_item')||!!client.uncertain;
   }
   // แสดงของพร้อมจ่าย ยืมค้าง รอตรวจและชำรุด แยกยอดไม่ปะปน
   function renderStock(){
+    if(!ready){empty('stock-list','ยังไม่มียอดคลังที่ยืนยันแล้ว เปิดทะเบียนรายการของด้านล่างเพื่อดูชื่อและรหัสได้');return;}
     const items=Object.values(state.items).filter(search);
     if(!items.length){empty('stock-list',state.revision?'ไม่พบรายการที่ค้นหา':'ยังไม่มีรายการในทะเบียน เพิ่มรายการของเพื่อเริ่มใช้งาน');return;}
     const body=table('stock-list',['รายการ / ที่เก็บ','ประเภท','พร้อมจ่าย','ยืมค้างคืน','รอตรวจ','ชำรุดพักไว้','ทำรายการ']);
