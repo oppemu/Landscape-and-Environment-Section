@@ -50,7 +50,7 @@
         const raw=evidenceByTopic instanceof Map?evidenceByTopic.get(leaf.code):undefined;
         const captioned=new Set();
         const photos=(Array.isArray(raw)?raw.filter(isPhoto):[]).map(photo=>{
-          const text=typeof photo.caption==='string'?photo.caption.trim().slice(0,1500):'';
+          const text=typeof photo.caption==='string'?photo.caption.trim().slice(0,5000):'';
           const id=typeof photo.reportId==='string'&&photo.reportId?photo.reportId:null;
           if(!text||id&&captioned.has(id))return {...photo,caption:''};
           if(id)captioned.add(id);
@@ -108,6 +108,29 @@
     if(output.length>MAX_PAGES)throw Error('PA page limit');
     return output.map((page,i)=>({...page,number:i+1}));
   }
+  function appendixGroups(photos){
+    const groups=[];
+    let pending=[];
+    const flush=()=>{if(pending.length){groups.push({photos:pending});pending=[];}};
+    for(const photo of photos){
+      const chars=Array.from(photo.caption||'');
+      if(chars.length>125){
+        flush();
+        // Keep the ending above the image. Long details continue on preceding
+        // pages so Thai text cannot extend beyond the printable area.
+        while(chars.length>125){
+          const n=Math.min(450,chars.length-125);
+          groups.push({photos:[],captionOnly:chars.splice(0,n).join('')});
+        }
+        groups.push({photos:[{...photo,caption:chars.join('')}]});
+      }else{
+        if(pending.length>=MAX_PHOTOS||chars.length>65&&pending.length>=2||
+           pending.length>=2&&pending.some(p=>Array.from(p.caption||'').length>65))flush();
+        pending.push(photo);
+      }
+    }
+    flush();return groups;
+  }
   // Keep the fixed personal form pages intact. Evidence gets one continuation
   // per group of up to four photos, with its exact assignment label on every page.
   function paperEvidenceAppendix(source,evidenceByTopic){
@@ -118,9 +141,9 @@
       seen.add(row.reportKey);
       const topic='report:'+row.reportKey;
       const photos=(evidenceByTopic.get(topic)||[]).filter(isPhoto);
-      for(let offset=0;offset<photos.length;offset+=MAX_PHOTOS){
+      for(const [offset,group] of appendixGroups(photos).entries()){
         out.push({rows:[{agreement:[row.agreement[0]],target:[]}],widths:page.widths,topic,
-          evidence:true,appendix:true,continuation:offset>0,photos:photos.slice(offset,offset+MAX_PHOTOS),
+          evidence:true,appendix:true,continuation:offset>0,...group,
           number:source.length+out.length+1});
         if(out.length+source.length>MAX_PAGES)throw Error('PA appendix page limit');
       }
@@ -135,9 +158,9 @@
       if(!topic.startsWith('source:'))continue;
       const heading=photos[0]?.assignmentLabel;
       if(typeof heading!=='string'||!photos.every(photo=>isPhoto(photo)&&photo.assignmentLabel===heading))throw Error('PA source heading mismatch');
-      for(let offset=0;offset<photos.length;offset+=MAX_PHOTOS){
+      for(const [offset,group] of appendixGroups(photos).entries()){
         out.push({rows:[{agreement:[{text:heading,bold:true}],target:[]}],topic,
-          evidence:true,appendix:true,continuation:offset>0,photos:photos.slice(offset,offset+MAX_PHOTOS),
+          evidence:true,appendix:true,continuation:offset>0,...group,
           number:pageCount+out.length+1});
         if(out.length+pageCount>MAX_PAGES)throw Error('PA appendix page limit');
       }

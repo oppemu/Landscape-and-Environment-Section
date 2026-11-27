@@ -1,7 +1,6 @@
 (() => {
   'use strict';
   const mount = document.getElementById('pa-layout-pages');
-  const monthPhotoPreview=document.getElementById('pa-month-photo-preview');
   const name = document.getElementById('pa-layout-name');
   const viewPeriod=document.getElementById('pa-layout-period');
   if (!mount || !name || !viewPeriod || !window.PaPagination || !window.PaEvidence) return;
@@ -266,7 +265,6 @@
   function invalidate(){
     const wasSelected=Boolean(selectedName);
     if(download)download.textContent='ดาวน์โหลด PDF (ไม่รวมรูป)';
-    clearMonthPhotoPreview();
     epoch++; templateAbort?.abort();templateAbort=null;selectedName='';
     mount.dataset.templateAvailable='';
     if(publicOrigin&&download)download.hidden=false;
@@ -383,42 +381,13 @@
       let timer;
       const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('PA photo batch timeout')),22000);});
       return Promise.race([api.request({action:'paWorkReportPhotoMedia',selectedName:value,month,
-        photoPageVersion:2,photoOffset:offset,photoSnapshot:snapshot},endpoint),timeout]).finally(()=>clearTimeout(timer));
+        photoPageVersion:2,includeWorkDetails:true,photoOffset:offset,photoSnapshot:snapshot},endpoint),timeout]).finally(()=>clearTimeout(timer));
     },{month,displayName:value,pages,continueLoading:current}).finally(()=>{
       if(evidenceRequests.get(key)===pending)evidenceRequests.delete(key);
     });
     evidenceRequests.set(key,pending);return pending;
   }
-  function clearMonthPhotoPreview(){
-    if(!monthPhotoPreview)return;
-    monthPhotoPreview.hidden=true;
-    monthPhotoPreview.replaceChildren();
-  }
-  function showMonthPhotoPreview(decoded){
-    if(!monthPhotoPreview)return;
-    const groups=[...decoded.values()].filter(refs=>refs.length);
-    if(!groups.length){clearMonthPhotoPreview();return;}
-    const count=groups.reduce((sum,refs)=>sum+refs.length,0);
-    const heading=node('h2',{},'รูปที่รายงานในเดือนนี้ ('+count+' รูป)');
-    const sections=groups.map(refs=>{
-      const sorted=[...refs].sort((a,b)=>a.workDate.localeCompare(b.workDate));
-      const section=node('section',{class:'pa-month-photo-topic'});
-      section.append(node('h3',{},sorted[0].assignmentLabel+' ('+sorted.length+' รูป)'));
-      const grid=node('div',{class:'pa-month-photo-grid'});
-      for(const [index,photo] of sorted.entries()){
-        const figure=node('figure');
-        figure.append(node('img',{src:photo.src,alt:'รูปหลักฐาน '+(index+1),loading:'lazy',decoding:'async'}),
-          node('figcaption',{},photo.caption));
-        grid.append(figure);
-      }
-      section.append(grid);
-      return section;
-    });
-    monthPhotoPreview.replaceChildren(heading,...sections);
-    monthPhotoPreview.hidden=false;
-  }
   function paintEvidence(pages,data,decoded,complete){
-    showMonthPhotoPreview(decoded);
     renderPages(pages,data,decoded);setDocumentName(data.name);
     const cover=mount.querySelector('.pa-paper-name');
     if(cover)cover.after(node('div',{class:'pa-paper-template-notice'},complete?'แบบ PA พร้อมรูปประกอบงาน ไม่รวมผลประเมิน':'คำเตือน: รูปหลักฐานเดือนนี้แสดงไม่ครบ • ไม่รวมผลประเมิน'));
@@ -432,7 +401,7 @@
     const current=()=>epoch===turn&&location.hash==='#pa-online'&&selectedName===value&&reportPeriod().month===month&&api.endpoint()===endpoint;
     const data={name:value,pages,_renderPeriod:selectedPeriod,paperForm};
     setAvailability(false,'กำลังตรวจสิทธิ์บัญชีมหิดลและโหลดรูป…');
-    const blank=message=>{clearMonthPhotoPreview();setTemplateOnly(message);};
+    const blank=message=>setTemplateOnly(message);
     try{
       const result=await requestEvidence(api,key+'|'+turn,value,month,endpoint,pages,current);
       if(!current())return;

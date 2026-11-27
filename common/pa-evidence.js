@@ -98,21 +98,19 @@
       if(bound.has(row.assignmentKey)&&!matched)throw Error('PA photo assignment mismatch');
       const dest=matched||(response.version===2?'source:'+row.assignmentKey:null);
       if(!dest)throw Error('PA photo topic mismatch');
-      const images=row.photos.map(photo=>{
+      if(row.workDetails!==undefined&&(typeof row.workDetails!=='string'||row.workDetails.length>5000))throw Error('PA work details');
+      const caption=typeof row.workDetails==='string'?row.workDetails.trim():'';
+      const images=row.photos.map((photo,index)=>{
         const src=safeImage(photo);
         const bytes=photo.data.length/4*3-(photo.data.endsWith('==')?2:photo.data.endsWith('=')?1:0);
         if(++count>3||bytes>2000000||(total+=bytes)>6000000)throw Error('PA photo limit');
-        return {src,workDate:row.workDate,caption:thaiWorkDate(row.workDate),assignmentLabel:row.assignmentLabel};
+        return {src,workDate:row.workDate,caption:index===0?caption:'',assignmentLabel:row.assignmentLabel};
       });
       photos.set(dest,[...(photos.get(dest)||[]),...images]);
     }
     return {photos,count,complete:response.complete};
   }
 
-  function thaiWorkDate(date){
-    return new Intl.DateTimeFormat('th-TH-u-ca-buddhist',{timeZone:'UTC',day:'numeric',month:'short',year:'numeric'})
-      .format(new Date(date+'T00:00:00Z'));
-  }
   async function monthlyPhotoMedia(fetchPage,{month,displayName,pages,continueLoading=()=>true}){
     const photos=new Map();
     const headings=new Map();
