@@ -23,7 +23,18 @@
     <link rel="stylesheet" href="report.css?v=20261121-waste-edit" />
   <script src="common/thai-date.js" defer></script><link rel="stylesheet" href="common/theme-unified.css"><link rel="stylesheet" href="common/popup-select.css">
 <script src="common/popup-select.js" defer></script>
-<link rel="stylesheet" href="common/popup-theme.css"><script src="common/popup-theme.js" defer></script><link rel="stylesheet" href="common/file-picker.css"><link rel="stylesheet" href="common/pe-visual-theme.css?v=2"><link rel="stylesheet" href="common/settings.css"><link rel="stylesheet" href="common/dashboard.css?v=2.4.103" /><link rel="stylesheet" href="common/desktop-layout.css?v=5"><link rel="stylesheet" href="common/knowledge-home.css?v=landscape-news-20261126"><style>@media(max-width:899.98px){#overview .lh-quick .lh-desktop{display:none!important}}</style><link rel="stylesheet" href="common/eco-navigation.css?v=9"><link rel="stylesheet" href="common/forms-theme.css?v=1"><link rel="stylesheet" href="common/dashboard-forest.css?v=bar-feedback-20261121"><link rel="stylesheet" href="common/pa-online.css?v=pa-toolbar-align-20261126"><link rel="stylesheet" href="common/pa-work.css?v=mobile-send-20261123"><style>.lh-news .lh-hero{height:clamp(360px,37vw,430px);min-height:0;grid-template-rows:minmax(0,1fr)}.lh-news .lh-media{height:100%;min-height:0}.lh-news .lh-copy{min-height:0;padding:clamp(16px,3vw,36px);gap:9px}.lh-news .lh-copy h2,.lh-news .lh-copy p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.lh-news .lh-copy h2{font-size:clamp(23px,3vw,37px)}@media(max-width:760px){.lh-news .lh-hero{height:auto;grid-template-rows:auto 218px}.lh-news .lh-media{height:auto;aspect-ratio:16/9}.lh-news .lh-copy{box-sizing:border-box;height:218px;padding:14px}}</style></head>
+<link rel="stylesheet" href="common/popup-theme.css"><script src="common/popup-theme.js" defer></script><link rel="stylesheet" href="common/file-picker.css"><link rel="stylesheet" href="common/pe-visual-theme.css?v=2"><link rel="stylesheet" href="common/settings.css"><link rel="stylesheet" href="common/dashboard.css?v=2.4.103" /><link rel="stylesheet" href="common/desktop-layout.css?v=5"><link rel="stylesheet" href="common/knowledge-home.css?v=landscape-news-20261126"><style>@media(max-width:899.98px){#overview .lh-quick .lh-desktop{display:none!important}}</style><link rel="stylesheet" href="common/eco-navigation.css?v=9"><link rel="stylesheet" href="common/forms-theme.css?v=1"><link rel="stylesheet" href="common/dashboard-forest.css?v=bar-feedback-20261121"><link rel="stylesheet" href="common/pa-online.css?v=pa-toolbar-align-20261126"><link rel="stylesheet" href="common/pa-work.css?v=mobile-send-20261123"><style>.lh-news .lh-hero{height:clamp(360px,37vw,430px);min-height:0;grid-template-rows:minmax(0,1fr)}.lh-news .lh-media{height:100%;min-height:0}.lh-news .lh-copy{min-height:0;padding:clamp(16px,3vw,36px);gap:9px}.lh-news .lh-copy h2,.lh-news .lh-copy p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.lh-news .lh-copy h2{font-size:clamp(23px,3vw,37px)}@media(max-width:760px){.lh-news .lh-hero{height:auto;grid-template-rows:auto 218px}.lh-news .lh-media{height:auto;aspect-ratio:16/9}.lh-news .lh-copy{box-sizing:border-box;height:218px;padding:14px}}</style>    <style>
+      #pa-month-photo-preview { flex: 1 0 100%; width: 100%; min-width: 0; }
+      #pa-month-photo-preview h2 { margin: 0 0 .5rem; font-size: 1rem; }
+      .pa-month-photo-topic { margin: 0 0 1rem; }
+      .pa-month-photo-topic h3 { margin: 0 0 .35rem; font-size: .92rem; }
+      .pa-month-photo-grid { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit,minmax(min(100%,160px),1fr)); }
+      .pa-month-photo-grid figure { min-width: 0; margin: 0; }
+      .pa-month-photo-grid img { display: block; width: 100%; height: 132px; object-fit: contain; border-radius: .4rem; background: #f4f6f8; }
+      .pa-month-photo-grid figcaption { margin-top: .25rem; font-size: .85rem; }
+      @media print { #pa-month-photo-preview { display: none !important; } }
+    </style>
+</head>
   <body class="profile-required">
     <a class="skip" href="#main">ข้ามไปเนื้อหา</a>
     <div class="app-shell">
@@ -97,8 +108,8 @@
                 <label id="pa-layout-period-label" for="pa-layout-period">เดือนที่แสดง</label>
                 <input type="month" id="pa-layout-period" min="2000-01" max="2099-12" required>
               </div>
-              <p id="pa-template-status" role="status" aria-live="polite" hidden></p>              <button id="pa-layout-print" class="button" type="button">พิมพ์ / บันทึกเป็น PDF</button>
-              <p id="pa-template-status" role="status" aria-live="polite" hidden></p>              <button id="pa-layout-print" class="button" type="button">พิมพ์ / บันทึกเป็น PDF</button>
+              <p id="pa-template-status" role="status" aria-live="polite" hidden></p>              <section id="pa-month-photo-preview" aria-label="รูปที่รายงานในเดือนที่เลือก" hidden></section>
+              <button id="pa-layout-print" class="button" type="button">พิมพ์ / บันทึกเป็น PDF</button>
               <p id="pa-layout-pdf-error" role="alert" hidden>ดาวน์โหลด PDF ไม่สำเร็จ กรุณาลองใหม่</p>
             </div>
             <div class="pa-paper-view" role="group" aria-label="ตัวอย่างแบบรายงาน PA 13 หน้า">
@@ -387,7 +398,7 @@
     <script src="common/bank-import-parser.js"></script>
     <script src="common/bank-name-handoff.js"></script>
     <script src="common/bank-direct-open.js"></script>
-    <script src="common/module-host.js?v=20261125-pa-label"></script><script src="common/pa-api-transport.js?v=1"></script><script src="common/pa-online.js?v=6"></script><script src="common/pa-pagination.js?v=pa-niramon-source-20261126"></script><script src="common/pa-evidence.js?v=pa-niramon-source-20261126"></script><script src="common/pa-draft.js?v=pa-signers-20261126"></script><script src="common/pa-layout.js?v=pa-owner-signature-20261126"></script><script src="common/pa-layout-pdf.js?v=25"></script><script src="common/pa-work.js?v=pa-fast-photo-20261126"></script>
+    <script src="common/module-host.js?v=20261125-pa-label"></script><script src="common/pa-api-transport.js?v=1"></script><script src="common/pa-online.js?v=6"></script><script src="common/pa-pagination.js?v=pa-monthly-open-v2-20261127"></script><script src="common/pa-evidence.js?v=pa-monthly-open-v2-20261127"></script><script src="common/pa-draft.js?v=pa-signers-20261126"></script><script src="common/pa-layout.js?v=pa-monthly-open-v2-20261127"></script><script src="common/pa-layout-pdf.js?v=25"></script><script src="common/pa-work.js?v=pa-fast-photo-20261126"></script>
     <script src="common/profile-controller.js?v=staff-instant-20261122"></script>
 
     <script src="modules/contractor-landscape/work-options.js"></script>

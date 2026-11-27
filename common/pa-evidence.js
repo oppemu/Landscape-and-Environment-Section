@@ -76,7 +76,7 @@
   }
 
   function groupPhotoMedia(response,{month,displayName,pages}){
-    if(!months.test(month)||response?.version!==1||response.ok!==true||
+    if(!months.test(month)||![1,2].includes(response?.version)||response.ok!==true||
        response.month!==month||text(response.displayName)!==text(displayName)||
        !text(displayName)||!Array.isArray(response.items)||response.items.length>24||
        typeof response.complete!=='boolean')throw Error('PA photo envelope');
@@ -88,19 +88,60 @@
          !Array.isArray(row.photos)||!row.photos.length||row.photos.length>3)throw Error('PA photo item');
       const code=digits(row.topicCode), label=topicLabel(row.assignmentLabel), candidates=keys.get(code)||[];
       const explicit='report:'+row.assignmentKey;
-      const dest=bound.size?(topicLabel(bound.get(row.assignmentKey))===label&&['topic','assigned-work'].includes(row.placement)?explicit:null):row.placement==='assigned-work'
+      const matched=bound.size?(topicLabel(bound.get(row.assignmentKey))===label&&['topic','assigned-work'].includes(row.placement)?explicit:null):row.placement==='assigned-work'
        ?parent.length===1&&parent[0].code===code&&label===topicLabel(parent[0].line.text)?'assigned:'+code:null
        :row.placement==='topic'&&rendered.has(code)&&candidates.length===1&&candidates[0]===label?code:null;
+      // The private monthly feed verifies this exact employee and assignment against the Sheet and PA roster.
+      // If an older template has no matching row, keep the source heading in a separate appendix.
+      const approvedPlacement=['topic','assigned-work'].includes(row.placement);
+      if(!approvedPlacement||!/^([1-9]\d*)(?:\.\d+)*$/.test(code)||!label||row.assignmentLabel.length>300)throw Error('PA photo topic mismatch');
+      if(bound.has(row.assignmentKey)&&!matched)throw Error('PA photo assignment mismatch');
+      const dest=matched||(response.version===2?'source:'+row.assignmentKey:null);
       if(!dest)throw Error('PA photo topic mismatch');
       const images=row.photos.map(photo=>{
         const src=safeImage(photo);
         const bytes=photo.data.length/4*3-(photo.data.endsWith('==')?2:photo.data.endsWith('=')?1:0);
         if(++count>3||bytes>2000000||(total+=bytes)>6000000)throw Error('PA photo limit');
-        return {src};
+        return {src,workDate:row.workDate,caption:thaiWorkDate(row.workDate),assignmentLabel:row.assignmentLabel};
       });
       photos.set(dest,[...(photos.get(dest)||[]),...images]);
     }
     return {photos,count,complete:response.complete};
+  }
+
+  function thaiWorkDate(date){
+    return new Intl.DateTimeFormat('th-TH-u-ca-buddhist',{timeZone:'UTC',day:'numeric',month:'short',year:'numeric'})
+      .format(new Date(date+'T00:00:00Z'));
+  }
+  async function monthlyPhotoMedia(fetchPage,{month,displayName,pages,continueLoading=()=>true}){
+    const photos=new Map();
+    const headings=new Map();
+    let offset=0,snapshot=null,count=0,reportCount=null,complete=true,chars=0;
+    for(let round=0;round<250;round++){
+      if(!continueLoading())throw Error('PA month changed');
+      const raw=await fetchPage(offset,snapshot);
+      if(!continueLoading())throw Error('PA month changed');
+      const result=groupPhotoMedia(raw,{month,displayName,pages});
+      if(raw.version===1){if(round)throw Error('PA page protocol changed');return result;}
+      if(!/^[A-Za-z0-9_-]{43}$/.test(raw.snapshot||'')||raw.offset!==offset||(snapshot&&raw.snapshot!==snapshot)||
+        !Number.isInteger(raw.reportCount)||raw.reportCount<offset||raw.reportCount>250||(reportCount!==null&&reportCount!==raw.reportCount)||
+        (raw.nextOffset!==null&&(!Number.isInteger(raw.nextOffset)||raw.nextOffset<=offset||raw.nextOffset>raw.reportCount||raw.nextOffset-offset>3))||
+        raw.items.length>(raw.nextOffset===null?raw.reportCount:raw.nextOffset)-offset||
+        (raw.nextOffset===null&&raw.reportCount-offset>3)||
+        (result.complete&&raw.items.length!==(raw.nextOffset===null?raw.reportCount:raw.nextOffset)-offset))throw Error('Invalid PA month slice');
+      snapshot=raw.snapshot;reportCount=raw.reportCount;complete=complete&&result.complete;
+      count+=result.count;
+      for(const [key,images] of result.photos){
+        for(const image of images){chars+=image.src.length;if(chars>180000000)throw Error('PA monthly memory limit');}
+        const label=images[0]?.assignmentLabel;
+        if(!label||images.some(image=>image.assignmentLabel!==label)||(headings.has(key)&&headings.get(key)!==label))throw Error('PA monthly heading mismatch');
+        headings.set(key,label);
+        const dst=photos.get(key)||[];dst.push(...images);photos.set(key,dst);
+      }
+      if(raw.nextOffset===null)return {photos,count,complete};
+      offset=raw.nextOffset;
+    }
+    throw Error('PA monthly page limit');
   }
 
   function previewLinks(result, report, month){
@@ -114,6 +155,6 @@
       return {drivePreview:photo.href.slice(0,-4)+'preview',driveViewer:photo.href,reportId:report.reportId};
     });
   }
-  if(typeof module!=='undefined')module.exports={period,periodFor,group,previewLinks,groupPhotoMedia};
-  else window.PaEvidence=Object.freeze({period,periodFor,group,previewLinks,groupPhotoMedia});
+  if(typeof module!=='undefined')module.exports={period,periodFor,group,previewLinks,groupPhotoMedia,monthlyPhotoMedia};
+  else window.PaEvidence=Object.freeze({period,periodFor,group,previewLinks,groupPhotoMedia,monthlyPhotoMedia});
 })();
