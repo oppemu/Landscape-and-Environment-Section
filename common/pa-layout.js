@@ -67,7 +67,8 @@
     mount.dataset.documentMonth=(template?._renderPeriod||reportPeriod()).month;
     const pages=document.createDocumentFragment();
     const paperForm=template?.paperForm;
-    const layout=paperForm?[...definitions.map((p,i)=>({...p,number:i+1})),...window.PaPagination.paperEvidenceAppendix(definitions,evidenceByTopic)]:window.PaPagination.paginate(definitions,evidenceByTopic);
+    const mainLayout=paperForm?[...definitions.map((p,i)=>({...p,number:i+1})),...window.PaPagination.paperEvidenceAppendix(definitions,evidenceByTopic)]:window.PaPagination.paginate(definitions,evidenceByTopic);
+    const layout=[...mainLayout,...window.PaPagination.sourceEvidenceAppendix(evidenceByTopic,mainLayout.length)];
     layout.forEach(({rows,widths,topic,continuation,photos,captionOnly,evidence,number,appendix},i)=>{
     const page=node('article',{class:'pa-paper'+(paperForm?' pa-paper-personal-source':''),'aria-label':'หน้า '+number,'data-topic':topic||'', 'data-continuation':String(Boolean(continuation))});
     if(i===0&&paperForm){

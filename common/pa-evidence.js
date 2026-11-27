@@ -88,9 +88,15 @@
          !Array.isArray(row.photos)||!row.photos.length||row.photos.length>3)throw Error('PA photo item');
       const code=digits(row.topicCode), label=topicLabel(row.assignmentLabel), candidates=keys.get(code)||[];
       const explicit='report:'+row.assignmentKey;
-      const dest=bound.size?(topicLabel(bound.get(row.assignmentKey))===label&&['topic','assigned-work'].includes(row.placement)?explicit:null):row.placement==='assigned-work'
+      const matched=bound.size?(topicLabel(bound.get(row.assignmentKey))===label&&['topic','assigned-work'].includes(row.placement)?explicit:null):row.placement==='assigned-work'
        ?parent.length===1&&parent[0].code===code&&label===topicLabel(parent[0].line.text)?'assigned:'+code:null
        :row.placement==='topic'&&rendered.has(code)&&candidates.length===1&&candidates[0]===label?code:null;
+      // The private monthly feed verifies this exact employee and assignment against the Sheet and PA roster.
+      // If an older template has no matching row, keep the source heading in a separate appendix.
+      const approvedPlacement=['topic','assigned-work'].includes(row.placement);
+      if(!approvedPlacement||!/^([1-9]\d*)(?:\.\d+)*$/.test(code)||!label||row.assignmentLabel.length>300)throw Error('PA photo topic mismatch');
+      if(bound.has(row.assignmentKey)&&!matched)throw Error('PA photo assignment mismatch');
+      const dest=matched||(response.version===2?'source:'+row.assignmentKey:null);
       if(!dest)throw Error('PA photo topic mismatch');
       const images=row.photos.map(photo=>{
         const src=safeImage(photo);
@@ -109,6 +115,7 @@
   }
   async function monthlyPhotoMedia(fetchPage,{month,displayName,pages,continueLoading=()=>true}){
     const photos=new Map();
+    const headings=new Map();
     let offset=0,snapshot=null,count=0,reportCount=null,complete=true,chars=0;
     for(let round=0;round<250;round++){
       if(!continueLoading())throw Error('PA month changed');
@@ -126,6 +133,9 @@
       count+=result.count;
       for(const [key,images] of result.photos){
         for(const image of images){chars+=image.src.length;if(chars>180000000)throw Error('PA monthly memory limit');}
+        const label=images[0]?.assignmentLabel;
+        if(!label||images.some(image=>image.assignmentLabel!==label)||(headings.has(key)&&headings.get(key)!==label))throw Error('PA monthly heading mismatch');
+        headings.set(key,label);
         const dst=photos.get(key)||[];dst.push(...images);photos.set(key,dst);
       }
       if(raw.nextOffset===null)return {photos,count,complete};
