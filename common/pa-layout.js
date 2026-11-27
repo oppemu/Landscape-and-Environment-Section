@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const mount = document.getElementById('pa-layout-pages');
+  const monthPhotoPreview=document.getElementById('pa-month-photo-preview');
   const name = document.getElementById('pa-layout-name');
   const viewPeriod=document.getElementById('pa-layout-period');
   if (!mount || !name || !viewPeriod || !window.PaPagination || !window.PaEvidence) return;
@@ -66,8 +67,8 @@
     mount.dataset.documentMonth=(template?._renderPeriod||reportPeriod()).month;
     const pages=document.createDocumentFragment();
     const paperForm=template?.paperForm;
-    const layout=paperForm?definitions.map((p,i)=>({...p,number:i+1})):window.PaPagination.paginate(definitions,evidenceByTopic);
-    layout.forEach(({rows,widths,topic,continuation,photos,captionOnly,evidence,number},i)=>{
+    const layout=paperForm?[...definitions.map((p,i)=>({...p,number:i+1})),...window.PaPagination.paperEvidenceAppendix(definitions,evidenceByTopic)]:window.PaPagination.paginate(definitions,evidenceByTopic);
+    layout.forEach(({rows,widths,topic,continuation,photos,captionOnly,evidence,number,appendix},i)=>{
     const page=node('article',{class:'pa-paper'+(paperForm?' pa-paper-personal-source':''),'aria-label':'หน้า '+number,'data-topic':topic||'', 'data-continuation':String(Boolean(continuation))});
     if(i===0&&paperForm){
       const heading=node('div',{class:'pa-source-cover'});
@@ -86,6 +87,7 @@
       cover.append(node('h3',{class:'pa-paper-title'},template?.title||'รายงานความก้าวหน้าการปฏิบัติงาน'),node('span',{class:'pa-paper-period'},(template?._renderPeriod||reportPeriod()).label));
       page.append(cover,identity);
     }
+    if(appendix)page.append(node('h3',{class:'pa-paper-title'},'ภาคผนวกภาพหลักฐาน'));
     const cols=node('colgroup');
     pageWidths(widths).forEach(width=>{const col=node('col');col.style.width=width+'%';cols.append(col);});
     const head=node('thead'), headRow=node('tr');
@@ -96,7 +98,7 @@
       const row=node('tr'), task=node('td'), progress=node('td'), issues=node('td');
       def.agreement.forEach(line=>task.append(node(line.bold?'strong':'div',{},line.text)));
       (def.target||[]).forEach(line=>progress.append(node(line.bold?'strong':'div',{},line.text)));
-      const rowPhotos=paperForm?(!def.continued?evidenceByTopic?.get('report:'+def.reportKey)||[]:[]):photos;
+      const rowPhotos=paperForm&&!appendix?[]:photos;
       if(evidence||paperForm){
         const proof=node('div',{class:'pa-proof','data-count':String(rowPhotos.length),role:'group','aria-label':'พื้นที่ภาพหลักฐาน'});
         if(captionOnly)progress.append(node('div',{class:'pa-proof-caption'},captionOnly));
@@ -129,7 +131,7 @@
     pages.append(page);
   });
     if(template?.name&&pages.lastElementChild){
-      let last=pages.lastElementChild;
+      let last=paperForm?pages.children[definitions.length-1]:pages.lastElementChild;
       if(!paperForm&&(last.querySelector('.pa-proof-item')||last.querySelectorAll('tbody td > :not(.pa-proof)').length>12)){
         last=node('article',{class:'pa-paper pa-signature-only','aria-label':'หน้าลงนาม','data-topic':'signature','data-continuation':'false'});
         last.append(node('footer',{class:'pa-paper-foot'},String(layout.length+1)));pages.append(last);
@@ -239,10 +241,10 @@
   addEventListener('afterprint',clearPrint);
   addEventListener('beforeprint',updateSignatureDate);
   printButton?.addEventListener('click',async()=>{
-    if(printing||location.hash!=='#pa-online'||mount.dataset.templateAvailable==='false')return;
+    if(printing||location.hash!=='#pa-online'||mount.dataset.templateAvailable!=='true')return;
     const choice=epoch;
     printing=true;
-    const images=[...mount.querySelectorAll('.pa-proof-drive img')];
+    const images=[...mount.querySelectorAll('.pa-proof-item img')];
     if(images.length){
       images.forEach(image=>{image.loading='eager';});
       let timer;
@@ -251,7 +253,7 @@
       })).then(states=>states.every(Boolean)),new Promise(ok=>{timer=setTimeout(()=>ok(false),7000);})]);
       clearTimeout(timer);
       if(epoch!==choice||location.hash!=='#pa-online'){clearPrint();return;}
-      if(!decoded){clearPrint();setAvailability(true,'มีรูปที่ยังเปิดไม่ได้ จึงยังพิมพ์แบบรวมรูปไม่ได้ ลองตรวจลิงก์ Drive หรือใช้ปุ่ม PDF ไม่รวมรูป');return;}
+      if(!decoded){clearPrint();setAvailability(true,'รูปยังไม่พร้อมพิมพ์ กรุณากดบันทึก PDF ใหม่');return;}
     }
     const pendingPosition=signerRequests.get(selectedName);
     if(pendingPosition){let timer;await Promise.race([pendingPosition.catch(()=>{}),new Promise(r=>{timer=setTimeout(r,4500);})]);clearTimeout(timer);}
@@ -263,6 +265,7 @@
   function invalidate(){
     const wasSelected=Boolean(selectedName);
     if(download)download.textContent='ดาวน์โหลด PDF (ไม่รวมรูป)';
+    clearMonthPhotoPreview();
     epoch++; templateAbort?.abort();templateAbort=null;selectedName='';
     mount.dataset.templateAvailable='';
     if(publicOrigin&&download)download.hidden=false;
@@ -296,7 +299,7 @@
       if(personal){
         renderPages(personal.pages,{name:value,pages:personal.pages,_renderPeriod:selectedPeriod,paperForm:personal.paperForm});setDocumentName(value);
         setAvailability(true,personal.reporting?'กำลังอ่านรูปจากรายงาน':'แบบรายงานเปล่า ยังไม่พบประวัติการส่งรายงานของชื่อนี้');
-        if(personal.reporting)void loadSelectedPhotoMedia(value,personal.pages,selectedPeriod,turn,personal.paperForm);
+        void loadSelectedPhotoMedia(value,personal.pages,selectedPeriod,turn,personal.paperForm);
         return;
       }
       const pages=publicCatalog?.get(value);
@@ -372,39 +375,49 @@
     finally{clearTimeout(timer);if(epoch===turn)templateAbort=null;}
   }
 
-  // Report evidence is sensitive: use bounded in-memory cache only, never browser storage.
-  const evidenceCache=new Map(), evidenceRequests=new Map(), EVIDENCE_TTL=60000, EVIDENCE_MAX_CHARS=12000000;
-  function dropEvidence(key){const row=evidenceCache.get(key);if(row)clearTimeout(row.expiry);evidenceCache.delete(key);}
-  function clearEvidence(){for(const key of evidenceCache.keys())dropEvidence(key);evidenceRequests.clear();}
-  function recentEvidence(key){
-    const row=evidenceCache.get(key);if(!row)return null;
-    if(Date.now()>=row.until){dropEvidence(key);return null;}
-    evidenceCache.delete(key);evidenceCache.set(key,row);return row;
-  }
-  function rememberEvidence(key,decoded,complete){
-    dropEvidence(key);
-    const chars=[...decoded.values()].flat().reduce((n,p)=>n+p.src.length,0);
-    if(chars>EVIDENCE_MAX_CHARS)return;
-    const used=()=>[...evidenceCache.values()].reduce((n,p)=>n+p.chars,0);
-    while(evidenceCache.size>=3||used()+chars>EVIDENCE_MAX_CHARS)dropEvidence(evidenceCache.keys().next().value);
-    const row={decoded,complete,chars,until:Date.now()+EVIDENCE_TTL};
-    row.expiry=setTimeout(()=>{if(evidenceCache.get(key)===row)dropEvidence(key);},EVIDENCE_TTL);
-    evidenceCache.set(key,row);
-  }
-  function sameEvidence(a,b){
-    if(a.size!==b.size)return false;
-    for(const [topic,one] of a){const two=b.get(topic);if(!two||two.length!==one.length||one.some((ref,i)=>ref.src!==two[i].src))return false;}
-    return true;
-  }
-  function requestEvidence(api,key,value,month,endpoint){
+  const evidenceRequests=new Map();
+  function requestEvidence(api,key,value,month,endpoint,pages,current){
     if(evidenceRequests.has(key))return evidenceRequests.get(key);
-    let timer;const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('PA photo timeout')),20000);});
-    const pending=Promise.race([api.request({action:'paWorkReportPhotoMedia',selectedName:value,month},endpoint),timeout]).finally(()=>{
-      clearTimeout(timer);if(evidenceRequests.get(key)===pending)evidenceRequests.delete(key);
+    const pending=window.PaEvidence.monthlyPhotoMedia((offset,snapshot)=>{
+      let timer;
+      const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('PA photo batch timeout')),22000);});
+      return Promise.race([api.request({action:'paWorkReportPhotoMedia',selectedName:value,month,
+        photoPageVersion:2,photoOffset:offset,photoSnapshot:snapshot},endpoint),timeout]).finally(()=>clearTimeout(timer));
+    },{month,displayName:value,pages,continueLoading:current}).finally(()=>{
+      if(evidenceRequests.get(key)===pending)evidenceRequests.delete(key);
     });
     evidenceRequests.set(key,pending);return pending;
   }
+  function clearMonthPhotoPreview(){
+    if(!monthPhotoPreview)return;
+    monthPhotoPreview.hidden=true;
+    monthPhotoPreview.replaceChildren();
+  }
+  function showMonthPhotoPreview(decoded){
+    if(!monthPhotoPreview)return;
+    const groups=[...decoded.values()].filter(refs=>refs.length);
+    if(!groups.length){clearMonthPhotoPreview();return;}
+    const count=groups.reduce((sum,refs)=>sum+refs.length,0);
+    const heading=node('h2',{},'รูปที่รายงานในเดือนนี้ ('+count+' รูป)');
+    const sections=groups.map(refs=>{
+      const sorted=[...refs].sort((a,b)=>a.workDate.localeCompare(b.workDate));
+      const section=node('section',{class:'pa-month-photo-topic'});
+      section.append(node('h3',{},sorted[0].assignmentLabel+' ('+sorted.length+' รูป)'));
+      const grid=node('div',{class:'pa-month-photo-grid'});
+      for(const [index,photo] of sorted.entries()){
+        const figure=node('figure');
+        figure.append(node('img',{src:photo.src,alt:'รูปหลักฐาน '+(index+1),loading:'lazy',decoding:'async'}),
+          node('figcaption',{},photo.caption));
+        grid.append(figure);
+      }
+      section.append(grid);
+      return section;
+    });
+    monthPhotoPreview.replaceChildren(heading,...sections);
+    monthPhotoPreview.hidden=false;
+  }
   function paintEvidence(pages,data,decoded,complete){
+    showMonthPhotoPreview(decoded);
     renderPages(pages,data,decoded);setDocumentName(data.name);
     const cover=mount.querySelector('.pa-paper-name');
     if(cover)cover.after(node('div',{class:'pa-paper-template-notice'},complete?'แบบ PA พร้อมรูปประกอบงาน ไม่รวมผลประเมิน':'คำเตือน: รูปหลักฐานเดือนนี้แสดงไม่ครบ • ไม่รวมผลประเมิน'));
@@ -417,20 +430,19 @@
     const endpoint=api.endpoint(), month=selectedPeriod.month, key=JSON.stringify([endpoint,value,month]);
     const current=()=>epoch===turn&&location.hash==='#pa-online'&&selectedName===value&&reportPeriod().month===month&&api.endpoint()===endpoint;
     const data={name:value,pages,_renderPeriod:selectedPeriod,paperForm};
-    const recent=recentEvidence(key);
-    if(recent)paintEvidence(pages,data,recent.decoded,recent.complete);
-    setAvailability(false,recent?'แสดงรูปที่เพิ่งเปิด • กำลังตรวจว่ามีรูปใหม่หรือไม่…':'กำลังตรวจสิทธิ์บัญชีมหิดลและโหลดรูป…');
-    const blank=message=>{dropEvidence(key);if(recent){renderPages(pages,data);setDocumentName(value);}setTemplateOnly(message);};
+    setAvailability(false,'กำลังตรวจสิทธิ์บัญชีมหิดลและโหลดรูป…');
+    const blank=message=>{clearMonthPhotoPreview();setTemplateOnly(message);};
     try{
-      const response=await requestEvidence(api,key,value,month,endpoint);
+      const result=await requestEvidence(api,key+'|'+turn,value,month,endpoint,pages,current);
       if(!current())return;
-      const result=window.PaEvidence.groupPhotoMedia(response,{month,displayName:value,pages});
-      if(!result.count){blank(result.complete?'ไม่พบรูปสำหรับชื่อและเดือนที่เลือก':'เปิดรูปสำหรับชื่อและเดือนที่เลือกไม่ได้ทั้งหมด');return;}
+      if(!result.count){
+        if(result.complete)blank('เดือนที่เลือกยังไม่มีรายงานที่แนบรูป');
+        else setAvailability(false,'ยังโหลดรูปไม่ครบ กรุณาเลือกชื่อหรือเดือนอีกครั้งก่อนบันทึก PDF');
+        return;
+      }
       const images=[...result.photos.values()].flat(), ready=new Set();
-      const cachedSources=new Set(recent?[...recent.decoded.values()].flat().map(ref=>ref.src):[]);
       let decodeTimer;
       await Promise.race([Promise.allSettled(images.map(async ref=>{
-        if(cachedSources.has(ref.src)){ready.add(ref);return;}
         const image=new Image();
         image.src=ref.src;await image.decode();
         if(!image.naturalWidth||!image.naturalHeight||image.naturalWidth*image.naturalHeight>20000000)throw Error('PA photo dimensions');
@@ -440,17 +452,22 @@
       if(!current())return;
       const decoded=new Map();
       for(const [where,refs] of result.photos){const keep=refs.filter(ref=>ready.has(ref));if(keep.length)decoded.set(where,keep);}
-      if(!decoded.size){blank('รูปหลักฐานไม่สามารถแสดงได้ ลองเลือกรายงานใหม่');return;}
+      if(!decoded.size){setAvailability(false,'เปิดรูปในเดือนนี้ไม่ได้ กรุณาลองใหม่ก่อนบันทึก PDF');return;}
       const complete=result.complete&&ready.size===images.length;
-      if(!recent||recent.complete!==complete||!sameEvidence(recent.decoded,decoded))paintEvidence(pages,data,decoded,complete);
-      rememberEvidence(key,decoded,complete);
-      setAvailability(true,complete?'แสดงรูปจากรายงานในเดือนที่เลือก':'แสดงเฉพาะรูปที่โหลดได้ในเดือนที่เลือก');
+      paintEvidence(pages,data,decoded,complete);
+      setAvailability(complete,complete?'พร้อมบันทึก PDF รวม '+result.count+' รูปจากรายงานในเดือนที่เลือก':'ยังโหลดรูปไม่ครบ กรุณาเลือกชื่อหรือเดือนอีกครั้งก่อนบันทึก PDF');
       if(download)download.disabled=true;
-    }catch(_){if(current())blank('เปิดรูปไม่ได้ ตรวจบัญชีมหิดลแล้วลองอีกครั้ง แบบเปล่ายังใช้งานได้');}
+    }catch(error){
+      if(!current())return;
+      if(error?.code==='PA_WORK_PHOTOS_UNAVAILABLE'){blank('แบบเปล่า • ใช้บัญชีมหิดลเพื่อเปิดรูปหลักฐาน');return;}
+      if(error?.code==='PA_WORK_NOT_FOUND'){blank('แบบเปล่า • ยังไม่พบข้อมูลรายงานที่ผูกกับชื่อนี้');return;}
+
+      setAvailability(false,'ยังยืนยันรูปของเดือนนี้ไม่ได้ กรุณาเลือกชื่อหรือเดือนอีกครั้งก่อนบันทึก PDF');
+    }
   }
   if(publicOrigin){
-    addEventListener('mu:profile-changed',()=>{clearEvidence();if(selectedName&&location.hash==='#pa-online')selectTemplate(selectedName);});
-    addEventListener('pagehide',()=>{clearEvidence();if(selectedName)invalidate();});
+    addEventListener('mu:profile-changed',()=>{evidenceRequests.clear();if(selectedName&&location.hash==='#pa-online')selectTemplate(selectedName);});
+    addEventListener('pagehide',()=>{evidenceRequests.clear();if(selectedName)invalidate();});
   }
 
   async function renderDrivePhotos(evidence,data,value,turn){
@@ -540,7 +557,7 @@
     if(event.relatedTarget!==name&&!options.contains(event.relatedTarget))hide();
   });
   addEventListener('hashchange',()=>{
-    if(location.hash==='#pa-online'){localRoster();loadPublicCatalog();loadPersonalReports();return;}
+    if(location.hash==='#pa-online'){localRoster();loadPublicCatalog();loadPersonalReports();if(selectedName)selectTemplate(selectedName);return;}
     defaultPeriod();if(!publicOrigin)renderPages(blank);
     clearPrint();invalidate();name.value='';if(!privateOrigin)localNames=[];fillName();hide();
   });
